@@ -1,0 +1,18 @@
+Metoda,URL,Kontroler,Metoda Klasy,Rola,CSRF,Moduł,Ryzyko
+GET,/,HomeController,index,Publiczny,Nie,Home,Niskie
+GET,/jak-zarabiac,HomeController,economy,Publiczny,Nie,Home,Niskie
+GET,/register,AuthController,showRegister,Publiczny,Nie,Auth,Niskie
+POST,/register,AuthController,register,Publiczny,Tak,Auth,Średnie
+GET,/login,AuthController,showLogin,Publiczny,Nie,Auth,Niskie
+POST,/login,AuthController,login,Publiczny,Tak,Auth,Średnie
+POST,/logout,AuthController,logout,Zalogowany,Tak,Auth,Niskie
+GET,/articles,ArticleController,index,Publiczny,Nie,Articles,Niskie
+GET,/article,ArticleController,show,Publiczny,Nie,Articles,Niskie
+POST,/article/buy,ArticleController,buy,Zalogowany,Tak,Articles,Wysokie
+GET,/wallet,WalletController,show,Zalogowany,Nie,Wallet,Średnie
+POST,/wallet/topup,WalletTopupController,create,Zalogowany,Tak,Wallet,Wysokie
+POST,/stripe/webhook,StripeWebhookController,handle,Publiczny,Nie,Payments,Krytyczne
+GET,/admin,AdminController,dashboard,Admin,Nie,Admin,Niskie
+GET,/admin/articles,AdminController,articles,Admin / Chief Editor,Nie,Admin,Niskie
+POST,/admin/articles/status,AdminController,setArticleStatus,Admin / Chief Editor,Tak,Admin,Średnie
+GET,/admin/finance,FinanceController,report,Admin / Accountant,Nie,Finance,Średnie

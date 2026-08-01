@@ -1,0 +1,5 @@
+ID,Moduł,Funkcja,Typ ryzyka,Opis,Skutek,Priorytet,Rekomendacja
+R1,Baza danych,public/adminer.php,Zabezpieczenia,Adminer widoczny publicznie,Nieuprawniony dostęp do danych,KRYTYCZNE,Usunąć plik z repozytorium
+R2,Finanse,LedgerService::post,Idempotencja,Brak klucza dla manualnych wpłat,Podwójne księgowanie środków,ŚREDNIE,Wymusić klucz idempotencji
+R3,AI,AiFoundationService::settings,Koszty,Brak twardego limitu $ w API,Nieprzewidziane koszty OpenAI,ŚREDNIE,Dodać monitorowanie kosztów
+R4,System,public/index.php,Utrzymanie,Zbyt duże kontrolery,Utrudnione testowanie i rozwój,NISKIE,Refaktoryzacja do mniejszych klas

@@ -1,0 +1,254 @@
+[
+    {
+        "product_id": 1227,
+        "product_name": "WSPARCIE S??OWA POLSKIEGO ??? 2000z??",
+        "total_amount": 2000,
+        "sales_count": 1,
+        "classification": "unknown",
+        "mapped_to": "donation_campaign:1",
+        "note": "Kampania darowizn (EDD 1227)"
+    },
+    {
+        "product_id": 2394,
+        "product_name": "50000.0",
+        "total_amount": 2000,
+        "sales_count": 4,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 3124,
+        "product_name": "10000.0",
+        "total_amount": 400,
+        "sales_count": 4,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 3120,
+        "product_name": "15000.0",
+        "total_amount": 300,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 3118,
+        "product_name": "5000.0",
+        "total_amount": 250,
+        "sales_count": 5,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 3833,
+        "product_name": "7500.0",
+        "total_amount": 150,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 3240,
+        "product_name": "300.0",
+        "total_amount": 105,
+        "sales_count": 35,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1227,
+        "product_name": "WSPARCIE S??OWA POLSKIEGO ??? 70z??",
+        "total_amount": 70,
+        "sales_count": 1,
+        "classification": "unknown",
+        "mapped_to": "donation_campaign:1",
+        "note": "Kampania darowizn (EDD 1227)"
+    },
+    {
+        "product_id": 1682,
+        "product_name": "900.0",
+        "total_amount": 45,
+        "sales_count": 5,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1687,
+        "product_name": "1400.0",
+        "total_amount": 42,
+        "sales_count": 3,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1690,
+        "product_name": "1700.0",
+        "total_amount": 34,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1689,
+        "product_name": "1600.0",
+        "total_amount": 32,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1688,
+        "product_name": "1500.0",
+        "total_amount": 30,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1686,
+        "product_name": "1300.0",
+        "total_amount": 26,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1681,
+        "product_name": "800.0",
+        "total_amount": 24,
+        "sales_count": 3,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1696,
+        "product_name": "2300.0",
+        "total_amount": 23,
+        "sales_count": 1,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1684,
+        "product_name": "1100.0",
+        "total_amount": 22,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1694,
+        "product_name": "2100.0",
+        "total_amount": 21,
+        "sales_count": 1,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1680,
+        "product_name": "700.0",
+        "total_amount": 21,
+        "sales_count": 3,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1683,
+        "product_name": "1000.0",
+        "total_amount": 20,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1692,
+        "product_name": "1900.0",
+        "total_amount": 19,
+        "sales_count": 1,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1678,
+        "product_name": "500.0",
+        "total_amount": 15,
+        "sales_count": 3,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1679,
+        "product_name": "600.0",
+        "total_amount": 12,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1227,
+        "product_name": "WSPARCIE S??OWA POLSKIEGO ??? 10z??",
+        "total_amount": 10,
+        "sales_count": 1,
+        "classification": "unknown",
+        "mapped_to": "donation_campaign:1",
+        "note": "Kampania darowizn (EDD 1227)"
+    },
+    {
+        "product_id": 1675,
+        "product_name": "200.0",
+        "total_amount": 4,
+        "sales_count": 2,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1677,
+        "product_name": "400.0",
+        "total_amount": 4,
+        "sales_count": 1,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1674,
+        "product_name": "100.0",
+        "total_amount": 3,
+        "sales_count": 3,
+        "classification": "wallet_package",
+        "mapped_to": "NONE",
+        "note": ""
+    },
+    {
+        "product_id": 1227,
+        "product_name": "WSPARCIE S??OWA POLSKIEGO ??? 1z??",
+        "total_amount": 2,
+        "sales_count": 2,
+        "classification": "unknown",
+        "mapped_to": "donation_campaign:1",
+        "note": "Kampania darowizn (EDD 1227)"
+    }
+]

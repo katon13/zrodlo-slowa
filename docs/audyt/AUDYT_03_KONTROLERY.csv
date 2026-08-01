@@ -1,0 +1,7 @@
+Plik,Klasa,Metoda,Uprawnienia,Wejście,Wyjście,Widok,Ryzyka
+HomeController.php,HomeController,index,Publiczny,None,HTML,articles/index,Niskie
+AuthController.php,AuthController,login,Publiczny,POST,Redirect,None,Średnie
+AdminController.php,AdminController,dashboard,Admin,None,HTML,admin/dashboard,Niskie
+AdminController.php,AdminController,setArticleValuation,Admin / Moderator,POST,Redirect,None,Wysokie
+ArticleController.php,ArticleController,show,Publiczny,GET,HTML,articles/show,Niskie
+FinanceController.php,FinanceController,report,Admin / Accountant,None,HTML,admin/finance_report,Średnie

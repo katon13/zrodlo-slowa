@@ -1,0 +1,14 @@
+Options -ExecCGI
+php_flag engine off
+<Files "*.php">
+Order Deny,Allow
+Deny from all
+</Files>
+<Files "*.phtml">
+Order Deny,Allow
+Deny from all
+</Files>
+<Files "*.phar">
+Order Deny,Allow
+Deny from all
+</Files>

@@ -1,0 +1,500 @@
+<?php
+namespace App\Controllers;
+
+use App\Services\EconomyMapService;
+use App\Services\PaymentService;
+use App\Services\LedgerService;
+use App\Services\WalletTransferService;
+
+final class FinanceController extends BaseController
+{
+    public function payments(): string
+    {
+        $this->requireAdmin();
+
+        $statusMap = $this->paymentStatusMap();
+        $typeMap = [
+            'article_payment' => 'Zakup tekstu',
+            'wallet_topup' => 'Doładowanie portfela',
+            'premium_access' => 'Dostęp premium',
+            'donation' => 'Wsparcie',
+            'payout' => 'Wypłata',
+            'talent_purchase' => 'Zakup Talentów',
+            'manual_topup' => 'Ręczne doładowanie',
+        ];
+
+        $providerMap = [
+            'prelewy24_gateway' => 'Przelewy24',
+            'przelewy24_gateway' => 'Przelewy24',
+            'manual' => 'Ręcznie',
+            'test' => 'Testowa',
+            'stripe' => 'Stripe',
+            'paypal' => 'PayPal',
+        ];
+
+        return $this->view('admin/payments', [
+            'title' => 'Płatności',
+            'payments' => $this->recentPayments(),
+            'payment_orders' => $this->paymentOrders(),
+            'gateway_events' => $this->gatewayEvents(),
+            'wallet_transfers' => $this->walletTransfers(),
+            'payment_summary' => $this->paymentPatch4Summary(),
+            'payment_settings' => $this->paymentPatch4Settings(),
+            'statusMap' => $statusMap,
+            'typeMap' => $typeMap,
+            'providerMap' => $providerMap,
+        ]);
+    }
+
+
+    public function updatePaymentSettings(): never
+    {
+        $adminId = $this->requireAdmin();
+
+        $allowed = [
+            'payments.enabled' => ['type' => 'bool'],
+            'stripe.enabled' => ['type' => 'bool'],
+            'stripe.mode' => ['type' => 'enum', 'values' => ['test', 'live']],
+            'stripe.currency' => ['type' => 'text'],
+            'stripe.payment_methods' => ['type' => 'csv_methods'],
+            'wallet.transfer.talent_to_pln.enabled' => ['type' => 'bool'],
+            'wallet.transfer.talent_to_pln.fee_percent' => ['type' => 'int', 'min' => 0, 'max' => 30],
+            'wallet.transfer.talent_to_pln.min_talent' => ['type' => 'int', 'min' => 1, 'max' => 1000000],
+            'wallet.transfer.talent_to_pln.max_daily_talent' => ['type' => 'int', 'min' => 1, 'max' => 10000000],
+            'wallet.transfer.talent_to_pln.auto_approve_below_pln_minor' => ['type' => 'money_minor', 'min' => 0, 'max' => 100000000],
+            'wallet.transfer.pln_to_talent.enabled' => ['type' => 'bool'],
+            'wallet.tt_per_pln' => ['type' => 'int', 'min' => 1, 'max' => 1000000],
+        ];
+
+        try {
+            $plannedUpdates = [];
+            foreach ($allowed as $plannedName => $plannedRule) {
+                $plannedPostName = str_replace('.', '_', $plannedName);
+                if (!isset($_POST[$plannedName]) && !isset($_POST[$plannedPostName])) {
+                    continue;
+                }
+                $plannedUpdates[$plannedName] = $this->normalizePaymentSettingValue(
+                    $plannedName,
+                    $plannedRule,
+                    $_POST[$plannedName] ?? $_POST[$plannedPostName]
+                );
+            }
+            if ($plannedUpdates === []) {
+                throw new \InvalidArgumentException('Brak ustawień płatności do zapisania.');
+            }
+            $beforeRows = $this->app->db->all(
+                'SELECT name,value FROM settings WHERE name IN ('
+                . implode(',', array_fill(0, count($plannedUpdates), '?')) . ') ORDER BY name',
+                array_keys($plannedUpdates)
+            );
+            $before = [];
+            foreach ($beforeRows as $beforeRow) {
+                $before[(string)$beforeRow['name']] = (string)$beforeRow['value'];
+            }
+            $this->authorizeCriticalOperation(
+                $adminId,
+                'payment_settings.update',
+                'settings_group',
+                'payments',
+                ['keys' => array_keys($plannedUpdates)],
+                $before,
+                $plannedUpdates,
+            );
+            $updated = 0;
+            foreach ($allowed as $name => $rule) {
+                $postName = str_replace('.', '_', $name);
+                if (!isset($_POST[$name]) && !isset($_POST[$postName])) {
+                    continue;
+                }
+                
+                $rawValue = $_POST[$name] ?? $_POST[$postName];
+                $value = $this->normalizePaymentSettingValue($name, $rule, $rawValue);
+                
+                $sql = $this->app->db->isPostgres()
+                    ? 'INSERT INTO settings(name,value,updated_at) VALUES(:name,:value,NOW())
+                       ON CONFLICT (name) DO UPDATE
+                       SET value=EXCLUDED.value,updated_at=NOW()'
+                    : 'INSERT INTO settings(name,value,updated_at) VALUES(:name,:value,NOW())
+                       ON DUPLICATE KEY UPDATE value=VALUES(value),updated_at=NOW()';
+                $this->app->db->query($sql, [
+                    'name' => $name,
+                    'value' => $value,
+                ]);
+                $updated++;
+            }
+
+            if ($updated > 0) {
+                $this->app->session->flash('success', 'Ustawienia płatności zostały zapisane.');
+            } else {
+                $this->app->session->flash('info', 'Brak zmian do zapisania.');
+            }
+        } catch (\Throwable $e) {
+            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zapisać ustawień płatności.', 'payment_settings'));
+        }
+
+        redirect('/admin/payments');
+    }
+
+    public function approveWalletTransfer(): never
+    {
+        $adminId = $this->requireAdmin();
+        try {
+            $transferId = (int)($_POST['transfer_id'] ?? 0);
+            $transfer = $this->app->db->one('SELECT * FROM wallet_transfers WHERE id=:id', ['id' => $transferId]);
+            if ($transfer === null) {
+                throw new \RuntimeException('Nie znaleziono transferu portfela.');
+            }
+            $this->authorizeCriticalOperation(
+                $adminId,
+                'wallet_transfer.approve',
+                'wallet_transfer',
+                (string)$transferId,
+                [
+                    'user_id' => (int)$transfer['user_id'],
+                    'source_amount' => (int)$transfer['source_amount'],
+                    'target_amount' => (int)$transfer['target_amount'],
+                    'direction' => (string)$transfer['direction'],
+                ],
+                ['status' => (string)$transfer['status']],
+                ['status' => 'completed'],
+            );
+            (new WalletTransferService($this->app->db, new LedgerService($this->app->db, new \App\Services\FinancialService($this->app->db))))->approveTransfer($transferId, $adminId);
+            $this->app->session->flash('success', 'Transfer #' . $transferId . ' został zatwierdzony i zaksięgowany.');
+        } catch (\Throwable $e) {
+            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zatwierdzić transferu.', 'wallet_transfer_approve'));
+        }
+        redirect('/admin/payments');
+    }
+
+    public function rejectWalletTransfer(): never
+    {
+        $adminId = $this->requireAdmin();
+        try {
+            $transferId = (int)($_POST['transfer_id'] ?? 0);
+            $reason = trim((string)($_POST['reason'] ?? 'Odrzucone przez administrację.'));
+            $transfer = $this->app->db->one('SELECT * FROM wallet_transfers WHERE id=:id', ['id' => $transferId]);
+            if ($transfer === null) {
+                throw new \RuntimeException('Nie znaleziono transferu portfela.');
+            }
+            $this->authorizeCriticalOperation(
+                $adminId,
+                'wallet_transfer.reject',
+                'wallet_transfer',
+                (string)$transferId,
+                ['reason' => $reason, 'user_id' => (int)$transfer['user_id']],
+                ['status' => (string)$transfer['status']],
+                ['status' => 'rejected'],
+            );
+            (new WalletTransferService($this->app->db, new LedgerService($this->app->db, new \App\Services\FinancialService($this->app->db))))->rejectTransfer($transferId, $adminId, $reason);
+            $this->app->session->flash('success', 'Transfer #' . $transferId . ' został odrzucony.');
+        } catch (\Throwable $e) {
+            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się odrzucić transferu.', 'wallet_transfer_reject'));
+        }
+        redirect('/admin/payments');
+    }
+
+    public function ledger(): string
+    {
+        $this->requireAdmin();
+
+        $rows = $this->app->db->all('SELECT wt.*, u.display_name, u.email FROM wallet_transactions wt LEFT JOIN users u ON u.id=wt.user_id ORDER BY wt.created_at DESC, wt.id DESC LIMIT 200');
+
+        return $this->view('admin/ledger', [
+            'title' => 'Ledger portfeli',
+            'transactions' => $rows,
+            'typeMap' => \App\Services\LedgerService::typeMap(),
+        ]);
+    }
+
+    public function financialApprovals(): string
+    {
+        $this->requireAdminOrRoles(['publisher', 'wydawca']);
+
+        $approvals = $this->app->db->all('SELECT fa.*, u.display_name, u.email, rb.display_name as requester_name FROM financial_approvals fa LEFT JOIN users u ON u.id=fa.user_id LEFT JOIN users rb ON rb.id=fa.requested_by WHERE fa.status=\'pending\' ORDER BY fa.created_at DESC');
+
+        return $this->view('admin/financial_approvals', [
+            'title' => 'Zlecenia finansowe do zatwierdzenia',
+            'approvals' => $approvals,
+            'current_user_id' => $_SESSION['user_id']
+        ]);
+    }
+
+    public function executeFinancialApproval(): never
+    {
+        $actorId = $this->requireAdminOrRoles(['publisher', 'wydawca']);
+        $approvalId = (int)($_POST['approval_id'] ?? 0);
+        $note = trim((string)($_POST['admin_note'] ?? ''));
+
+        try {
+            $approval = $this->app->db->one('SELECT * FROM financial_approvals WHERE id=:id', ['id' => $approvalId]);
+            if ($approval === null) {
+                throw new \RuntimeException('Nie znaleziono zlecenia finansowego.');
+            }
+            $this->authorizeCriticalOperation(
+                $actorId,
+                'financial_approval.execute',
+                'financial_approval',
+                (string)$approvalId,
+                [
+                    'operation_type' => (string)$approval['operation_type'],
+                    'amount' => (int)$approval['amount'],
+                    'currency' => (string)$approval['currency'],
+                    'recipient_user_id' => (int)$approval['user_id'],
+                    'admin_note' => $note,
+                ],
+                ['status' => (string)$approval['status']],
+                ['status' => 'approved'],
+            );
+            $service = new \App\Services\FinancialService($this->app->db);
+            $service->approve($approvalId, $note);
+            $this->app->session->flash('success', 'Zlecenie zostało zatwierdzone i wykonane.');
+        } catch (\Throwable $e) {
+            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się wykonać zlecenia finansowego.', 'financial_approval_execute'));
+        }
+
+        redirect('/admin/finance/approvals');
+    }
+
+    public function rejectFinancialApproval(): never
+    {
+        $actorId = $this->requireAdminOrRoles(['publisher', 'wydawca']);
+        $approvalId = (int)($_POST['approval_id'] ?? 0);
+        $reason = trim((string)($_POST['reject_reason'] ?? 'Odrzucone przez administrację.'));
+
+        try {
+            $approval = $this->app->db->one('SELECT * FROM financial_approvals WHERE id=:id', ['id' => $approvalId]);
+            if ($approval === null) {
+                throw new \RuntimeException('Nie znaleziono zlecenia finansowego.');
+            }
+            $this->authorizeCriticalOperation(
+                $actorId,
+                'financial_approval.reject',
+                'financial_approval',
+                (string)$approvalId,
+                ['reason' => $reason, 'amount' => (int)$approval['amount'], 'currency' => (string)$approval['currency']],
+                ['status' => (string)$approval['status']],
+                ['status' => 'rejected'],
+            );
+            $service = new \App\Services\FinancialService($this->app->db);
+            $service->reject($approvalId, $reason);
+            $this->app->session->flash('success', 'Zlecenie zostało odrzucone.');
+        } catch (\Throwable $e) {
+            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się odrzucić zlecenia finansowego.', 'financial_approval_reject'));
+        }
+
+        redirect('/admin/finance/approvals');
+    }
+
+    public function report(): string
+    {
+        $this->requireAdmin();
+        $db = $this->app->db;
+        
+        $wallets = $db->one('SELECT COUNT(*) as cnt, SUM(available_minor) as sum_available, SUM(reserved_minor) as sum_reserved, SUM(points_balance) as sum_points FROM wallets');
+        $ledger = $db->one('SELECT COUNT(*) as cnt FROM wallet_transactions');
+        $payouts = $db->all('SELECT status, COUNT(*) as cnt, SUM(amount_minor) as sum_amount FROM payouts GROUP BY status');
+        $payments = $db->all('SELECT status, COUNT(*) as cnt, SUM(amount_minor) as sum_amount FROM payments GROUP BY status');
+        
+        $campaigns = $db->all('SELECT * FROM donation_campaigns WHERE active=1');
+        foreach ($campaigns as &$c) {
+            $stats = $db->one('SELECT SUM(p.amount_minor) as total FROM donations d JOIN payments p ON p.id = d.payment_id WHERE d.campaign_id = :id AND p.status = \'paid\'', ['id' => $c['id']]);
+            $c['current_amount_minor'] = (int)($stats['total'] ?? 0);
+        }
+
+        $premium = $db->one('SELECT COUNT(*) as total_sales, SUM(total_amount_minor) as total_revenue, SUM(author_income_minor) as total_author_income, SUM(publisher_fee_minor) as total_publisher_fee, AVG(publisher_fee_percent) as avg_fee_percent FROM platform_revenues');
+        $accessStats = $db->one('SELECT COUNT(CASE WHEN status=\'active\' AND expires_at IS NOT NULL AND expires_at > NOW() THEN 1 END) as active_grants, COUNT(CASE WHEN expires_at <= NOW() THEN 1 END) as expired_grants FROM article_access_grants');
+
+        $payoutStatusMap = [
+            'requested' => ['label' => 'Oczekuje', 'class' => 'pending'],
+            'pending' => ['label' => 'Oczekuje', 'class' => 'pending'],
+            'approved' => ['label' => 'Zatwierdzona', 'class' => 'paid'],
+            'paid' => ['label' => 'Wypłacona', 'class' => 'paid'],
+            'rejected' => ['label' => 'Odrzucona', 'class' => 'failed'],
+            'cancelled' => ['label' => 'Anulowana', 'class' => 'cancelled'],
+        ];
+
+        return $this->view('admin/finance_report', [
+            'title' => 'Raport finansowy',
+            'wallets' => $wallets,
+            'ledger' => $ledger,
+            'payouts' => $payouts,
+            'payments' => $payments,
+            'campaigns' => $campaigns,
+            'premium' => $premium,
+            'access' => $accessStats,
+            'money_flows' => (new EconomyMapService($this->app->db))->publicFlows(),
+            'economy_summary' => (new EconomyMapService($this->app->db))->adminSummary(),
+            'statusMap' => $this->paymentStatusMap(),
+            'payoutStatusMap' => $payoutStatusMap,
+        ]);
+    }
+
+    private function paymentStatusMap(): array
+    {
+        return [
+            'paid' => ['label' => 'Opłacona', 'class' => 'paid'],
+            'PAID' => ['label' => 'Opłacona', 'class' => 'paid'],
+            'credited' => ['label' => 'Zaksięgowana', 'class' => 'paid'],
+            'redirected' => ['label' => 'Przekierowana', 'class' => 'pending'],
+            'pending' => ['label' => 'Oczekuje', 'class' => 'pending'],
+            'PENDING' => ['label' => 'Oczekuje', 'class' => 'pending'],
+            'received' => ['label' => 'Odebrana', 'class' => 'pending'],
+            'processed' => ['label' => 'Przetworzona', 'class' => 'paid'],
+            'ignored' => ['label' => 'Pominięta', 'class' => 'cancelled'],
+            'failed' => ['label' => 'Błąd', 'class' => 'failed'],
+            'FAILED' => ['label' => 'Błąd', 'class' => 'failed'],
+            'expired' => ['label' => 'Wygasła', 'class' => 'cancelled'],
+            'cancelled' => ['label' => 'Anulowana', 'class' => 'cancelled'],
+            'CANCELLED' => ['label' => 'Anulowana', 'class' => 'cancelled'],
+            'refunded' => ['label' => 'Zwrot', 'class' => 'refunded'],
+            'REFUNDED' => ['label' => 'Zwrot', 'class' => 'refunded'],
+            'approved' => ['label' => 'Zatwierdzona', 'class' => 'paid'],
+            'completed' => ['label' => 'Zakończona', 'class' => 'paid'],
+            'held' => ['label' => 'Wstrzymana', 'class' => 'pending'],
+            'rejected' => ['label' => 'Odrzucona', 'class' => 'failed'],
+        ];
+    }
+
+    private function recentPayments(): array
+    {
+        try {
+            return (new PaymentService($this->app->db))->listRecent();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function paymentOrders(): array
+    {
+        try {
+            return $this->app->db->all('SELECT po.*, u.display_name, u.email, p.name AS package_name FROM payment_orders po LEFT JOIN users u ON u.id=po.user_id LEFT JOIN wallet_topup_packages p ON p.id=po.topup_package_id ORDER BY po.created_at DESC, po.id DESC LIMIT 80');
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function gatewayEvents(): array
+    {
+        try {
+            return $this->app->db->all('SELECT ge.*, po.public_id AS order_public_id, u.display_name, u.email FROM payment_gateway_events ge LEFT JOIN payment_orders po ON po.id=ge.payment_order_id LEFT JOIN users u ON u.id=po.user_id ORDER BY ge.received_at DESC, ge.id DESC LIMIT 80');
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function walletTransfers(): array
+    {
+        try {
+            return $this->app->db->all('SELECT wt.*, u.display_name, u.email FROM wallet_transfers wt LEFT JOIN users u ON u.id=wt.user_id ORDER BY wt.created_at DESC, wt.id DESC LIMIT 80');
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+
+    private function paymentPatch4Settings(): array
+    {
+        $defaults = [
+            'payments.enabled' => '0',
+            'stripe.enabled' => '0',
+            'stripe.mode' => 'test',
+            'stripe.currency' => 'pln',
+            'stripe.payment_methods' => 'card,p24',
+            'wallet.transfer.talent_to_pln.enabled' => '1',
+            'wallet.transfer.talent_to_pln.fee_percent' => '5',
+            'wallet.transfer.talent_to_pln.min_talent' => '100',
+            'wallet.transfer.talent_to_pln.max_daily_talent' => '5000',
+            'wallet.transfer.talent_to_pln.auto_approve_below_pln_minor' => '5000',
+            'wallet.transfer.pln_to_talent.enabled' => '1',
+            'wallet.tt_per_pln' => '10',
+        ];
+        try {
+            $names = array_keys($defaults);
+            $placeholders = implode(',', array_fill(0, count($names), '?'));
+            $rows = $this->app->db->all(
+                'SELECT name,value FROM settings WHERE name IN (' . $placeholders . ')',
+                $names
+            );
+            foreach ($rows as $row) {
+                $defaults[(string)$row['name']] = (string)$row['value'];
+            }
+        } catch (\Throwable) {}
+        return $defaults;
+    }
+
+    private function normalizePaymentSettingValue(string $name, array $rule, mixed $raw): string
+    {
+        return match ($rule['type']) {
+            'bool' => in_array((string)$raw, ['1', 'true', 'yes', 'on'], true) ? '1' : '0',
+            'enum' => in_array((string)$raw, $rule['values'], true) ? (string)$raw : throw new \InvalidArgumentException('Nieprawidłowa wartość ustawienia: ' . $name),
+            'csv_methods' => $this->normalizePaymentMethods((string)$raw),
+            'money_minor' => (string)$this->normalizeMoneyMinor($raw, (int)$rule['min'], (int)$rule['max'], $name),
+            'text' => trim((string)$raw),
+            default => (string)$this->normalizeInt($raw, (int)$rule['min'], (int)$rule['max'], $name),
+        };
+    }
+
+    private function normalizeInt(mixed $raw, int $min, int $max, string $name): int
+    {
+        if (!is_numeric($raw)) {
+            throw new \InvalidArgumentException('Ustawienie ' . $name . ' musi być liczbą.');
+        }
+        $value = (int)$raw;
+        if ($value < $min || $value > $max) {
+            throw new \InvalidArgumentException('Ustawienie ' . $name . ' jest poza zakresem.');
+        }
+        return $value;
+    }
+
+    private function normalizeMoneyMinor(mixed $raw, int $min, int $max, string $name): int
+    {
+        $text = str_replace(',', '.', trim((string)$raw));
+        if (!is_numeric($text)) {
+            throw new \InvalidArgumentException('Ustawienie ' . $name . ' musi być kwotą.');
+        }
+        $value = (int)round(((float)$text) * 100);
+        if ($value < $min || $value > $max) {
+            throw new \InvalidArgumentException('Ustawienie ' . $name . ' jest poza zakresem.');
+        }
+        return $value;
+    }
+
+    private function normalizePaymentMethods(string $raw): string
+    {
+        $allowed = ['card', 'p24'];
+        $parts = array_filter(array_map(static fn($v) => strtolower(trim($v)), explode(',', $raw)));
+        $parts = array_values(array_unique(array_intersect($parts, $allowed)));
+        if (empty($parts)) {
+            $parts = ['card', 'p24'];
+        }
+        return implode(',', $parts);
+    }
+
+    private function paymentPatch4Summary(): array
+    {
+        $empty = [
+            'orders_count' => 0,
+            'credited_sum' => 0,
+            'events_count' => 0,
+            'failed_events_count' => 0,
+            'transfers_count' => 0,
+            'transfer_fees_sum' => 0,
+        ];
+
+        try {
+            $orders = $this->app->db->one('SELECT COUNT(*) AS cnt, SUM(CASE WHEN status=\'credited\' THEN amount_minor ELSE 0 END) AS credited_sum FROM payment_orders') ?: [];
+            $events = $this->app->db->one('SELECT COUNT(*) AS cnt, SUM(CASE WHEN processing_status=\'failed\' THEN 1 ELSE 0 END) AS failed_cnt FROM payment_gateway_events') ?: [];
+            $transfers = $this->app->db->one('SELECT COUNT(*) AS cnt, SUM(fee_amount) AS fee_sum FROM wallet_transfers') ?: [];
+            return [
+                'orders_count' => (int)($orders['cnt'] ?? 0),
+                'credited_sum' => (int)($orders['credited_sum'] ?? 0),
+                'events_count' => (int)($events['cnt'] ?? 0),
+                'failed_events_count' => (int)($events['failed_cnt'] ?? 0),
+                'transfers_count' => (int)($transfers['cnt'] ?? 0),
+                'transfer_fees_sum' => (int)($transfers['fee_sum'] ?? 0),
+            ];
+        } catch (\Throwable) {
+            return $empty;
+        }
+    }
+}

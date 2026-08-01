@@ -1,0 +1,6 @@
+Plik,Klasa,Metoda,Kto wywołuje,Tabele SQL,Efekty uboczne,Ryzyka
+ArticleService.php,ArticleService,createDraft,AuthorController,articles,Zapis rekordu i snapshotu,Niskie
+LedgerService.php,LedgerService,post,Wiele serwisów,wallets, Zmiana salda i historia,Wysokie
+AuthSecurityService.php,AuthSecurityService,verifyLoginTwoFactor,AuthController,auth_login_events,Logowanie próby,Średnie
+AiFoundationService.php,AiFoundationService,createPlannedArticleJob,AiAdminController,ai_jobs,Planowanie pracy AI,Średnie
+UploadService.php,UploadService,uploadArticleImage,AuthorController,media,Zapis pliku na dysku,Średnie

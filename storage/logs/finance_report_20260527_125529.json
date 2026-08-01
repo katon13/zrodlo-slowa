@@ -1,0 +1,41 @@
+{
+    "timestamp": "2026-05-27T12:55:29+00:00",
+    "wallets": {
+        "cnt": 6,
+        "sum_main_avail": "0",
+        "sum_main_res": "0",
+        "sum_slowo_avail": "0",
+        "sum_slowo_res": "0",
+        "sum_points": "327085",
+        "sum_legacy_avail": "0",
+        "sum_legacy_res": "0"
+    },
+    "ledger": {
+        "cnt": 54
+    },
+    "payouts": [],
+    "payments": [
+        {
+            "status": "paid",
+            "cnt": 5,
+            "sum_amount": "165300"
+        },
+        {
+            "status": "cancelled",
+            "cnt": 1,
+            "sum_amount": "1700"
+        }
+    ],
+    "premium": {
+        "total_sales": 0,
+        "total_revenue": null,
+        "total_author_income": null,
+        "total_publisher_fee": null,
+        "avg_fee_percent": null
+    },
+    "access": {
+        "active_grants": 0,
+        "expired_grants": 0
+    },
+    "last_import_id": 1
+}

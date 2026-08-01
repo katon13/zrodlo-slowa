@@ -1,0 +1,47 @@
+{
+  "default_site": "pl_zrodlo_slowa",
+  "sites": {
+    "pl_zrodlo_slowa": {
+      "domain": "zrodlo-slowa.pl",
+      "path_prefix": "pl",
+      "language": "pl",
+      "flag_code": "PL",
+      "brand_name": "ŹRÓDŁO SŁOWA"
+    },
+    "en_source_of_word": {
+      "domain": "sourceofword.co.uk",
+      "path_prefix": "en",
+      "language": "en",
+      "flag_code": "GB",
+      "brand_name": "SOURCE OF WORD"
+    },
+    "de_wortquelle": {
+      "domain": "de-wortquelle.de",
+      "path_prefix": "de",
+      "language": "de",
+      "flag_code": "DE",
+      "brand_name": "WORTQUELLE"
+    },
+    "fr_source_des_mots": {
+      "domain": "source-des-mots.fr",
+      "path_prefix": "fr",
+      "language": "fr",
+      "flag_code": "FR",
+      "brand_name": "SOURCE DES MOTS"
+    },
+    "it_fonte_di_parole": {
+      "domain": "fonte-di-parole.it",
+      "path_prefix": "it",
+      "language": "it",
+      "flag_code": "IT",
+      "brand_name": "FONTE DI PAROLE"
+    },
+    "es_fuente_de_palabras": {
+      "domain": "fuente-de-palabras.es",
+      "path_prefix": "es",
+      "language": "es",
+      "flag_code": "ES",
+      "brand_name": "FUENTE DE PALABRAS"
+    }
+  }
+}

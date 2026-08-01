@@ -1,0 +1,15 @@
+{
+    "timestamp": "2026-05-27T10:43:14+00:00",
+    "wallets": {
+        "cnt": 1,
+        "sum_available": "0",
+        "sum_reserved": "0",
+        "sum_points": "0"
+    },
+    "ledger": {
+        "cnt": 0
+    },
+    "payouts": [],
+    "payments": [],
+    "last_import_id": null
+}

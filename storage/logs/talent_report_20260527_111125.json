@@ -1,0 +1,40 @@
+{
+    "timestamp": "2026-05-27T11:11:25+00:00",
+    "stats": {
+        "users_count": 6,
+        "total_points": "327085",
+        "avg_points": "54514.1667"
+    },
+    "rewards": [],
+    "mycred": {
+        "cnt": 34,
+        "total": "9400"
+    },
+    "top": [
+        {
+            "display_name": "Finanse",
+            "points_balance": 150132
+        },
+        {
+            "display_name": "Pawe?? Zastrze??y??ski",
+            "points_balance": 129362
+        },
+        {
+            "display_name": "Jan Kowalski",
+            "points_balance": 47591
+        },
+        {
+            "display_name": "Platforma Źródło Słowa",
+            "points_balance": 0
+        },
+        {
+            "display_name": "Administrator",
+            "points_balance": 0
+        },
+        {
+            "display_name": "Rolo Tomassi",
+            "points_balance": 0
+        }
+    ],
+    "recent": []
+}

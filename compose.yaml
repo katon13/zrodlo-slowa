@@ -1,0 +1,658 @@
+name: zrodlo-slowa
+
+x-app-environment: &app-environment
+  APP_ENV: local
+  APP_DEBUG: "false"
+  APP_URL: ${DOCKER_APP_URL:-http://localhost:8080}
+  APP_KEY: ${DOCKER_APP_KEY:-${APP_KEY:?Set APP_KEY or DOCKER_APP_KEY}}
+  PASSWORD_PEPPER: ${DOCKER_PASSWORD_PEPPER:-${PASSWORD_PEPPER:?Set PASSWORD_PEPPER or DOCKER_PASSWORD_PEPPER}}
+  FINANCE_HMAC_KEY: ${DOCKER_FINANCE_HMAC_KEY:-${FINANCE_HMAC_KEY:?Set FINANCE_HMAC_KEY or DOCKER_FINANCE_HMAC_KEY}}
+  APP_TIMEZONE: UTC
+  DB_DRIVER: pgsql
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: ${DOCKER_POSTGRES_DB:-zrodlo_slowa}
+  DB_USER: ${DOCKER_POSTGRES_USER:-zrodlo}
+  DB_PASS: ${DOCKER_POSTGRES_PASSWORD:-zrodlo-local-postgres-2026}
+  DB_SSLMODE: disable
+  DB_SCHEMA: public
+  DB_APPLICATION_NAME: zrodlo-slowa-web
+  DB_ALLOW_CREATE_DATABASE: "false"
+  DB_ALLOW_CREATE_SCHEMA: "false"
+  SEED_PLATFORM_ACCOUNT: ${DOCKER_SEED_PLATFORM_ACCOUNT:-false}
+  VALKEY_HOST: valkey
+  VALKEY_PORT: "6379"
+  VALKEY_PASSWORD: ${DOCKER_VALKEY_PASSWORD:-zrodlo-local-valkey-2026}
+  VALKEY_DATABASE: "0"
+  VALKEY_TLS: "false"
+  VALKEY_PREFIX: zrodlo-slowa:local
+  VALKEY_CONNECT_TIMEOUT: "0.5"
+  VALKEY_READ_TIMEOUT: "0.5"
+  SESSION_DRIVER: valkey
+  SESSION_TTL_SECONDS: "86400"
+  DORS3_MODE: ${DORS3_MODE:-prepare}
+  DORS3_FIDO2_ENABLED: ${DORS3_FIDO2_ENABLED:-false}
+  DORS3_FIDO2_REQUIRED: ${DORS3_FIDO2_REQUIRED:-false}
+  DORS3_CRITICAL_STEP_UP: ${DORS3_CRITICAL_STEP_UP:-password}
+  DORS3_PHYSICAL_APPROVAL: ${DORS3_PHYSICAL_APPROVAL:-disabled}
+  DORS3_ADMIN_IDLE_TIMEOUT_SECONDS: ${DORS3_ADMIN_IDLE_TIMEOUT_SECONDS:-900}
+  DORS3_ADMIN_SESSION_MAX_SECONDS: ${DORS3_ADMIN_SESSION_MAX_SECONDS:-28800}
+  WEBAUTHN_ENABLED: ${WEBAUTHN_ENABLED:-false}
+  WEBAUTHN_RP_ID: ${WEBAUTHN_RP_ID:-localhost}
+  WEBAUTHN_RP_NAME: ${WEBAUTHN_RP_NAME:-Źródło Słowa — 3DORS}
+  WEBAUTHN_ORIGIN: ${WEBAUTHN_ORIGIN:-http://localhost:8080}
+  WEBAUTHN_USER_VERIFICATION: ${WEBAUTHN_USER_VERIFICATION:-required}
+  WEBAUTHN_CHALLENGE_TTL_SECONDS: ${WEBAUTHN_CHALLENGE_TTL_SECONDS:-300}
+  WEBAUTHN_STEP_UP_TTL_SECONDS: ${WEBAUTHN_STEP_UP_TTL_SECONDS:-300}
+  CACHE_DRIVER: valkey
+  RATE_LIMIT_DRIVER: valkey
+  LOCK_DRIVER: valkey
+  QUEUE_SIGNAL_DRIVER: valkey
+  QUEUE_DRIVER: database
+  OBJECT_STORAGE_DRIVER: s3
+  S3_ENDPOINT: http://minio:9000
+  S3_REGION: ${DOCKER_S3_REGION:-us-east-1}
+  S3_BUCKET: ${DOCKER_S3_BUCKET:-zrodlo-slowa-local}
+  S3_ACCESS_KEY: ${DOCKER_MINIO_ROOT_USER:-zrodlo-local-minio}
+  S3_SECRET_KEY: ${DOCKER_MINIO_ROOT_PASSWORD:-zrodlo-local-minio-secret-2026}
+  S3_PATH_STYLE: "true"
+  S3_MAX_ATTEMPTS: "3"
+  S3_CONNECT_TIMEOUT: "2"
+  S3_REQUEST_TIMEOUT: "10"
+  S3_MAX_READ_BYTES: "10485760"
+  MAIL_TRANSPORT: smtp
+  MAILER_DSN: smtp://mailpit:1025
+  MAIL_FROM_ADDRESS: no-reply@zrodlo-slowa.local
+  MAIL_FROM_NAME: ŹRÓDŁO SŁOWA
+  HEALTHCHECK_DATABASE: "true"
+  HEALTHCHECK_VALKEY: "true"
+  HEALTHCHECK_OBJECT_STORAGE: "true"
+
+x-app-common: &app-common
+  image: zrodlo-slowa-app:stage10
+  build:
+    context: .
+    dockerfile: Dockerfile
+    target: development
+  init: true
+  restart: unless-stopped
+  cpus: "1.00"
+  mem_limit: 512m
+  mem_reservation: 128m
+  pids_limit: 256
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m,uid=33,gid=33
+    - /var/run/apache2:rw,nosuid,size=8m,uid=33,gid=33
+    - /var/lock/apache2:rw,nosuid,size=8m,uid=33,gid=33
+    - /var/www/html/storage/cache:rw,noexec,nosuid,size=32m,uid=33,gid=33,mode=0700
+    - /var/www/html/storage/logs:rw,noexec,nosuid,size=32m,uid=33,gid=33,mode=0700
+  expose:
+    - "8080"
+  networks:
+    - backend
+  depends_on:
+    postgres:
+      condition: service_healthy
+    valkey:
+      condition: service_healthy
+    minio:
+      condition: service_healthy
+    object-storage-init:
+      condition: service_completed_successfully
+    mailpit:
+      condition: service_healthy
+  healthcheck:
+    test:
+      - CMD
+      - php
+      - -r
+      - 'exit(@file_get_contents("http://127.0.0.1:8080/health/ready") === false ? 1 : 0);'
+    interval: 10s
+    timeout: 3s
+    retries: 6
+    start_period: 20s
+  stop_grace_period: 20s
+
+services:
+  proxy:
+    image: nginx:1.28.0-alpine3.21@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284
+    restart: unless-stopped
+    cpus: "0.50"
+    mem_limit: 128m
+    mem_reservation: 32m
+    pids_limit: 128
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    user: "101:101"
+    ports:
+      - "127.0.0.1:${DOCKER_APP_PORT:-8080}:8080"
+    volumes:
+      - ./docker/proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m,uid=101,gid=101
+    networks:
+      - edge
+      - backend
+    depends_on:
+      app-1:
+        condition: service_healthy
+      app-2:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - --quiet
+        - --output-document=/dev/null
+        - http://127.0.0.1:8080/health/live
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    stop_grace_period: 10s
+
+  app-1:
+    <<: *app-common
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: app-1
+
+  app-2:
+    <<: *app-common
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: app-2
+
+  app-3:
+    <<: *app-common
+    profiles:
+      - loadtest
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: app-3
+
+  proxy-load:
+    image: nginx:1.28.0-alpine3.21@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284
+    profiles:
+      - loadtest
+    restart: "no"
+    cpus: "0.50"
+    mem_limit: 128m
+    mem_reservation: 32m
+    pids_limit: 128
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    user: "101:101"
+    expose:
+      - "8080"
+    volumes:
+      - ./docker/proxy/nginx-loadtest.conf:/etc/nginx/nginx.conf:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m,uid=101,gid=101
+    networks:
+      - backend
+    depends_on:
+      app-1:
+        condition: service_healthy
+      app-2:
+        condition: service_healthy
+      app-3:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - --quiet
+        - --output-document=/dev/null
+        - http://127.0.0.1:8080/health/live
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    stop_grace_period: 10s
+
+  loadtest:
+    image: grafana/k6:2.1.0@sha256:65c920dc067d5e2e00befbf982af6ad6ad0117034e8b1c65817c7975c52d4669
+    profiles:
+      - loadtest
+    restart: "no"
+    cpus: "1.00"
+    mem_limit: 512m
+    mem_reservation: 64m
+    pids_limit: 128
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    volumes:
+      - ./loadtests:/scripts:ro
+      - ./storage/loadtests:/results:rw
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    networks:
+      - backend
+    entrypoint:
+      - k6
+    command:
+      - version
+
+  worker-earnings:
+    image: zrodlo-slowa-app:stage10
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: ["php", "scripts/worker_earnings.php", "--daemon"]
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: worker-earnings
+      DB_APPLICATION_NAME: zrodlo-slowa-worker-earnings
+    init: true
+    restart: unless-stopped
+    user: "33:33"
+    cpus: "0.75"
+    cpu_shares: 768
+    mem_limit: 384m
+    mem_reservation: 96m
+    pids_limit: 64
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m,uid=33,gid=33
+      - /var/www/html/storage/logs:rw,noexec,nosuid,size=16m,uid=33,gid=33,mode=0700
+    networks: [backend]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    stop_grace_period: 150s
+
+  worker-notifications:
+    image: zrodlo-slowa-app:stage10
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: ["php", "scripts/worker_notifications.php", "--daemon"]
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: worker-notifications
+      DB_APPLICATION_NAME: zrodlo-slowa-worker-notifications
+    init: true
+    restart: unless-stopped
+    user: "33:33"
+    cpus: "0.25"
+    cpu_shares: 256
+    mem_limit: 128m
+    mem_reservation: 32m
+    pids_limit: 48
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m,uid=33,gid=33
+      - /var/www/html/storage/logs:rw,noexec,nosuid,size=8m,uid=33,gid=33,mode=0700
+    networks: [backend]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    stop_grace_period: 90s
+
+  worker-email:
+    image: zrodlo-slowa-app:stage10
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: ["php", "scripts/mail_worker.php", "--daemon", "--limit=2", "--poll-seconds=5"]
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: worker-email
+      DB_APPLICATION_NAME: zrodlo-slowa-worker-email
+    init: true
+    restart: unless-stopped
+    user: "33:33"
+    cpus: "0.50"
+    cpu_shares: 512
+    mem_limit: 256m
+    mem_reservation: 64m
+    pids_limit: 64
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m,uid=33,gid=33
+      - /var/www/html/storage/logs:rw,noexec,nosuid,size=16m,uid=33,gid=33,mode=0700
+    networks: [backend]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    stop_grace_period: 30s
+
+  worker-ai:
+    image: zrodlo-slowa-app:stage10
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: ["php", "scripts/worker_ai.php", "--daemon", "--poll-seconds=5"]
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: worker-ai
+      DB_APPLICATION_NAME: zrodlo-slowa-worker-ai
+      AI_ENABLED: ${DOCKER_AI_ENABLED:-false}
+      OPENAI_ENABLED: ${DOCKER_AI_ENABLED:-false}
+      OPENAI_API_KEY: ${DOCKER_OPENAI_API_KEY:-}
+    init: true
+    restart: unless-stopped
+    user: "33:33"
+    cpus: "0.50"
+    cpu_shares: 256
+    mem_limit: 512m
+    mem_reservation: 96m
+    pids_limit: 64
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,uid=33,gid=33
+      - /var/www/html/storage/logs:rw,noexec,nosuid,size=16m,uid=33,gid=33,mode=0700
+      - /var/www/html/storage/cache:rw,noexec,nosuid,size=16m,uid=33,gid=33,mode=0700
+    networks: [backend, outbound]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    stop_grace_period: 960s
+
+  scheduler:
+    image: zrodlo-slowa-app:stage10
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command: ["php", "scripts/scheduler.php", "--daemon", "--poll-seconds=60"]
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: scheduler
+      DB_APPLICATION_NAME: zrodlo-slowa-scheduler
+    init: true
+    restart: unless-stopped
+    user: "33:33"
+    cpus: "0.25"
+    cpu_shares: 256
+    mem_limit: 192m
+    mem_reservation: 48m
+    pids_limit: 48
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m,uid=33,gid=33
+      - /var/www/html/storage/logs:rw,noexec,nosuid,size=16m,uid=33,gid=33,mode=0700
+    networks: [backend]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    stop_grace_period: 90s
+
+  object-storage-init:
+    image: zrodlo-slowa-app:stage10
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    command:
+      - php
+      - scripts/provision_object_storage.php
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: object-storage-init
+    restart: "no"
+    user: "33:33"
+    cpus: "0.25"
+    mem_limit: 192m
+    mem_reservation: 64m
+    pids_limit: 64
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m,uid=33,gid=33
+    networks:
+      - backend
+    depends_on:
+      minio:
+        condition: service_healthy
+
+  upload-migration:
+    image: zrodlo-slowa-app:stage10
+    profiles:
+      - tools
+    entrypoint:
+      - php
+      - scripts/migrate_local_uploads_to_s3.php
+    command: []
+    environment:
+      <<: *app-environment
+      APP_INSTANCE_ID: upload-migration
+      DB_APPLICATION_NAME: zrodlo-slowa-upload-migration
+    restart: "no"
+    user: "33:33"
+    cpus: "0.50"
+    mem_limit: 256m
+    mem_reservation: 64m
+    pids_limit: 64
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    volumes:
+      - ./public/uploads:/var/www/html/public/uploads:rw
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,uid=33,gid=33
+    networks:
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      object-storage-init:
+        condition: service_completed_successfully
+
+  postgres:
+    image: postgres:17.5-bookworm@sha256:fbcea1bd13b6a882cd6caa6b58db3ae5c102efe50ec625b3e2a5cbc50db5bfe4
+    restart: unless-stopped
+    cpus: "1.50"
+    mem_limit: 1g
+    mem_reservation: 256m
+    pids_limit: 256
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      POSTGRES_DB: ${DOCKER_POSTGRES_DB:-zrodlo_slowa}
+      POSTGRES_USER: ${DOCKER_POSTGRES_USER:-zrodlo}
+      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD:-zrodlo-local-postgres-2026}
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C.UTF-8
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: UTC
+    command:
+      - postgres
+      - -c
+      - max_connections=${DOCKER_POSTGRES_MAX_CONNECTIONS:-100}
+      - -c
+      - statement_timeout=30000
+      - -c
+      - idle_in_transaction_session_timeout=30000
+    ports:
+      - "127.0.0.1:${DOCKER_POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - backend
+      - host-access
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"'
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 60s
+
+  valkey:
+    image: valkey/valkey:8.1.3-bookworm@sha256:fea8b3e67b15729d4bb70589eb03367bab9ad1ee89c876f54327fc7c6e618571
+    restart: unless-stopped
+    cpus: "0.50"
+    mem_limit: 256m
+    mem_reservation: 64m
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      VALKEY_PASSWORD: ${DOCKER_VALKEY_PASSWORD:-zrodlo-local-valkey-2026}
+      TZ: UTC
+    command:
+      - sh
+      - -ec
+      - 'exec valkey-server --appendonly yes --appendfsync everysec --requirepass "$${VALKEY_PASSWORD}"'
+    ports:
+      - "127.0.0.1:${DOCKER_VALKEY_PORT:-6380}:6379"
+    volumes:
+      - valkey-data:/data
+    networks:
+      - backend
+      - host-access
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'valkey-cli --no-auth-warning -a "$${VALKEY_PASSWORD}" ping | grep -qx PONG'
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    stop_grace_period: 30s
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z@sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e
+    restart: unless-stopped
+    cpus: "1.00"
+    mem_limit: 512m
+    mem_reservation: 128m
+    pids_limit: 256
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      MINIO_ROOT_USER: ${DOCKER_MINIO_ROOT_USER:-zrodlo-local-minio}
+      MINIO_ROOT_PASSWORD: ${DOCKER_MINIO_ROOT_PASSWORD:-zrodlo-local-minio-secret-2026}
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:${DOCKER_MINIO_CONSOLE_PORT:-19001}
+      TZ: UTC
+    command:
+      - server
+      - /data
+      - --console-address
+      - :9001
+    expose:
+      - "9000"
+    ports:
+      - "127.0.0.1:${DOCKER_MINIO_CONSOLE_PORT:-19001}:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - backend
+      - host-access
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null'
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    stop_grace_period: 30s
+
+  mailpit:
+    image: axllent/mailpit:v1.27.8@sha256:6abc8e633df15eaf785cfcf38bae48e66f64beecdc03121e249d0f9ec15f0707
+    restart: unless-stopped
+    cpus: "0.25"
+    mem_limit: 128m
+    mem_reservation: 32m
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      MP_DATABASE: /data/mailpit.db
+      MP_MAX_MESSAGES: "500"
+      MP_SMTP_BIND_ADDR: 0.0.0.0:1025
+      MP_UI_BIND_ADDR: 0.0.0.0:8025
+      TZ: UTC
+    expose:
+      - "1025"
+    ports:
+      - "127.0.0.1:${DOCKER_MAILPIT_PORT:-8025}:8025"
+    volumes:
+      - mailpit-data:/data
+    networks:
+      - backend
+      - host-access
+    healthcheck:
+      test:
+        - CMD
+        - /mailpit
+        - readyz
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    stop_grace_period: 20s
+
+networks:
+  edge:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true
+  host-access:
+    driver: bridge
+  outbound:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  valkey-data:
+  minio-data:
+  mailpit-data:

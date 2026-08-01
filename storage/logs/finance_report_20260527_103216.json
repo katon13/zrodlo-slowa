@@ -1,0 +1,26 @@
+{
+    "timestamp": "2026-05-27T10:32:16+00:00",
+    "wallets": {
+        "cnt": 5,
+        "sum_available": "327085",
+        "sum_reserved": "0",
+        "sum_points": "327085"
+    },
+    "ledger": {
+        "cnt": 54
+    },
+    "payouts": [],
+    "payments": [
+        {
+            "status": "paid",
+            "cnt": 5,
+            "sum_amount": "165300"
+        },
+        {
+            "status": "cancelled",
+            "cnt": 1,
+            "sum_amount": "1700"
+        }
+    ],
+    "last_import_id": 1
+}

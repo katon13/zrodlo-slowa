@@ -1,0 +1,10 @@
+parameters:
+    level: 5
+    paths:
+        - app
+        - public/index.php
+        - scripts
+    bootstrapFiles:
+        - app/Core/bootstrap.php
+    tmpDir: storage/cache/phpstan
+    reportUnmatchedIgnoredErrors: false

@@ -1,0 +1,24 @@
+{
+    "timestamp": "2026-05-27T11:40:32+00:00",
+    "stats": {
+        "users_count": 2,
+        "total_points": "0",
+        "avg_points": "0.0000"
+    },
+    "rewards": [],
+    "mycred": {
+        "cnt": 0,
+        "total": null
+    },
+    "top": [
+        {
+            "display_name": "Platforma ŹRÓDŁO SŁOWA",
+            "points_balance": 0
+        },
+        {
+            "display_name": "Administrator",
+            "points_balance": 0
+        }
+    ],
+    "recent": []
+}

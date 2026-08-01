@@ -1,0 +1,47 @@
+{
+  "default_language": "pl",
+  "languages": {
+    "pl": {
+      "article_path": "artykul",
+      "schema_type": "NewsArticle"
+    },
+    "en": {
+      "article_path": "article",
+      "schema_type": "NewsArticle"
+    },
+    "de": {
+      "article_path": "artikel",
+      "schema_type": "NewsArticle"
+    },
+    "fr": {
+      "article_path": "article",
+      "schema_type": "NewsArticle"
+    },
+    "it": {
+      "article_path": "articolo",
+      "schema_type": "NewsArticle"
+    },
+    "es": {
+      "article_path": "articulo",
+      "schema_type": "NewsArticle"
+    }
+  },
+  "slug": {
+    "max_length": 120,
+    "separator": "-",
+    "unique_suffix_start": 2
+  },
+  "seo": {
+    "use_article_image": true,
+    "description_source": "lead",
+    "status_source": "articles.status",
+    "translation_status_policy": "published_only",
+    "enable_hreflang": true,
+    "enable_json_ld": true,
+    "enable_news_article_schema": true,
+    "short_article_urls": true,
+    "legacy_article_paths_enabled": true,
+    "canonical_scheme": "https",
+    "force_https_urls": true
+  }
+}

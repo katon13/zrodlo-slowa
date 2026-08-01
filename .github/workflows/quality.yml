@@ -1,0 +1,61 @@
+name: quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: curl, mbstring, openssl, pdo_mysql, sodium
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Configure test environment
+        run: |
+          cp .env.install.example .env
+          {
+            echo "DB_PASS=root"
+            echo "ADMIN_PASSWORD=CI-Only-Strong-Password-2026!"
+            echo "MAIL_TRANSPORT=null"
+          } >> .env
+          php scripts/provision_secrets.php --apply
+
+      - name: Build and verify database
+        run: |
+          php scripts/install.php
+          php scripts/install.php --check
+          php scripts/verify_ledger.php
+
+      - name: Syntax and domain checks
+        run: |
+          find app config public scripts tests views -name '*.php' -print0 | xargs -0 -n1 php -l
+          php scripts/zrodlo_missing_translation_keys_scan.php
+          php scripts/zrodlo_language_context_check.php
+          php scripts/zrodlo_sites_json_check.php
+
+      - name: PHPUnit
+        run: vendor/bin/phpunit
+
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse --no-progress

@@ -1,0 +1,9 @@
+Tabela,Rola,Kluczowe kolumny,Zależności,Moduł
+users,Główna tabela użytkowników,"email, password_hash, status",None,Auth
+wallets,Salda portfeli,"main_available_minor, points_balance",users,Finanse
+articles,Główna tabela artykułów,"title, slug, status, access_mode",users,Artykuły
+article_translations,Tłumaczenia treści,"language, title, body, slug",articles,Języki
+wallet_transactions,Historia finansowa,"amount_minor, type, status",wallets,Finanse
+ai_jobs,Zadania AI,"type, status, input_json",articles,AI
+settings,Konfiguracja systemu,"name, value",None,Core
+main_banners,Zarządzanie banerem,"slug, image_path",None,Banner

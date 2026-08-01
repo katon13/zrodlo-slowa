@@ -1,0 +1,47 @@
+{
+    "name": "zrodlo-slowa/platform",
+    "description": "Platforma redakcyjna i społecznościowa ŹRÓDŁO SŁOWA",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.3",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-pdo": "*",
+        "ext-sodium": "*",
+        "aws/aws-sdk-php": "^3.0",
+        "firebase/php-jwt": "^7.1",
+        "symfony/mailer": "^7.4",
+        "web-auth/webauthn-lib": "^5.3.5"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse --no-progress",
+        "check": [
+            "@test",
+            "@analyse"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "8.3.30"
+        }
+    }
+}

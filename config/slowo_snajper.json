@@ -1,0 +1,105 @@
+{
+    "enabled": true,
+    "strict_mode": true,
+    "audit_enabled": true,
+    "limits": {
+        "public_articles": 20,
+        "article_media": 12,
+        "author_articles": 30,
+        "wallet_transactions": 20,
+        "wallet_payouts": 10,
+        "bonus_notifications": 12,
+        "admin_articles": 50,
+        "admin_users": 50,
+        "admin_surveys": 50,
+        "admin_campaigns": 50,
+        "admin_payouts": 50,
+        "admin_ledger": 100,
+        "admin_reports": 100,
+        "admin_roles_users": 50,
+        "role_panel_items": 50,
+        "admin_fraud_events": 50,
+        "admin_fraud_users": 50,
+        "fraud_scan_users": 200,
+        "ui_bonus_rows": 20,
+        "ui_admin_cards": 50
+    },
+    "anti_heavy_actions": {
+        "allow_full_table_admin_lists": false,
+        "allow_hard_user_clean": false,
+        "allow_database_reset_from_admin": false
+    },
+    "sensitivity": {
+        "risk_score_warn": 60,
+        "risk_score_hold_payout": 80,
+        "max_user_daily_bonus_events": 40,
+        "max_same_ad_reward_per_day": 1,
+        "min_ad_watch_seconds": 15,
+        "min_survey_answer_seconds": 8,
+        "max_fast_actions_per_minute": 8,
+        "new_account_hours": 24,
+        "new_account_bonus_warn_count": 10
+    },
+    "roles": {
+        "editorial_panels_enabled": true,
+        "admin_role_assignment_enabled": true,
+        "higher_roles_require_verified_email": false,
+        "higher_roles_require_2fa": false,
+        "stage2_enforce_panel_scope": true,
+        "stage3_enforce_high_role_security": true
+    },
+    "auth": {
+        "login_2fa_challenge_enabled": true,
+        "login_2fa_pending_ttl_seconds": 600,
+        "log_login_events": true
+    },
+    "install_reset": {
+        "allow_cli_fresh_install": true,
+        "allow_cli_database_reset": true,
+        "require_confirm_flag": true,
+        "block_in_production": true,
+        "default_keep_admin": true
+    },
+    "anti_fraud": {
+        "enabled": true,
+        "log_events": true,
+        "block_suspicious_rewards": true,
+        "hold_payouts_on_high_risk": true,
+        "scan_enabled": true,
+        "scan_limit": 200
+    },
+    "earnings_worker": {
+        "enabled": true,
+        "wake_on_event": true,
+        "safety_sweep_seconds": 60,
+        "idle_database_polling": false,
+        "fallback_poll_seconds": 60,
+        "batch_limit": 25,
+        "max_job_latency_seconds": 120,
+        "heartbeat_seconds": 30,
+        "presence": {
+            "enabled": true,
+            "ping_seconds": 60,
+            "ttl_seconds": 90,
+            "visible_tab_only": true,
+            "required_activity_types": [
+                "day_visit_bonus"
+            ]
+        },
+        "article_read_proof": {
+            "enabled": true,
+            "min_visible_seconds": 30,
+            "min_progress_percent": 60,
+            "proof_ttl_seconds": 1800
+        }
+    },
+    "ui": {
+        "enabled": true,
+        "icons_enabled": true,
+        "compact_bonus_rows": true,
+        "unified_admin_cards": true,
+        "unified_status_badges": true,
+        "lightweight_css_only": true
+    },
+    "stage": "6"
+}
