@@ -60,7 +60,7 @@ final class UserService
 
     public function setPrimaryRole(int $userId, string $role): void
     {
-        if (!in_array($role, ['reader','author','admin'], true)) {
+        if (!in_array($role, ['reader','commentator','author','admin'], true)) {
             throw new \InvalidArgumentException('Nieprawidłowy typ konta. Role redakcyjne nadaje się w panelu „Role i uprawnienia”.');
         }
         $user = $this->db->one('SELECT status FROM users WHERE id=:id LIMIT 1', ['id' => $userId]);
@@ -71,15 +71,28 @@ final class UserService
             throw new \RuntimeException('Nie można zmieniać roli konta, które zostało zanonimizowane.');
         }
         $this->db->transaction(function(Database $db) use ($userId, $role) {
+            if ($role === 'commentator') {
+                $this->ensureWallet($userId);
+            }
             // Typ konta i stanowiska redakcyjne to dwie niezależne warstwy.
-            // Zmiana reader/author/admin nie może odbierać ról moderatora,
+            // Zmiana reader/commentator/author/admin nie może odbierać ról moderatora,
             // redaktora, wydawcy, korektora ani księgowego.
-            $db->query('DELETE FROM user_roles WHERE user_id=:id AND role IN (\'reader\',\'author\',\'admin\')', ['id'=>$userId]);
+            $db->query('DELETE FROM user_roles WHERE user_id=:id AND role IN (\'reader\',\'commentator\',\'author\',\'admin\')', ['id'=>$userId]);
             $db->query('INSERT INTO user_roles(user_id,role) VALUES(:id,:role)', ['id'=>$userId,'role'=>$role]);
-            $db->query(
-                'UPDATE users SET session_version=session_version+1,updated_at=NOW() WHERE id=:id',
-                ['id' => $userId]
-            );
+            if ($role === 'commentator') {
+                $db->query(
+                    'UPDATE users
+                     SET status=\'active\',can_write=0,talent_enabled=1,wallet_enabled=1,payout_enabled=0,
+                         session_version=session_version+1,permissions_updated_at=NOW(),updated_at=NOW()
+                     WHERE id=:id',
+                    ['id' => $userId]
+                );
+            } else {
+                $db->query(
+                    'UPDATE users SET session_version=session_version+1,updated_at=NOW() WHERE id=:id',
+                    ['id' => $userId]
+                );
+            }
         });
     }
 
@@ -123,6 +136,15 @@ final class UserService
         foreach ($allowed as $key) {
             $raw = $flags[$key] ?? '0';
             $desired[$key] = in_array((string)$raw, ['1', 'on', 'true', 'yes'], true) ? 1 : 0;
+        }
+
+        $isCommentator = $this->db->one(
+            'SELECT 1 FROM user_roles WHERE user_id=:id AND role=\'commentator\' LIMIT 1',
+            ['id' => $userId]
+        ) !== null;
+        if ($isCommentator) {
+            $desired['can_write'] = 0;
+            $desired['payout_enabled'] = 0;
         }
 
         if ($desired['wallet_enabled'] === 0) {
@@ -210,6 +232,30 @@ final class UserService
             WHERE u.id=:id
             LIMIT 1
         ', ['id' => $userId]);
+    }
+
+    public function assertPayoutAccountEligible(int $userId): void
+    {
+        $account = $this->db->one(
+            'SELECT u.payout_enabled,
+                    EXISTS(
+                        SELECT 1 FROM user_roles ur
+                        WHERE ur.user_id=u.id AND ur.role=\'commentator\'
+                    ) AS is_commentator
+             FROM users u
+             WHERE u.id=:id
+             LIMIT 1',
+            ['id' => $userId]
+        );
+        if ($account === null) {
+            throw new \RuntimeException('Nie znaleziono konta użytkownika.');
+        }
+        if ((bool)$account['is_commentator']) {
+            throw new \RuntimeException('Konto komentatora nie obsługuje wypłat pieniężnych.');
+        }
+        if ((int)$account['payout_enabled'] !== 1) {
+            throw new \RuntimeException('Wypłaty nie są aktywne dla tego konta. Wymagana jest ręczna zgoda administracji.');
+        }
     }
 
 

@@ -31,6 +31,10 @@ final class OperatorPanelPresenterTest extends TestCase
         self::assertSame('Nie używać w nowym modelu', $rules['login_bonus']['operator_badge']);
         self::assertSame('Przeczytanie artykułu', $rules['article_read_bonus']['operator_title']);
         self::assertSame('Kliknięcie reklamy', $rules['ad_click_reward']['operator_title']);
+        self::assertSame('GOTOWE · DOWÓD OBECNOŚCI', $rules['day_visit_bonus']['operator_readiness']);
+        self::assertFalse($rules['article_read_bonus']['operator_activation_locked']);
+        self::assertTrue($rules['login_bonus']['operator_activation_locked']);
+        self::assertTrue($rules['ad_click_reward']['operator_activation_locked']);
     }
 
     public function testUnknownTalentRuleGetsReadableFallback(): void
@@ -47,7 +51,7 @@ final class OperatorPanelPresenterTest extends TestCase
     {
         $types = [
             'registration_bonus', 'day_visit_bonus', 'login_bonus', 'article_read_bonus',
-            'comment_bonus', 'share_bonus', 'link_click_bonus', 'like_bonus',
+            'response_publication_bonus', 'share_bonus', 'link_click_bonus', 'like_bonus',
             'bug_report_bonus', 'survey_reward', 'sponsored_article_read_bonus',
             'ad_view_reward', 'ad_click_reward', 'newsletter_open_reward',
             'ppv_reward', 'live_event_reward',
@@ -68,7 +72,12 @@ final class OperatorPanelPresenterTest extends TestCase
             self::assertNotSame($type, $presented[$type]['operator_title']);
             self::assertStringNotContainsString('_', (string)$presented[$type]['operator_title']);
             self::assertNotSame('', trim((string)$presented[$type]['operator_description']));
+            self::assertNotSame('', trim((string)$presented[$type]['operator_readiness']));
+            self::assertNotSame('', trim((string)$presented[$type]['operator_trigger']));
+            self::assertIsBool($presented[$type]['operator_activation_locked']);
         }
+        self::assertFalse($presented['survey_reward']['operator_activation_locked']);
+        self::assertStringContainsString('PLN ODDZIELONE OD TT', (string)$presented['survey_reward']['operator_readiness']);
     }
 
     public function testDors3SecurityEventIsTranslatedForOperator(): void

@@ -39,16 +39,7 @@ final class FinancialService
         sort($userIds, SORT_NUMERIC);
 
         foreach ($userIds as $userId) {
-            if ($this->db->one('SELECT id FROM wallets WHERE user_id=:id', ['id' => $userId])) {
-                continue;
-            }
-            try {
-                $this->createWallet($this->db, $userId);
-            } catch (PDOException $error) {
-                if (!$this->isUniqueViolation($error)) {
-                    throw $error;
-                }
-            }
+            $this->createWallet($this->db, $userId);
         }
 
         $params = [];
@@ -356,7 +347,19 @@ final class FinancialService
     /**
      * Maker-Checker: Tworzenie zlecenia do zatwierdzenia
      */
-    public function requestApproval(string $type, int $amount, string $currency, int $walletId, int $userId, array $payload, string $reason): int
+    public function requestApproval(
+        string $type,
+        int $amount,
+        string $currency,
+        int $walletId,
+        int $userId,
+        array $payload,
+        string $reason,
+        ?array $verifiedActor = null,
+        string $source = 'web',
+        ?string $externalRequestId = null,
+        ?string $correlationId = null,
+    ): int
     {
         if ($userId <= 0 || trim($type) === '') {
             throw new \InvalidArgumentException('Nieprawidłowe dane zlecenia finansowego.');
@@ -365,8 +368,29 @@ final class FinancialService
             throw new \InvalidArgumentException('Ręczne naliczenie Talentów musi być większe od zera.');
         }
 
-        return $this->synchronized(function (Database $db) use ($type, $amount, $currency, $walletId, $userId, $payload, $reason): int {
-            $actor = $this->actorContext();
+        $source = mb_substr(strtolower(trim($source)), 0, 40);
+        $externalRequestId = $this->nullableString($externalRequestId, 36);
+        $correlationId = $this->nullableString($correlationId, 128);
+        if ($source === '' || ($source === 'dors3_mobile' && $externalRequestId === null)) {
+            throw new \InvalidArgumentException('Źródło mobilne wymaga identyfikatora podpisanego żądania.');
+        }
+
+        return $this->synchronized(function (Database $db) use (
+            $type,
+            $amount,
+            $currency,
+            $walletId,
+            $userId,
+            $payload,
+            $reason,
+            $verifiedActor,
+            $source,
+            $externalRequestId,
+            $correlationId,
+        ): int {
+            $actor = $verifiedActor === null
+                ? $this->actorContext()
+                : $this->verifiedActorContext($verifiedActor);
             if ($actor['id'] === 0) {
                 throw new RuntimeException('Musisz być zalogowany, aby utworzyć zlecenie finansowe.');
             }
@@ -376,11 +400,33 @@ final class FinancialService
                 throw new RuntimeException('Zlecenie wskazuje portfel innego użytkownika.');
             }
 
+            if ($externalRequestId !== null) {
+                $existing = $db->one(
+                    'SELECT * FROM financial_approvals WHERE source=:source AND external_request_id=:request FOR UPDATE',
+                    ['source' => $source, 'request' => $externalRequestId],
+                );
+                if ($existing !== null) {
+                    if (
+                        (string)$existing['operation_type'] !== mb_substr(trim($type), 0, 50)
+                        || (int)$existing['amount'] !== $amount
+                        || (string)$existing['currency'] !== mb_substr(strtoupper(trim($currency)), 0, 3)
+                        || (int)$existing['wallet_id'] !== (int)$wallet['id']
+                        || (int)$existing['user_id'] !== $userId
+                        || (int)$existing['requested_by'] !== (int)$actor['id']
+                    ) {
+                        throw new RuntimeException('Identyfikator żądania finansowego został użyty dla innej operacji.');
+                    }
+                    return (int)$existing['id'];
+                }
+            }
+
             return $db->insert('INSERT INTO financial_approvals (
                 operation_type, operation_payload, amount, currency, wallet_id, user_id,
-                requested_by, requested_role, status, reason, created_at
+                requested_by, requested_role, status, reason, source, external_request_id,
+                correlation_id, created_at
             ) VALUES (
-                :type, :payload, :amount, :currency, :wid, :uid, :req_by, :req_role, \'pending\', :reason, NOW()
+                :type, :payload, :amount, :currency, :wid, :uid, :req_by, :req_role, \'pending\', :reason,
+                :source, :external_request_id, :correlation_id, NOW()
             )', [
                 'type' => mb_substr(trim($type), 0, 50),
                 'payload' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
@@ -391,6 +437,9 @@ final class FinancialService
                 'req_by' => $actor['id'],
                 'req_role' => $requestedRole,
                 'reason' => trim($reason),
+                'source' => $source,
+                'external_request_id' => $externalRequestId,
+                'correlation_id' => $correlationId,
             ]);
         });
     }
@@ -668,7 +717,11 @@ final class FinancialService
 
     private function createWallet(Database $db, int $userId): void
     {
-        $db->query('INSERT INTO wallets(user_id,main_available_minor,main_reserved_minor,slowo_available_minor,slowo_reserved_minor,available_minor,pending_minor,reserved_minor,points_balance,currency,created_at) VALUES(:id,0,0,0,0,0,0,0,0,\'PLN\',NOW())', [
+        $sql = 'INSERT INTO wallets(user_id,main_available_minor,main_reserved_minor,slowo_available_minor,slowo_reserved_minor,available_minor,pending_minor,reserved_minor,points_balance,currency,created_at) VALUES(:id,0,0,0,0,0,0,0,0,\'PLN\',NOW())';
+        $sql .= $db->isPostgres()
+            ? ' ON CONFLICT (user_id) DO NOTHING'
+            : ' ON DUPLICATE KEY UPDATE user_id=VALUES(user_id)';
+        $db->query($sql, [
             'id' => $userId,
         ]);
     }
@@ -738,6 +791,32 @@ final class FinancialService
             ? $sessionRole
             : ($roles[0] ?? 'user');
         return ['id' => $userId, 'role' => $auditRole, 'roles' => $roles];
+    }
+
+    /** @param array<string,mixed> $verifiedActor @return array{id:int,role:string,roles:list<string>} */
+    private function verifiedActorContext(array $verifiedActor): array
+    {
+        $userId = (int)($verifiedActor['id'] ?? 0);
+        if ($userId <= 0) {
+            throw new RuntimeException('Zweryfikowany aktor mobilny nie ma poprawnego identyfikatora.');
+        }
+        $user = $this->db->one('SELECT status FROM users WHERE id=:id LIMIT 1', ['id' => $userId]);
+        if ($user === null || (string)$user['status'] !== 'active') {
+            throw new RuntimeException('Zweryfikowany aktor mobilny nie ma aktywnego konta.');
+        }
+        $roles = [];
+        foreach ($this->db->all('SELECT role FROM user_roles WHERE user_id=:id ORDER BY role', ['id' => $userId]) as $row) {
+            $role = $this->normalizeFinancialRole((string)$row['role']);
+            if ($role !== null) {
+                $roles[$role] = true;
+            }
+        }
+        $roles = array_keys($roles);
+        $claimedRole = $this->normalizeFinancialRole((string)($verifiedActor['role'] ?? ''));
+        if ($claimedRole === null || !in_array($claimedRole, $roles, true)) {
+            throw new RuntimeException('Rola zweryfikowanego aktora nie zgadza się z rolami konta.');
+        }
+        return ['id' => $userId, 'role' => $claimedRole, 'roles' => $roles];
     }
 
     private function requesterRole(array $actor): string

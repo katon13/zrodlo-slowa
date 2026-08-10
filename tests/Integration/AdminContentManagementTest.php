@@ -113,6 +113,9 @@ final class AdminContentManagementTest extends DatabaseTestCase
              WHERE queue_name=\'earnings.critical\' AND status IN (\'queued\',\'retry\')'
         );
         $service = new SurveyService($this->database);
+        $this->database->query(
+            "UPDATE activity_reward_rules SET is_active=1,points_amount=37,amount_minor=555,daily_limit=1 WHERE activity_type='survey_reward'"
+        );
         $surveyId = $service->createSurvey($this->adminId(), [
             'title' => 'Ankieta budżetowa',
             'status' => 'draft',
@@ -135,6 +138,7 @@ final class AdminContentManagementTest extends DatabaseTestCase
         ]);
 
         $userId = $this->ordinaryUserId();
+        $pointsBefore = (int)$this->database->cell('SELECT points_balance FROM wallets WHERE user_id=:id', ['id' => $userId]);
         $_POST['answer_seconds'] = 30;
         $responseId = $service->submitResponse($surveyId, $userId, [$questionId => 'A']);
 
@@ -156,10 +160,87 @@ final class AdminContentManagementTest extends DatabaseTestCase
         self::assertSame('paid', $response['reward_status']);
         self::assertGreaterThan(0, (int)$response['wallet_transaction_id']);
         self::assertSame(100, (int)$response['reward_amount_minor']);
+        self::assertSame($pointsBefore + 37, (int)$this->database->cell('SELECT points_balance FROM wallets WHERE user_id=:id', ['id' => $userId]));
+        $talentLog = $this->database->one(
+            "SELECT * FROM activity_reward_logs
+             WHERE user_id=:user AND activity_type='survey_reward'
+               AND reference_type='survey_response' AND reference_id=:response",
+            ['user' => $userId, 'response' => $responseId]
+        );
+        self::assertNotNull($talentLog);
+        self::assertSame(37, (int)$talentLog['points_amount']);
+        self::assertSame(0, (int)$talentLog['amount_minor']);
+        $moneyTransaction = $this->database->one(
+            'SELECT amount_minor,points,ref_type,ref_id FROM wallet_transactions WHERE id=:id',
+            ['id' => (int)$response['wallet_transaction_id']]
+        );
+        self::assertSame(100, (int)$moneyTransaction['amount_minor']);
+        self::assertSame(0, (int)$moneyTransaction['points']);
+        self::assertSame('survey_response', (string)$moneyTransaction['ref_type']);
+        self::assertSame($responseId, (int)$moneyTransaction['ref_id']);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('limit odpowiedzi');
         $service->submitResponse($surveyId, $this->anotherOrdinaryUserId($userId), [$questionId => 'B']);
+    }
+
+    public function testInactiveSurveyTalentRuleDoesNotBlockSnapshottedPlnReward(): void
+    {
+        $this->database->query(
+            'UPDATE background_jobs SET available_at=' . $this->database->nowPlus(1, 'day') . "
+             WHERE queue_name='earnings.critical' AND status IN ('queued','retry')"
+        );
+        $this->database->query(
+            "UPDATE activity_reward_rules SET is_active=0,points_amount=999,amount_minor=0,daily_limit=0 WHERE activity_type='survey_reward'"
+        );
+        $service = new SurveyService($this->database);
+        $surveyId = $service->createSurvey($this->adminId(), [
+            'title' => 'Ankieta bez TT',
+            'status' => 'draft',
+            'budget' => '2,00',
+            'reward_amount' => '2,00',
+            'max_responses' => 1,
+        ]);
+        $questionId = $service->addQuestion($surveyId, [
+            'question_text' => 'Odpowiedź?',
+            'question_type' => 'single_choice',
+            'options' => "A\nB",
+            'is_required' => '1',
+        ]);
+        $service->updateSurvey($surveyId, [
+            'title' => 'Ankieta bez TT',
+            'status' => 'active',
+            'budget' => '2,00',
+            'reward_amount' => '2,00',
+            'max_responses' => 1,
+        ]);
+
+        $userId = $this->ordinaryUserId();
+        $pointsBefore = (int)$this->database->cell('SELECT points_balance FROM wallets WHERE user_id=:id', ['id' => $userId]);
+        $_POST['answer_seconds'] = 30;
+        $responseId = $service->submitResponse($surveyId, $userId, [$questionId => 'A']);
+        $worker = new DurableJobWorker(
+            new DurableJobQueue($this->database),
+            new EarningsJobHandler($this->database),
+            EarningsQueueService::QUEUE,
+            'phpunit-survey-no-tt-worker',
+        );
+        self::assertSame(1, $worker->runOne()['completed']);
+
+        $response = $this->database->one('SELECT * FROM survey_responses WHERE id=:id', ['id' => $responseId]);
+        self::assertSame('paid', (string)$response['reward_status']);
+        self::assertGreaterThan(0, (int)$response['wallet_transaction_id']);
+        self::assertSame(200, (int)$this->database->cell(
+            'SELECT amount_minor FROM wallet_transactions WHERE id=:id',
+            ['id' => (int)$response['wallet_transaction_id']]
+        ));
+        self::assertSame($pointsBefore, (int)$this->database->cell('SELECT points_balance FROM wallets WHERE user_id=:id', ['id' => $userId]));
+        self::assertSame(0, (int)$this->database->cell(
+            "SELECT COUNT(*) FROM activity_reward_logs
+             WHERE user_id=:user AND activity_type='survey_reward'
+               AND reference_type='survey_response' AND reference_id=:response",
+            ['user' => $userId, 'response' => $responseId]
+        ));
     }
 
     public function testPpvEventUsesPerViewCostInsteadOfEntireCampaignBudget(): void

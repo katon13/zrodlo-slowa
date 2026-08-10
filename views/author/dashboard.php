@@ -130,6 +130,14 @@ $authorArticleStatusLabels = [
               <span class="status-pill status-rejected">Wysyłanie zablokowane</span>
             <?php endif; ?>
           <?php endif; ?>
+          <?php if ((string)$a['status'] === 'approved' && !empty($author_state['can_publish'])): ?>
+            <form class="inline ajax-form" method="post" action="<?= e(public_language_url($current_language, '/author/articles/publish')) ?>">
+              <?= csrf_field() ?>
+              <input type="hidden" name="_lang" value="<?= e($current_language) ?>">
+              <input type="hidden" name="id" value="<?= (int)$a['id'] ?>">
+              <button class="btn-red" type="submit">Publikuj przez 3DORS Author</button>
+            </form>
+          <?php endif; ?>
           <?php endif; ?>
         </div>
       </article>
@@ -196,17 +204,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (data.success) {
           showLocalMessage(button, data.message || 'Wysłano', 'success');
-          // Optional: update status pill in the card
           const card = form.closest('.author-article-card');
           if (card) {
             const pill = card.querySelector('.status-pill');
             if (pill) {
+              if (data.approval_required) {
+                pill.textContent = 'Czeka na 3DORS';
+                pill.className = 'status-pill status-draft';
+              } else {
                 pill.textContent = 'Tekst przyszedł do redakcji';
                 pill.className = 'status-pill status-submitted';
+              }
             }
-            // Hide form after successful submit? 
-            // The prompt says "stay in the same place", so keeping the button but disabled or with "Wysłano" is good.
-            form.remove(); 
+            form.remove();
           }
         } else {
           showLocalMessage(button, data.message || 'Błąd zapisu', 'error');

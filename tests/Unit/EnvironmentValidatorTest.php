@@ -20,6 +20,14 @@ final class EnvironmentValidatorTest extends TestCase
             'GOOGLE_REDIRECT_URI',
             'OPENAI_ENABLED',
             'OPENAI_API_KEY',
+            'DORS3_MOBILE_ENABLED',
+            'DORS3_MOBILE_MODE',
+            'DORS3_ADMIN_APP_ENABLED',
+            'DORS3_AUTHOR_APP_ENABLED',
+            'DORS3_PAYOUT_APPROVAL',
+            'DORS3_ADMIN_CRITICAL_APPROVAL',
+            'DORS3_ARTICLE_SUBMIT_APPROVAL',
+            'DORS3_ARTICLE_PUBLISH_APPROVAL',
         ] as $key) {
             $this->saved[$key] = $_ENV[$key] ?? null;
         }
@@ -65,5 +73,23 @@ final class EnvironmentValidatorTest extends TestCase
 
         self::assertFalse($result['ok']);
         self::assertStringContainsString('OPENAI_API_KEY', implode("\n", $result['errors']));
+    }
+
+    public function testRequiredMobileModeRejectsUnprotectedEnabledVariant(): void
+    {
+        $_ENV['DORS3_MOBILE_ENABLED'] = 'true';
+        $_ENV['DORS3_MOBILE_MODE'] = 'required';
+        $_ENV['DORS3_ADMIN_APP_ENABLED'] = 'true';
+        $_ENV['DORS3_AUTHOR_APP_ENABLED'] = 'false';
+        $_ENV['DORS3_PAYOUT_APPROVAL'] = 'false';
+        $_ENV['DORS3_ADMIN_CRITICAL_APPROVAL'] = 'true';
+
+        $result = (new EnvironmentValidator())->validate();
+
+        self::assertFalse($result['ok']);
+        self::assertStringContainsString(
+            'Required 3DORS Admin must protect payouts',
+            implode("\n", $result['errors']),
+        );
     }
 }

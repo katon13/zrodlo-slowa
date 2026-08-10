@@ -210,10 +210,9 @@ $articleLabelOptions = [
                       $priceMinor = (int)($row['price_minor'] ?? 0);
                       $priceValue = number_format($priceMinor / 100, 2, ',', '');
                       $priceDisplay = number_format($priceMinor / 100, 2, ',', ' ');
-                      $authorShare = (float)($row['author_share_percent'] ?? 70);
-                      $platformShare = (float)($row['platform_share_percent'] ?? (100 - $authorShare));
-                      $authorAmount = ($priceMinor * ($authorShare / 100)) / 100;
-                      $platformAmount = ($priceMinor * ($platformShare / 100)) / 100;
+                      $authorShare = ((int)($revenue_split_policy['author_basis_points'] ?? 4000)) / 100;
+                      $platformShare = ((int)($revenue_split_policy['platform_basis_points'] ?? 4000)) / 100;
+                      $safetyFundShare = ((int)($revenue_split_policy['safety_fund_basis_points'] ?? 2000)) / 100;
                       $articleId = (int)($row['id'] ?? 0);
                       $translationsForArticle = $articleTranslationsMap[$articleId] ?? [];
                     ?>
@@ -236,7 +235,7 @@ $articleLabelOptions = [
                             style="--article-label-color: <?php echo e((string)$savedLabelMeta['color']); ?>"
                           ><?php echo e((string)$savedLabelMeta['label']); ?></span>
                           <strong class="zs-valuation-price<?php echo $accessMode !== 'paid' || $priceMinor <= 0 ? ' is-hidden' : ''; ?>" id="valuation-price-<?php echo $articleId; ?>"><?php echo e($priceDisplay); ?> <?php echo e($row['currency'] ?? 'PLN'); ?></strong>
-                          <small class="zs-valuation-share" id="valuation-share-<?php echo $articleId; ?>">Autor <?php echo number_format($authorShare, 0); ?>%</small>
+                          <small class="zs-valuation-share" id="valuation-share-<?php echo $articleId; ?>">Autor <?php echo number_format($authorShare, 0); ?>% / Serwis <?php echo number_format($platformShare, 0); ?>% / Safety Fund <?php echo number_format($safetyFundShare, 0); ?>%</small>
                         </div>
                         <form id="valuation-form-<?php echo $articleId; ?>" method="post" action="/admin/articles/valuation" class="zs-moderator-valuation-form ajax-form" data-article-id="<?php echo $articleId; ?>">
                           <?php echo csrf_field(); ?>
@@ -269,10 +268,7 @@ $articleLabelOptions = [
                             <span>Cena PLN</span>
                             <input type="text" name="price" value="<?php echo e($priceValue); ?>" placeholder="9,90" inputmode="decimal">
                           </label>
-                          <label>
-                            <span>Autor %</span>
-                            <input type="number" name="author_share_percent" min="1" max="99" value="<?php echo e((string)number_format($authorShare, 0, '.', '')); ?>">
-                          </label>
+                          <div class="zs-setting-description">Podział ustala globalna polityka Safety Fund. Zmiana wymaga zatwierdzenia w 3DORS Admin.</div>
                           <div class="zs-moderator-flags">
                             <label class="zs-check-inline">
                               <input type="checkbox" name="is_premium" value="1" <?php echo !empty($row['is_premium']) ? 'checked' : ''; ?>> Premium
@@ -506,7 +502,6 @@ document.addEventListener('DOMContentLoaded', function() {
           if (form.classList.contains('zs-moderator-valuation-form')) {
             const accessMode = form.querySelector('[name="access_mode"]')?.value || 'free';
             const priceValue = form.querySelector('[name="price"]')?.value || '0,00';
-            const authorShare = form.querySelector('[name="author_share_percent"]')?.value || '70';
             const summary = document.getElementById('valuation-summary-' + form.dataset.articleId);
             const accessBadge = summary?.querySelector('.zs-access-badge');
             const pricingBadge = summary?.querySelector('.zs-pricing-badge');
@@ -526,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
               price.classList.toggle('is-hidden', accessMode !== 'paid');
             }
             if (share) {
-              share.textContent = 'Autor ' + authorShare + '%';
+              share.textContent = 'Autor <?= e(number_format(((int)($revenue_split_policy['author_basis_points'] ?? 4000)) / 100, 0)) ?>% / Serwis <?= e(number_format(((int)($revenue_split_policy['platform_basis_points'] ?? 4000)) / 100, 0)) ?>% / Safety Fund <?= e(number_format(((int)($revenue_split_policy['safety_fund_basis_points'] ?? 2000)) / 100, 0)) ?>%';
             }
           }
         } else {

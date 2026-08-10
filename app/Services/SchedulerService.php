@@ -12,6 +12,7 @@ final class SchedulerService
         private readonly DurableJobQueue $jobs,
         private readonly MailService $mail,
         private readonly ?LedgerAnchorService $ledgerAnchors = null,
+        private readonly ?Dors3SentinelAlertService $sentinel = null,
     ) {}
 
     /** @return array<string,mixed> */
@@ -57,6 +58,9 @@ final class SchedulerService
                 'jobs_recovered' => $this->jobs->recoverExpiredLeases(),
                 'mail_recovered' => $this->mail->recoverExpiredLeases(),
             ];
+            $sentinel = $this->sentinel ?? new Dors3SentinelAlertService($this->db);
+            $result['sentinel_alerts'] = $sentinel->synchronize();
+            $result['sentinel_notifications'] = $sentinel->dispatchPendingNotifications($this->mail);
             if ($now->setTimezone(new \DateTimeZone('UTC'))->format('i') === '00') {
                 $result['ledger_anchor'] = ($this->ledgerAnchors ?? new LedgerAnchorService($this->db))
                     ->createHourly($now);

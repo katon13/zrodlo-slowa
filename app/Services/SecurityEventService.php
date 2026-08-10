@@ -96,6 +96,14 @@ final class SecurityEventService
             ]
         );
 
+        // Wartownik jest projekcją obserwacyjną. Jego awaria nie może zmienić
+        // wyniku ani przerwać operacji chronionej przez istniejące polityki.
+        try {
+            (new Dors3SentinelAlertService($this->db))->captureForEvent($eventId);
+        } catch (\Throwable $error) {
+            error_log('[3dors_sentinel_capture] event=' . $eventId . ' error=' . $error::class);
+        }
+
         return $eventId;
     }
 

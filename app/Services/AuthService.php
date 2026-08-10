@@ -13,6 +13,7 @@ final class AuthService
         'proofreader',
         'accountant',
         'author',
+        'commentator',
         'reader',
     ];
 
@@ -58,6 +59,33 @@ final class AuthService
             // Etap 2: każdy użytkownik od startu może dostawać podstawowe bonusy aktywności.
             // Wypłaty nadal wymagają osobnej decyzji administracji.
             return ['id' => $id, 'role' => $role];
+        });
+    }
+
+    /**
+     * Creates the account and its durable one-time registration entitlement in
+     * one database transaction. Callers may wrap this in a wider transaction
+     * (for example while consuming an app-referral nonce).
+     *
+     * @return array{id:int,role:string}
+     */
+    public function registerWithTalentEntitlement(array $data, TalentService $talent): array
+    {
+        return $this->db->transaction(function () use ($data, $talent): array {
+            $registeredUser = $this->register($data);
+            $registrationJob = $talent->queueAward(
+                (int)$registeredUser['id'],
+                'registration_bonus',
+                'user_registration',
+                (int)$registeredUser['id'],
+            );
+            $registrationRuleActive = (int)$this->db->cell(
+                "SELECT COUNT(*) FROM activity_reward_rules WHERE activity_type='registration_bonus' AND is_active=1"
+            ) > 0;
+            if ($registrationRuleActive && ($registrationJob['queued'] ?? false) !== true) {
+                throw new \RuntimeException('Nie udało się trwale zapisać należnego bonusu rejestracyjnego.');
+            }
+            return $registeredUser;
         });
     }
 

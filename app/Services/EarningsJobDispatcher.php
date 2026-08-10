@@ -87,6 +87,12 @@ final class EarningsJobDispatcher
             'visible_seconds',
             'progress_percent',
             'proof_type',
+            'referral_party',
+            'response_rule_qualified',
+            'response_points_amount',
+            'response_source_article_id',
+            'response_published_by',
+            'response_published_at',
         ]));
         return $allowed + [
             'actor_id' => $actorId,

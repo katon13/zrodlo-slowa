@@ -301,7 +301,7 @@ final class FinanceController extends BaseController
             $c['current_amount_minor'] = (int)($stats['total'] ?? 0);
         }
 
-        $premium = $db->one('SELECT COUNT(*) as total_sales, SUM(total_amount_minor) as total_revenue, SUM(author_income_minor) as total_author_income, SUM(publisher_fee_minor) as total_publisher_fee, AVG(publisher_fee_percent) as avg_fee_percent FROM platform_revenues');
+        $premium = $db->one('SELECT COUNT(*) as total_sales, SUM(total_amount_minor) as total_revenue, SUM(author_income_minor) as total_author_income, SUM(publisher_fee_minor) as total_publisher_fee, SUM(safety_fund_amount_minor) as total_safety_fund, AVG(publisher_fee_percent) as avg_fee_percent FROM platform_revenues');
         $accessStats = $db->one('SELECT COUNT(CASE WHEN status=\'active\' AND expires_at IS NOT NULL AND expires_at > NOW() THEN 1 END) as active_grants, COUNT(CASE WHEN expires_at <= NOW() THEN 1 END) as expired_grants FROM article_access_grants');
 
         $payoutStatusMap = [

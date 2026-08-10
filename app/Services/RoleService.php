@@ -9,6 +9,7 @@ final class RoleService
     public const ROLE_ADMIN = 'admin';
     public const ROLE_READER = 'reader';
     public const ROLE_AUTHOR = 'author';
+    public const ROLE_COMMENTATOR = 'commentator';
     public const ROLE_EDITOR = 'editor';
     public const ROLE_CHIEF_EDITOR = 'chief_editor';
     public const ROLE_PUBLISHER = 'publisher';
@@ -59,7 +60,7 @@ final class RoleService
             self::ROLE_ACCOUNTANT => [
                 'label' => 'KSIĘGOWA',
                 'tile' => 'FINANSE',
-                'description' => 'Wypłaty, rozliczenia, prowizja 70/30, raporty finansowe i kontrola wypłat.',
+                'description' => 'Wypłaty, rozliczenia, podział Autor / Serwis / Safety Fund, raporty finansowe i kontrola wypłat.',
                 'requires_2fa' => true,
                 'requires_verified_email' => true,
             ],

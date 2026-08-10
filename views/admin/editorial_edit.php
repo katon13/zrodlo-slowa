@@ -56,6 +56,16 @@ foreach ($langs as $l) {
   <?php endif; ?>
 </div>
 
+<?php if (!empty($article['response_to_article_id'])): ?>
+  <?php $depositStatusLabels = ['not_required' => 'niewymagana', 'held' => 'pobrana', 'forfeited' => 'przepadła na rzecz serwisu', 'refunded' => 'zwrócona użytkownikowi']; ?>
+  <section class="admin-notice-info editorial-response-note">
+    <strong>OPINIA / POLEMIKA DO PUBLIKACJI #<?= (int)$article['response_to_article_id'] ?></strong>
+    <p>Ten tekst pozostaje bezpłatny. Talent może przyznać wyłącznie TT po pierwszej publikacji przez redakcję.</p>
+    <p>Snapshot: <?= $article['response_reward_qualified'] === null ? 'jeszcze nie powstał' : (!empty($article['response_reward_qualified']) ? ((int)$article['response_reward_points'] . ' TT') : '0 TT — reguła nie kwalifikowała przy publikacji') ?><?php if (!empty($article['response_reward_job_public_id'])): ?> · job <code><?= e((string)$article['response_reward_job_public_id']) ?></code><?php endif; ?></p>
+    <p>Kaucja: <?= $article['response_deposit_status'] === null ? 'jeszcze nie pobrana' : e($depositStatusLabels[(string)$article['response_deposit_status']] ?? (string)$article['response_deposit_status']) ?><?php if ($article['response_deposit_points'] !== null): ?> · <?= (int)$article['response_deposit_points'] ?> TT<?php endif; ?><?php if (!empty($article['response_deposit_debit_transaction_id'])): ?> · obciążenie #<?= (int)$article['response_deposit_debit_transaction_id'] ?><?php endif; ?><?php if (!empty($article['response_deposit_refund_transaction_id'])): ?> · zwrot #<?= (int)$article['response_deposit_refund_transaction_id'] ?><?php endif; ?><?php if (!empty($article['response_deposit_forfeit_transaction_id'])): ?> · przepadek #<?= (int)$article['response_deposit_forfeit_transaction_id'] ?><?php endif; ?></p>
+  </section>
+<?php endif; ?>
+
 <?php if (!empty($article['proofread_at'])): ?>
   <section class="admin-notice-info editorial-proofread-note">
     <strong>KOREKTA</strong> — ostatnia korekta: <?= e(date('d.m.Y H:i', strtotime((string)$article['proofread_at']))) ?>

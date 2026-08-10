@@ -72,6 +72,12 @@
     <small>Rozliczenia autorów</small>
   </a>
 
+  <a class="admin-card zs-admin-card is-highlight" href="/admin/safety-fund">
+    <?= function_exists('zs_icon') ? zs_icon('shield') : '' ?>
+    <span><?= e(t('safety_fund.admin.dashboard_title', 'pl')) ?></span>
+    <small><?= e(t('safety_fund.admin.dashboard_description', 'pl')) ?></small>
+  </a>
+
   <a class="admin-card zs-admin-card" href="/admin/payments">
     <?= function_exists('zs_icon') ? zs_icon('wallet') : '' ?>
     <span>PŁATNOŚCI</span>
@@ -135,16 +141,17 @@
     <small><?= !empty($slowo_snajper['enabled']) ? 'Aktywny: limity i audyt' : 'Wyłączony w konfiguracji' ?></small>
   </a>
 
-  <a class="admin-card zs-admin-card" href="/account/security">
-    <?= function_exists('zs_icon') ? zs_icon('shield') : '' ?>
-    <span>BEZPIECZEŃSTWO KONTA</span>
-    <small>Potwierdzenie e-mail i 2FA dla wysokich ról</small>
-  </a>
-
   <a class="admin-card zs-admin-card is-highlight" href="/admin/security/3dors">
     <?= function_exists('zs_icon') ? zs_icon('shield') : '' ?>
-    <span>BEZPIECZEŃSTWO — 3DORS</span>
-    <small>Tożsamość, skarbiec, audyt i odzyskiwanie</small>
+    <span>BEZPIECZEŃSTWO I 3DORS</span>
+    <small>Konto administratora, 2FA, urządzenia, recovery i konfiguracja ochrony</small>
+  </a>
+
+  <a class="admin-card zs-admin-card is-highlight<?= !empty($sentinel_open_alerts) ? ' is-alert' : '' ?>" href="/admin/security/sentinel">
+    <?= function_exists('zs_icon') ? zs_icon('history') : '' ?>
+    <span><?= e(\App\Services\Dors3UiText::get('sentinel.card_title')) ?></span>
+    <small><?= e(\App\Services\Dors3UiText::get('sentinel.card_description')) ?></small>
+    <?php if (!empty($sentinel_open_alerts)): ?><b class="admin-card-badge"><?= (int)$sentinel_open_alerts ?></b><?php endif; ?>
   </a>
 
   <a class="admin-card zs-admin-card is-highlight" href="/admin/main-banner">

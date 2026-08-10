@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Manifest dołączany wyłącznie do wariantu debug (ETAP 2 z dyspozycji).
+    Podłącza network_security_config dopuszczający cleartext wyłącznie do
+    lokalnego serwera deweloperskiego (10.0.2.2/localhost/127.0.0.1);
+    wariant release nigdy nie zawiera tego pliku.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application android:networkSecurityConfig="@xml/network_security_config" />
+
+</manifest>

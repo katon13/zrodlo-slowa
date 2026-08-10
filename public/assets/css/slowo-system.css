@@ -4080,15 +4080,20 @@ code {
 }
 
 .zs-dors3-progress {
+    display: block;
+    width: 100%;
     height: 7px;
+    border: 0;
+    border-radius: 0;
     margin: 25px 0;
     overflow: hidden;
     background: #e9e4e1;
+    appearance: none;
 }
 
-.zs-dors3-progress span {
-    display: block;
-    height: 100%;
+.zs-dors3-progress::-webkit-progress-bar { background: #e9e4e1; }
+.zs-dors3-progress::-webkit-progress-value,
+.zs-dors3-progress::-moz-progress-bar {
     background: var(--zs-red);
 }
 
@@ -4244,6 +4249,157 @@ code {
     font-size: 12px;
 }
 
+.zs-dors3-mobile {
+    margin-bottom: 26px;
+    padding: clamp(24px, 2.6vw, 36px);
+}
+
+.zs-dors3-mobile-state {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 22px;
+    align-items: center;
+    margin: 22px 0;
+    padding: 15px 18px;
+    border-left: 3px solid var(--zs-red);
+    background: var(--zs-soft);
+    color: #62574f;
+    font-size: 12px;
+}
+
+.zs-dors3-mobile-search {
+    display: grid;
+    gap: 7px;
+    margin-bottom: 20px;
+}
+
+.zs-dors3-mobile-search > label,
+.zs-dors3-mobile-enroll label > span {
+    color: #776c65;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.zs-dors3-mobile-search > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+}
+
+.zs-dors3-mobile-search input,
+.zs-dors3-mobile-enroll select,
+.zs-dors3-mobile-enroll input,
+.zs-dors3-inline-action input {
+    min-height: 43px;
+    padding: 10px 12px;
+    border: 1px solid var(--zs-line);
+    background: #fff;
+}
+
+.zs-dors3-mobile-variants {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.zs-dors3-mobile-variant {
+    padding: 22px;
+    border: 1px solid var(--zs-line);
+    border-top: 3px solid #2b2522;
+    background: #fff;
+}
+
+.zs-dors3-mobile-variant.is-author { border-top-color: var(--zs-red); }
+
+.zs-dors3-mobile-variant > header {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.zs-dors3-mobile-variant h3,
+.zs-dors3-subsection h3,
+.zs-dors3-mobile-one-time h3 {
+    margin: 3px 0 6px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 25px;
+}
+
+.zs-dors3-mobile-variant header p:not(.kicker) {
+    margin: 0;
+    color: var(--zs-muted);
+}
+
+.zs-dors3-mobile-variant header > strong {
+    display: grid;
+    place-items: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--zs-line);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20px;
+}
+
+.zs-dors3-mobile-enroll {
+    display: grid;
+    gap: 12px;
+}
+
+.zs-dors3-mobile-enroll label { display: grid; gap: 6px; }
+.zs-dors3-mobile-enroll small { color: #9d1320; line-height: 1.45; }
+
+.zs-dors3-mobile-one-time {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
+    gap: 28px;
+    align-items: start;
+    margin-top: 22px;
+}
+
+.zs-dors3-mobile-one-time img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    padding: 8px;
+    background: #fff;
+}
+
+.zs-dors3-mobile-one-time details { grid-column: 1 / -1; }
+.zs-dors3-mobile-one-time summary { cursor: pointer; font-weight: 700; }
+.zs-dors3-mobile-one-time textarea { width: 100%; margin-top: 10px; }
+
+.zs-dors3-subsection {
+    margin-top: 28px;
+    padding-top: 4px;
+}
+
+.zs-dors3-subsection .admin-table-wrap { margin-top: 18px; }
+
+.zs-dors3-inline-action,
+.zs-dors3-device-actions {
+    display: grid;
+    gap: 7px;
+    min-width: 190px;
+}
+
+.zs-dors3-inline-action button {
+    min-height: 35px;
+    padding: 7px 10px;
+}
+
+.zs-dors3-page .admin-table td > small,
+.zs-dors3-page .admin-table td strong + small,
+.zs-dors3-page .admin-table td span + small {
+    display: block;
+    margin-top: 4px;
+    color: var(--zs-muted);
+    line-height: 1.4;
+}
+
 .zs-dors3-one-time {
     padding: clamp(25px, 3vw, 40px);
     border: 2px solid var(--zs-red);
@@ -4381,6 +4537,8 @@ code {
     .zs-dors3-one-time-actions form {
         grid-template-columns: 1fr;
     }
+
+    .zs-dors3-mobile-variants { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 900px) {
@@ -4496,6 +4654,22 @@ code {
     .zs-dors3-diagnostics > summary {
         flex-direction: column;
     }
+
+    .zs-dors3-mobile-search > div,
+    .zs-dors3-mobile-one-time {
+        grid-template-columns: 1fr;
+    }
+
+    .zs-dors3-mobile-one-time details { grid-column: 1; }
+}
+
+@media print {
+    body * { visibility: hidden; }
+    #recovery-codes-once,
+    #recovery-codes-once * { visibility: visible; }
+    #recovery-codes-once { position: absolute; inset: 0; border: 0 !important; }
+    #recovery-codes-once form,
+    #recovery-codes-once button { display: none !important; }
 }
 
 /* Role i Uprawnienia */
@@ -5464,4 +5638,174 @@ code {
 .btn-oauth svg {
     width: 18px;
     height: 18px;
+}
+.safety-fund-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 24px;
+}
+
+.safety-fund-policy-form,
+.safety-fund-disbursement-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: end;
+  margin-top: 18px;
+}
+
+.safety-fund-policy-form label,
+.safety-fund-disbursement-form label {
+  display: grid;
+  gap: 7px;
+  color: #4a4a4a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.safety-fund-policy-form input,
+.safety-fund-disbursement-form input,
+.safety-fund-disbursement-form select,
+.safety-fund-disbursement-form textarea {
+  width: 100%;
+  border: 1px solid #d9d4ce;
+  border-radius: 8px;
+  background: #fff;
+  color: #171717;
+  font: inherit;
+  padding: 11px 12px;
+}
+
+.safety-fund-disbursement-form .is-wide {
+  grid-column: 1 / -1;
+}
+
+.safety-fund-disbursement-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+@media (max-width: 1050px) {
+  .safety-fund-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .safety-fund-summary,
+  .safety-fund-policy-form,
+  .safety-fund-disbursement-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Opinie i polemiki — wspólny wizualny standard przesyłania zdjęć. */
+.zs-response-deposit-notice {
+  border-left-color: #201919;
+  background: #f6f2ed;
+}
+
+.zs-response-deposit-notice strong::before {
+  content: "◆";
+  margin-right: .55rem;
+  color: #d4001a;
+}
+
+.zs-response-deposit-public {
+  display: grid;
+  gap: .35rem;
+  margin: -.25rem 0 1.25rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid #ded4cb;
+  border-left: 4px solid #201919;
+  border-radius: 10px;
+  background: #f8f5f1;
+}
+
+.zs-response-deposit-public span {
+  color: #675959;
+  line-height: 1.5;
+}
+
+.zs-response-image-field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.zs-response-field-label {
+  font-weight: 800;
+}
+
+.zs-response-image-dropzone {
+  min-height: 190px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.zs-response-image-dropzone:focus-visible {
+  border-color: var(--zs-red);
+  box-shadow: 0 0 0 4px rgba(185, 0, 18, 0.08);
+  outline: none;
+}
+
+.zs-response-image-dropzone .zs-upload-placeholder {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px;
+}
+
+.zs-response-image-dropzone .zs-upload-placeholder p {
+  margin: 4px 0;
+}
+
+.zs-response-image-dropzone .zs-upload-placeholder small {
+  color: #817575;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.zs-response-image-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.zs-response-image-preview[hidden] {
+  display: none;
+}
+
+.zs-response-image-selection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e8e3df;
+  border-top: 0;
+  background: #fcfbf9;
+}
+
+.zs-response-image-selection[hidden] {
+  display: none;
+}
+
+.zs-response-image-selection span {
+  min-width: 0;
+  overflow: hidden;
+  color: #625858;
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zs-response-image-selection .zs-btn-mini {
+  flex: 0 0 auto;
+  border: 1px solid #d8cfcc;
 }

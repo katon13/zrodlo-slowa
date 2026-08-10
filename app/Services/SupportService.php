@@ -14,8 +14,9 @@ final class SupportService
     {
         if ($amountMinor < 100) throw new \InvalidArgumentException('Minimalne wsparcie to 1 PLN.');
         return $this->db->transaction(function(Database $db) use ($readerId, $articleId, $amountMinor, $note) {
-            $article = $db->one('SELECT id,title,author_id FROM articles WHERE id=:id AND status=\'published\'', ['id'=>$articleId]);
+            $article = $db->one('SELECT id,title,author_id,response_to_article_id FROM articles WHERE id=:id AND status=\'published\'', ['id'=>$articleId]);
             if (!$article) throw new \RuntimeException('Nie znaleziono opublikowanego tekstu.');
+            if (!empty($article['response_to_article_id'])) throw new \RuntimeException('Opinia lub polemika jest nagradzana wyłącznie w TT i nie przyjmuje wsparcia PLN.');
             if ((int)$article['author_id'] === $readerId) throw new \RuntimeException('Autor nie może wspierać własnego tekstu.');
             $ledger = new LedgerService($db, new \App\Services\FinancialService($db));
             $ledger->lockWalletsForUsers([$readerId, (int)$article['author_id']]);

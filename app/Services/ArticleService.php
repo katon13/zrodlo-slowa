@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Core\Database;
+use App\Security\ArticleSubmissionPolicy;
 
 final class ArticleService
 {
@@ -10,7 +11,7 @@ final class ArticleService
     public function published(int $limit=20): array
     {
         $limit = max(1, min(100, $limit));
-        return $this->db->all('SELECT a.id,a.author_id,a.title,a.slug,a.`lead`,a.status,a.published_at,a.updated_at,a.source_language,a.access_mode,a.price_minor,a.currency,a.is_premium,a.is_unique,a.article_label,u.display_name AS author_name, u.avatar_path AS author_avatar_path, u.avatar_updated_at AS author_avatar_updated_at, (SELECT path FROM media WHERE article_id=a.id ORDER BY id DESC LIMIT 1) as main_image, (SELECT image_position FROM media WHERE article_id=a.id ORDER BY id DESC LIMIT 1) as main_image_position FROM articles a JOIN users u ON u.id=a.author_id WHERE a.status=\'published\' ORDER BY a.published_at DESC, a.id DESC LIMIT ' . $limit);
+        return $this->db->all('SELECT a.id,a.author_id,a.title,a.slug,a.`lead`,a.status,a.published_at,a.updated_at,a.source_language,a.access_mode,a.price_minor,a.currency,a.is_premium,a.is_unique,a.article_label,u.display_name AS author_name, u.avatar_path AS author_avatar_path, u.avatar_updated_at AS author_avatar_updated_at, (SELECT path FROM media WHERE article_id=a.id ORDER BY id DESC LIMIT 1) as main_image, (SELECT image_position FROM media WHERE article_id=a.id ORDER BY id DESC LIMIT 1) as main_image_position FROM articles a JOIN users u ON u.id=a.author_id WHERE a.status=\'published\' AND a.response_to_article_id IS NULL ORDER BY a.published_at DESC, a.id DESC LIMIT ' . $limit);
     }
     public function publishedByCategory(string $categorySlug, int $limit=20): array
     {
@@ -20,7 +21,7 @@ final class ArticleService
             JOIN users u ON u.id=a.author_id 
             JOIN article_categories ac ON ac.article_id=a.id
             JOIN categories c ON c.id=ac.category_id
-            WHERE a.status=\'published\' AND c.slug=:slug
+            WHERE a.status=\'published\' AND a.response_to_article_id IS NULL AND c.slug=:slug
             ORDER BY a.published_at DESC, a.id DESC LIMIT ' . $limit, ['slug' => $categorySlug]);
     }
 
@@ -32,6 +33,23 @@ final class ArticleService
     public function findAnyWithAuthor(int $id): ?array
     {
         return $this->db->one('SELECT a.*, u.display_name AS author_name, u.avatar_path AS author_avatar_path, u.avatar_updated_at AS author_avatar_updated_at FROM articles a JOIN users u ON u.id=a.author_id WHERE a.id=:id LIMIT 1', ['id'=>$id]);
+    }
+
+    /** @return list<array<string,mixed>> */
+    public function publishedResponses(int $articleId, int $limit = 20): array
+    {
+        $limit = max(1, min(50, $limit));
+        return $this->db->all(
+            'SELECT a.id,a.author_id,a.title,a.slug,a.`lead`,a.published_at,a.updated_at,a.source_language,
+                    a.response_reward_qualified,a.response_reward_points,
+                    u.display_name AS author_name,u.avatar_path AS author_avatar_path,
+                    u.avatar_updated_at AS author_avatar_updated_at
+             FROM articles a
+             JOIN users u ON u.id=a.author_id
+             WHERE a.response_to_article_id=:article AND a.status=\'published\'
+             ORDER BY a.published_at ASC,a.id ASC LIMIT ' . $limit,
+            ['article' => $articleId]
+        );
     }
 
     public function findForAuthor(int $id, int $authorId): ?array
@@ -258,7 +276,7 @@ final class ArticleService
 
     public function createDraft(int $authorId, array $data): int
     {
-        if (($data['title'] ?? '') === '' || ($data['body'] ?? '') === '') throw new \InvalidArgumentException('Tytuł i treść są wymagane.');
+        ArticleSubmissionPolicy::validate($data);
         $rawAccessMode = (string)($data['access_mode'] ?? 'free');
         $accessMode = in_array($rawAccessMode, ['free', 'paid'], true) ? $rawAccessMode : 'free';
         $priceMinor = max(0, (int)($data['price_minor'] ?? 0));
@@ -281,6 +299,53 @@ final class ArticleService
         });
     }
 
+    public function createResponseDraft(int $authorId, int $sourceArticleId, array $data): int
+    {
+        ArticleSubmissionPolicy::validate($data);
+        $sourceLanguage = in_array($data['source_language'] ?? 'pl', ['pl', 'en', 'de', 'fr', 'it', 'es'], true)
+            ? (string)$data['source_language']
+            : 'pl';
+
+        return $this->db->transaction(function (Database $db) use ($authorId, $sourceArticleId, $data, $sourceLanguage): int {
+            $source = $db->one(
+                'SELECT id,status,revision_of_article_id FROM articles WHERE id=:id FOR SHARE',
+                ['id' => $sourceArticleId]
+            );
+            if ($source === null || (string)$source['status'] !== 'published' || !empty($source['revision_of_article_id'])) {
+                throw new \RuntimeException('Odpowiedź publikacją można utworzyć tylko do opublikowanego tekstu głównego.');
+            }
+            if (!$this->hasAccess($authorId, $sourceArticleId)) {
+                throw new \RuntimeException('response_source_access_required');
+            }
+
+            $id = $db->insert(
+                'INSERT INTO articles(
+                    author_id,title,slug,`lead`,body,status,access_mode,price_minor,pricing_status,
+                    source_language,response_to_article_id,created_at,updated_at
+                 ) VALUES(
+                    :author,:title,:slug,:lead,:body,\'draft\',\'free\',0,\'free\',
+                    :source_language,:response_to,NOW(),NOW()
+                 )',
+                [
+                    'author' => $authorId,
+                    'title' => $data['title'],
+                    'slug' => $this->uniqueSlug((string)$data['title']),
+                    'lead' => $data['lead'] ?? null,
+                    'body' => $data['body'],
+                    'source_language' => $sourceLanguage,
+                    'response_to' => $sourceArticleId,
+                ]
+            );
+            $this->snapshot($id, (string)$data['title'], $data['lead'] ?? null, (string)$data['body']);
+            $this->event($id, $authorId, 'response_created', [
+                'status' => 'draft',
+                'response_to_article_id' => $sourceArticleId,
+                'monetization' => 'tt_only_after_editorial_publication',
+            ]);
+            return $id;
+        });
+    }
+
     public function updateDraft(int $articleId, int $authorId, array $data): int
     {
         $article = $this->findForAuthor($articleId, $authorId);
@@ -290,9 +355,7 @@ final class ArticleService
         if (!in_array($article['status'], ['draft', 'rejected', 'published'], true)) {
             throw new \RuntimeException('Można edytować tylko szkic, tekst odrzucony albo opublikowany.');
         }
-        if (($data['title'] ?? '') === '' || ($data['body'] ?? '') === '') {
-            throw new \InvalidArgumentException('Tytuł i treść są wymagane.');
-        }
+        ArticleSubmissionPolicy::validate($data);
 
         $accessMode = array_key_exists('access_mode', $data) && in_array($data['access_mode'], ['free', 'paid'], true)
             ? $data['access_mode']
@@ -303,6 +366,10 @@ final class ArticleService
         $sourceLanguage = array_key_exists('source_language', $data) && in_array($data['source_language'], ['pl', 'en', 'de', 'fr', 'it', 'es'], true)
             ? $data['source_language']
             : (string)($article['source_language'] ?? 'pl');
+        if (!empty($article['response_to_article_id'])) {
+            $accessMode = 'free';
+            $priceMinor = 0;
+        }
 
         return $this->db->transaction(function (Database $db) use (
             $articleId,
@@ -362,7 +429,7 @@ final class ArticleService
     {
         $this->db->transaction(function(Database $db) use ($articleId, $authorId): void {
             $article = $db->one(
-                'SELECT id,status FROM articles
+                'SELECT * FROM articles
                  WHERE id=:id AND author_id=:author
                  LIMIT 1 FOR UPDATE',
                 ['id' => $articleId, 'author' => $authorId]
@@ -373,6 +440,7 @@ final class ArticleService
             if (!in_array((string)$article['status'], ['draft', 'rejected'], true)) {
                 throw new \RuntimeException('Tekst nie może zostać wysłany z aktualnego statusu.');
             }
+            $this->holdResponseSubmissionDeposit($db, $article, $authorId);
             $db->query('UPDATE articles SET status=\'submitted\', updated_at=NOW() WHERE id=:id', ['id'=>$articleId]);
             $this->event($articleId, $authorId, 'submitted', []);
         });
@@ -382,7 +450,7 @@ final class ArticleService
     {
         $this->db->transaction(function(Database $db) use ($id, $adminId): void {
             $article = $db->one(
-                'SELECT id,status FROM articles WHERE id=:id LIMIT 1 FOR UPDATE',
+                'SELECT * FROM articles WHERE id=:id LIMIT 1 FOR UPDATE',
                 ['id' => $id]
             );
             if (!$article) {
@@ -392,6 +460,7 @@ final class ArticleService
                 throw new \RuntimeException('Tekstu w tym statusie nie można przekazać do korekty.');
             }
             if ((string)$article['status'] !== 'submitted') {
+                $this->holdResponseSubmissionDeposit($db, $article, $adminId);
                 $db->query('UPDATE articles SET status=\'submitted\', updated_at=NOW() WHERE id=:id', ['id'=>$id]);
             }
             $this->event($id, $adminId, 'sent_to_proofreading', []);
@@ -414,11 +483,29 @@ final class ArticleService
                 return $this->publishRevision($db, $article, $adminId);
             }
 
+            if ($status === 'submitted' && (string)$article['status'] !== 'submitted') {
+                $this->holdResponseSubmissionDeposit($db, $article, $adminId);
+            }
+            if (in_array($status, ['rejected', 'archived'], true) && (string)$article['status'] !== $status) {
+                $this->forfeitResponseSubmissionDeposit($db, $article, $adminId);
+            }
+            if ($status === 'published' && (string)$article['status'] !== 'published') {
+                $this->refundResponseSubmissionDeposit($db, $article, $adminId);
+            }
+
             $published = $status === 'published' ? ', published_at=COALESCE(published_at,NOW())' : '';
             $db->query(
                 "UPDATE articles SET status=:status,updated_at=NOW() {$published} WHERE id=:id",
                 ['status' => $status, 'id' => $id]
             );
+            if (
+                $status === 'published'
+                && (string)$article['status'] !== 'published'
+                && !empty($article['response_to_article_id'])
+                && empty($article['revision_of_article_id'])
+            ) {
+                $this->snapshotResponsePublicationReward($db, $article, $adminId);
+            }
             $this->event($id, $adminId, 'status_' . $status, []);
             return $id;
         });
@@ -569,12 +656,12 @@ final class ArticleService
                     author_id,title,slug,`lead`,body,status,access_mode,price_minor,currency,
                     is_premium,is_unique,pricing_status,author_share_percent,platform_share_percent,
                     editor_valuation_note,article_label,source_language,display_order,editorial_weight,
-                    is_featured,revision_of_article_id,created_at,updated_at
+                    is_featured,revision_of_article_id,response_to_article_id,created_at,updated_at
                  ) VALUES(
                     :author,:title,:slug,:lead,:body,\'draft\',:access,:price,:currency,
                     :premium,:unique_flag,:pricing,:author_share,:platform_share,
                     :valuation_note,:label,:source,:display_order,:editorial_weight,
-                    :featured,:revision_of,NOW(),NOW()
+                    :featured,:revision_of,:response_to,NOW(),NOW()
                  )',
                 [
                     'author' => $authorId,
@@ -597,6 +684,7 @@ final class ArticleService
                     'editorial_weight' => $published['editorial_weight'],
                     'featured' => $published['is_featured'],
                     'revision_of' => (int)$published['id'],
+                    'response_to' => !empty($published['response_to_article_id']) ? (int)$published['response_to_article_id'] : null,
                 ]
             );
             $db->query(
@@ -703,6 +791,272 @@ final class ArticleService
         $this->event($sourceId, $adminId, 'revision_published', ['revision_id' => (int)$revision['id']]);
         $this->event((int)$revision['id'], $adminId, 'status_archived', ['published_to_article_id' => $sourceId]);
         return $sourceId;
+    }
+
+    /** @param array<string,mixed> $article */
+    private function snapshotResponsePublicationReward(Database $db, array $article, ?int $adminId): void
+    {
+        $rule = $db->one(
+            'SELECT activity_type,points_amount,amount_minor,is_active
+             FROM activity_reward_rules
+             WHERE activity_type=\'response_publication_bonus\'
+             FOR SHARE'
+        );
+        $points = $rule !== null ? max(0, min(1_000_000, (int)($rule['points_amount'] ?? 0))) : 0;
+        $qualified = $rule !== null
+            && (int)($rule['is_active'] ?? 0) === 1
+            && $points > 0
+            && (int)($rule['amount_minor'] ?? 0) === 0;
+        $snapshotPoints = $qualified ? $points : 0;
+        $articleId = (int)$article['id'];
+        $authorId = (int)$article['author_id'];
+
+        $job = (new EarningsQueueService(new DurableJobQueue($db)))->queueTalentAward(
+            $authorId,
+            'response_publication_bonus',
+            'response_publication',
+            $articleId,
+            [
+                'response_rule_qualified' => $qualified,
+                'response_points_amount' => $snapshotPoints,
+                'response_source_article_id' => (int)$article['response_to_article_id'],
+                'response_published_by' => $adminId,
+                'response_published_at' => gmdate('Y-m-d H:i:s'),
+            ]
+        );
+        $jobPublicId = trim((string)($job['public_id'] ?? ''));
+        if ($jobPublicId === '') {
+            throw new \RuntimeException('Nie udało się zapisać zadania nagrody za opublikowaną polemikę.');
+        }
+
+        $db->query(
+            'UPDATE articles
+             SET response_reward_qualified=:qualified,response_reward_points=:points,
+                 response_reward_job_public_id=:job,response_reward_queued_at=NOW(),updated_at=NOW()
+             WHERE id=:id',
+            [
+                'qualified' => $qualified ? 'true' : 'false',
+                'points' => $snapshotPoints,
+                'job' => $jobPublicId,
+                'id' => $articleId,
+            ]
+        );
+        $this->event($articleId, $adminId, 'response_reward_snapshotted', [
+            'qualified' => $qualified,
+            'points_amount' => $snapshotPoints,
+            'job_public_id' => $jobPublicId,
+            'rule_activity_type' => 'response_publication_bonus',
+        ]);
+    }
+
+    /** @param array<string,mixed> $article */
+    private function holdResponseSubmissionDeposit(Database $db, array $article, ?int $actorId): void
+    {
+        if (empty($article['response_to_article_id']) || $article['response_deposit_status'] !== null) {
+            return;
+        }
+
+        $articleId = (int)$article['id'];
+        if (!empty($article['revision_of_article_id'])) {
+            $db->query(
+                'UPDATE articles
+                 SET response_deposit_points=0,response_deposit_status=\'not_required\',
+                     response_deposit_snapshotted_at=NOW(),updated_at=NOW()
+                 WHERE id=:id AND response_deposit_status IS NULL',
+                ['id' => $articleId]
+            );
+            $this->event($articleId, $actorId, 'response_deposit_not_required', ['reason' => 'revision']);
+            return;
+        }
+
+        $rule = $db->one(
+            'SELECT submission_deposit_points
+             FROM activity_reward_rules
+             WHERE activity_type=\'response_publication_bonus\'
+             FOR SHARE'
+        );
+        $points = $rule !== null
+            ? max(0, min(1_000_000, (int)($rule['submission_deposit_points'] ?? 0)))
+            : 0;
+
+        if ($points === 0) {
+            $db->query(
+                'UPDATE articles
+                 SET response_deposit_points=0,response_deposit_status=\'not_required\',
+                     response_deposit_snapshotted_at=NOW(),updated_at=NOW()
+                 WHERE id=:id AND response_deposit_status IS NULL',
+                ['id' => $articleId]
+            );
+            $this->event($articleId, $actorId, 'response_deposit_not_required', ['reason' => 'admin_value_zero']);
+            return;
+        }
+
+        $authorId = (int)$article['author_id'];
+        $ledger = new LedgerService($db, new FinancialService($db));
+        $wallet = $ledger->walletForUser($authorId, true);
+        if ((int)($wallet['is_locked'] ?? 0) === 1) {
+            throw new \RuntimeException('Portfel użytkownika jest zablokowany.');
+        }
+        if ((int)($wallet['points_balance'] ?? 0) < $points) {
+            throw new ResponseSubmissionDepositException($points);
+        }
+
+        $transactionId = $ledger->post(
+            $authorId,
+            'response_submission_deposit_hold',
+            0,
+            -$points,
+            'Kaucja za wysłanie opinii lub polemiki do redakcji',
+            [
+                'account_type' => 'points',
+                'source_module' => 'response_publication',
+                'ref_type' => 'response_publication',
+                'ref_id' => $articleId,
+                'idempotency_key' => 'response-submission-deposit:' . $articleId,
+                'meta' => ['response_article_id' => $articleId, 'deposit_points' => $points],
+            ]
+        );
+        $db->query(
+            'UPDATE articles
+             SET response_deposit_points=:points,response_deposit_status=\'held\',
+                 response_deposit_snapshotted_at=NOW(),response_deposit_charged_at=NOW(),
+                 response_deposit_debit_transaction_id=:transaction,updated_at=NOW()
+             WHERE id=:id AND response_deposit_status IS NULL',
+            ['points' => $points, 'transaction' => $transactionId, 'id' => $articleId]
+        );
+        $this->event($articleId, $actorId, 'response_deposit_held', [
+            'points_amount' => $points,
+            'wallet_transaction_id' => $transactionId,
+        ]);
+    }
+
+    /** @param array<string,mixed> $article */
+    private function forfeitResponseSubmissionDeposit(Database $db, array $article, ?int $actorId): void
+    {
+        if (empty($article['response_to_article_id']) || (string)($article['response_deposit_status'] ?? '') !== 'held') {
+            return;
+        }
+        $points = max(0, (int)($article['response_deposit_points'] ?? 0));
+        if ($points === 0) {
+            return;
+        }
+        $articleId = (int)$article['id'];
+        $platformId = $this->platformUserId($db);
+        $transactionId = (new LedgerService($db, new FinancialService($db)))->post(
+            $platformId,
+            'response_submission_deposit_forfeit',
+            0,
+            $points,
+            'Przepadek kaucji za nieopublikowaną opinię lub polemikę',
+            [
+                'account_type' => 'points',
+                'source_module' => 'response_publication',
+                'ref_type' => 'response_publication',
+                'ref_id' => $articleId,
+                'counterparty_user_id' => (int)$article['author_id'],
+                'idempotency_key' => 'response-submission-deposit-forfeit:' . $articleId,
+                'meta' => ['response_article_id' => $articleId, 'deposit_points' => $points],
+            ]
+        );
+        $db->query(
+            'UPDATE articles
+             SET response_deposit_status=\'forfeited\',response_deposit_settled_at=NOW(),
+                 response_deposit_forfeit_transaction_id=:transaction,updated_at=NOW()
+             WHERE id=:id AND response_deposit_status=\'held\'',
+            ['transaction' => $transactionId, 'id' => $articleId]
+        );
+        $this->event($articleId, $actorId, 'response_deposit_forfeited', [
+            'points_amount' => $points,
+            'wallet_transaction_id' => $transactionId,
+        ]);
+    }
+
+    /** @param array<string,mixed> $article */
+    private function refundResponseSubmissionDeposit(Database $db, array $article, ?int $actorId): void
+    {
+        if (empty($article['response_to_article_id'])) {
+            return;
+        }
+        $status = (string)($article['response_deposit_status'] ?? '');
+        if (!in_array($status, ['held', 'forfeited'], true)) {
+            return;
+        }
+        $points = max(0, (int)($article['response_deposit_points'] ?? 0));
+        if ($points === 0) {
+            return;
+        }
+        $articleId = (int)$article['id'];
+        $ledger = new LedgerService($db, new FinancialService($db));
+        $reversalTransactionId = null;
+        if ($status === 'forfeited') {
+            $reversalTransactionId = $ledger->post(
+                $this->platformUserId($db),
+                'response_submission_deposit_forfeit_reversal',
+                0,
+                -$points,
+                'Cofnięcie przepadku kaucji po publikacji poprawionej polemiki',
+                [
+                    'account_type' => 'points',
+                    'source_module' => 'response_publication',
+                    'ref_type' => 'response_publication',
+                    'ref_id' => $articleId,
+                    'counterparty_user_id' => (int)$article['author_id'],
+                    'idempotency_key' => 'response-submission-deposit-forfeit-reversal:' . $articleId,
+                    'meta' => ['response_article_id' => $articleId, 'deposit_points' => $points],
+                ]
+            );
+        }
+        $refundTransactionId = $ledger->post(
+            (int)$article['author_id'],
+            'response_submission_deposit_refund',
+            0,
+            $points,
+            'Zwrot kaucji po publikacji opinii lub polemiki',
+            [
+                'account_type' => 'points',
+                'source_module' => 'response_publication',
+                'ref_type' => 'response_publication',
+                'ref_id' => $articleId,
+                'idempotency_key' => 'response-submission-deposit-refund:' . $articleId,
+                'meta' => ['response_article_id' => $articleId, 'deposit_points' => $points],
+            ]
+        );
+        $db->query(
+            'UPDATE articles
+             SET response_deposit_status=\'refunded\',response_deposit_settled_at=NOW(),
+                 response_deposit_reversal_transaction_id=:reversal,
+                 response_deposit_refund_transaction_id=:refund,updated_at=NOW()
+             WHERE id=:id AND response_deposit_status IN (\'held\',\'forfeited\')',
+            ['reversal' => $reversalTransactionId, 'refund' => $refundTransactionId, 'id' => $articleId]
+        );
+        $this->event($articleId, $actorId, 'response_deposit_refunded', [
+            'points_amount' => $points,
+            'wallet_transaction_id' => $refundTransactionId,
+            'forfeit_reversal_transaction_id' => $reversalTransactionId,
+        ]);
+    }
+
+    private function platformUserId(Database $db): int
+    {
+        $platform = $db->one('SELECT id FROM users WHERE email=\'platform@zrodlo-slowa.local\' LIMIT 1');
+        if ($platform !== null) {
+            return (int)$platform['id'];
+        }
+        $db->query(
+            'INSERT INTO users(
+                email,phone,password_hash,display_name,status,can_write,talent_enabled,
+                wallet_enabled,payout_enabled,permissions_updated_at,created_at,updated_at
+             ) VALUES(
+                \'platform@zrodlo-slowa.local\',NULL,:hash,\'Platforma ŹRÓDŁO SŁOWA\',
+                \'active\',0,0,1,0,NOW(),NOW(),NOW()
+             ) ON CONFLICT (email) DO NOTHING',
+            ['hash' => password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT)]
+        );
+        $platform = $db->one('SELECT id FROM users WHERE email=\'platform@zrodlo-slowa.local\' LIMIT 1');
+        if ($platform === null) {
+            throw new \RuntimeException('Nie udało się utworzyć konta rozliczeniowego serwisu.');
+        }
+        return (int)$platform['id'];
     }
 
     private function assertStatusTransition(string $from, string $to): void

@@ -8,6 +8,12 @@ final class AccountSecurityController extends BaseController
     public function show(): string
     {
         $userId = $this->requireAuth();
+        // Dla administratora nie utrzymujemy drugiego, konkurencyjnego panelu.
+        // Widok osobisty pozostaje dla czytelnika/autora, którzy nie mają dostępu
+        // do administracyjnego centrum bezpieczeństwa.
+        if ($this->app->session->role() === 'admin') {
+            redirect('/admin/security/3dors');
+        }
         $service = $this->security();
         return $this->view('account/security', [
             'title' => 'Bezpieczeństwo konta',

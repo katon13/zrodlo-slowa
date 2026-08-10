@@ -17,4 +17,7 @@ public/uploads/articles/*
 public/uploads/avatars/*
 docs
 layout_design
+mobile
+exports
+.gradle-session-id.tmp
 *.zip

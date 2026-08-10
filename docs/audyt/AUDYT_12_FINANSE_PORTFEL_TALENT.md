@@ -6,18 +6,19 @@ System portfela w ŹRÓDLE SŁOWA jest podzielony na trzy główne obszary logic
 - **Konto Zarobkowe (`slowo_available_minor`)**: Środki zarobione przez autora ze sprzedaży tekstów, darowizn oraz bonusów wymienionych na PLN.
 - **Punkty Talent (`points_balance`)**: Kapitał społeczny użytkownika, zdobywany za aktywność. Możliwy do wymiany na PLN według zmiennego kursu.
 
-## 2. Mechanizm monetyzacji (70/30)
+## 2. Mechanizm monetyzacji (40/40/20)
 Przy zakupie artykułu premium (`ArticleEconomyService`):
 1. Od kupującego pobierana jest kwota z Konta Głównego.
-2. 70% kwoty trafia na Konto Zarobkowe autora.
-3. 30% kwoty trafia do Serwisu (rejestrowane w `platform_revenues`).
+2. 40% kwoty trafia na Konto Zarobkowe autora.
+3. 40% trafia do Serwisu, a 20% na wydzielone saldo Safety Fund w tej samej księdze.
 4. Całość operacji odbywa się w ramach jednej transakcji bazy danych.
 
 ## 3. Punkty Talent i Bonusy
 System nagradza użytkowników za aktywność (`TalentService`):
-- **Bonusy stałe**: Rejestracja, logowanie, dzienna wizyta.
-- **Bonusy za treść**: Przeczytanie artykułu, napisanie komentarza.
-- **Bonusy reklamowe**: Obejrzenie reklamy, udział w ankiecie, PPV.
+- **Bonusy gotowe**: Rejestracja z trwałym jobem, potwierdzona aktywna wizyta oraz zweryfikowane przeczytanie artykułu.
+- **Bonus za treść**: Pierwsza faktyczna publikacja podpisanej opinii lub polemiki przez Redakcję; wartość TT jest snapshotowana przy publikacji.
+- **Ankiety**: Kwota PLN pochodzi ze snapshotu konkretnej odpowiedzi ankietowej, a TT wyłącznie z aktywnej reguły `survey_reward` w `TalentService`. Brak aktywnej reguły TT nie blokuje należnych PLN.
+- **Reguły wstrzymane**: Samo logowanie oraz niepotwierdzone zdarzenia reklamowe i społecznościowe pozostają wyłączone do czasu wiarygodnego dowodu.
 Punkty Talent mogą być wymieniane na PLN (`WalletTransferService`). Proces ten podlega kontroli limitów dziennych i może wymagać akceptacji administratora.
 
 ## 4. Wypłaty
@@ -35,7 +36,7 @@ Autorzy mogą zlecać wypłatę środków z Konta Zarobkowego:
 | Operacja | Źródło | Cel | Prowizja | Walidacja |
 | --- | --- | --- | --- | --- |
 | Doładowanie | Stripe | Konto Główne | 0%* | Podpis Stripe |
-| Zakup tekstu | Konto Główne (Kupujący) | Konto Zarobkowe (Autor) | 30% | Stan konta |
+| Zakup tekstu | Konto Główne (Kupujący) | Konto Zarobkowe (Autor) | 40% Serwis / 20% Safety Fund | Stan konta |
 | Bonus aktywności | System | Punkty Talent | 0% | Limity dzienne |
 | Transfer TT -> PLN | Punkty Talent | Konto Zarobkowe | Zależna | Zgoda admina |
 | Wypłata | Konto Zarobkowe | Konto Bankowe | 0% | Minimalna kwota |

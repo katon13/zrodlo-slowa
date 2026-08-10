@@ -49,7 +49,7 @@ final class HomeController extends BaseController
      */
     private function loadFeaturedArticle(): ?array
     {
-        return $this->app->db->one('SELECT a.id,a.author_id,a.title,a.slug,a.`lead`,a.body,a.status,a.published_at,a.updated_at,a.access_mode,a.price_minor,a.currency,a.is_premium,a.is_unique,a.is_featured,a.display_order,a.editorial_weight,u.display_name AS author_name, u.avatar_path AS author_avatar_path, u.avatar_updated_at AS author_avatar_updated_at, (SELECT path FROM media WHERE article_id=a.id ORDER BY id DESC LIMIT 1) as main_image, (SELECT image_position FROM media WHERE article_id=a.id ORDER BY id DESC LIMIT 1) as main_image_position FROM articles a JOIN users u ON u.id=a.author_id WHERE a.status=\'published\' AND a.is_featured=1 ORDER BY a.display_order ASC, a.editorial_weight DESC, a.published_at DESC, a.id DESC LIMIT 1');
+        return $this->app->db->one('SELECT a.id,a.author_id,a.title,a.slug,a.`lead`,a.body,a.status,a.published_at,a.updated_at,a.access_mode,a.price_minor,a.currency,a.is_premium,a.is_unique,a.is_featured,a.display_order,a.editorial_weight,u.display_name AS author_name, u.avatar_path AS author_avatar_path, u.avatar_updated_at AS author_avatar_updated_at, (SELECT path FROM media WHERE article_id=a.id ORDER BY id DESC LIMIT 1) as main_image, (SELECT image_position FROM media WHERE article_id=a.id ORDER BY id DESC LIMIT 1) as main_image_position FROM articles a JOIN users u ON u.id=a.author_id WHERE a.status=\'published\' AND a.response_to_article_id IS NULL AND a.is_featured=1 ORDER BY a.display_order ASC, a.editorial_weight DESC, a.published_at DESC, a.id DESC LIMIT 1');
     }
 
     /**
@@ -96,7 +96,23 @@ final class HomeController extends BaseController
 
     public function economy(): string
     {
-        $flows = (new EconomyMapService($this->app->db))->publicFlows();
-        return $this->view('economy/show', ['title' => 'Jak działa zarabianie', 'money_flows' => $flows]);
+        $language = public_language();
+        $policy = (new \App\Services\SafetyFundService($this->app->db))->currentPolicy();
+        $flows = (new EconomyMapService($this->app->db))->publicFlows($language);
+        $referralService = $this->appReferralService();
+        $promotion = $referralService->currentPromotion();
+        $userId = $this->app->session->userId();
+        if ($promotion !== null && $userId !== null) {
+            $overview = $referralService->userOverview($userId);
+            if (($overview['pool_exhausted'] ?? false) === true) {
+                $promotion = null;
+            }
+        }
+        return $this->view('economy/show', [
+            'title' => t('economy.page_title', $language),
+            'money_flows' => $flows,
+            'split_policy' => $policy,
+            'talent_promotion' => $promotion,
+        ]);
     }
 }

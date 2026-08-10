@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Źródło Słowa</string>
+
+    <string name="nav_home">Główna</string>
+    <string name="nav_articles">Artykuły</string>
+    <string name="nav_wallet">Portfel</string>
+    <string name="nav_notifications">Powiadomienia</string>
+    <string name="nav_account">Konto</string>
+
+    <string name="placeholder_coming_soon">Ekran zostanie uzupełniony w kolejnym etapie.</string>
+
+    <string name="login_title">Zaloguj się — %1$s</string>
+
+    <string name="notifications_empty">Brak nowych powiadomień.</string>
+    <string name="notifications_error">Nie udało się pobrać powiadomień. Sprawdź połączenie.</string>
+    <string name="notifications_mark_all_read">Oznacz wszystkie jako przeczytane</string>
+
+    <string name="action_change_language">Zmień język</string>
+    <string name="action_language_automatic">Automatycznie</string>
+
+    <string name="offline_title">Brak połączenia</string>
+    <string name="offline_message">Nie udało się połączyć ze Źródłem Słowa. Sprawdź internet i spróbuj ponownie.</string>
+    <string name="offline_retry">Spróbuj ponownie</string>
+    <string name="offline_go_back">Wróć</string>
+
+    <string name="action_search">Szukaj</string>
+    <string name="action_menu">Menu</string>
+    <string name="menu_latest">Najnowsze</string>
+    <string name="menu_topics">Tematy</string>
+    <string name="menu_polls">Ankiety</string>
+    <string name="menu_ads">Reklamy</string>
+    <string name="menu_how_to_earn">Jak zarabiać</string>
+    <string name="menu_authors">Autorzy</string>
+    <string name="menu_tt_rate">KURS SŁOWA</string>
+    <string name="menu_login_account">Zaloguj / Konto</string>
+    <string name="menu_join_author">Dołącz jako autor</string>
+
+    <string name="onboarding_title">Witaj w Źródle Słowa</string>
+    <string name="onboarding_browse_guest">Przeglądaj bez konta</string>
+    <string name="onboarding_have_account">Mam konto — zaloguj się</string>
+    <string name="onboarding_join_author">Dołącz jako autor</string>
+
+    <string name="intro_motto">Daj temu własne źródło.</string>
+
+    <string name="dors3_author_not_installed">Aplikacja 3DORS Author nie jest zainstalowana na tym urządzeniu.</string>
+    <string name="dors3_admin_blocked">Ten link prowadzi do panelu 3DORS Admin — aplikacja Źródło Słowa go nie otwiera.</string>
+    <string name="file_operation_web_only">Ta operacja jest dostępna w pełnym serwisie WWW.</string>
+</resources>

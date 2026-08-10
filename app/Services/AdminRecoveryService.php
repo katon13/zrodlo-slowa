@@ -40,7 +40,18 @@ final class AdminRecoveryService
         $reportId = SecurityId::uuid();
         $beforeSettings = $this->db->one('SELECT * FROM security_settings WHERE id=1');
         $revokedCredentials = 0;
+        $invalidatedWebAuthnChallenges = 0;
         $deletedSessions = 0;
+        $mobileReset = [
+            'devices_revoked' => 0,
+            'credentials_revoked' => 0,
+            'tokens_revoked' => 0,
+            'pending_requests_cancelled' => 0,
+            'deferred_operations_cancelled' => 0,
+            'enrollments_cancelled' => 0,
+        ];
+        $invalidatedStepUps = 0;
+        $twoFactorReset = false;
         $this->codes->consumeForRecovery(
             $adminId,
             $recoveryCode,
@@ -50,7 +61,11 @@ final class AdminRecoveryService
                 $reportId,
                 $beforeSettings,
                 &$revokedCredentials,
-                &$deletedSessions
+                &$invalidatedWebAuthnChallenges,
+                &$deletedSessions,
+                &$mobileReset,
+                &$invalidatedStepUps,
+                &$twoFactorReset
             ): void {
                 $revokedCredentials = $db->query(
                     'UPDATE webauthn_credentials
@@ -59,14 +74,31 @@ final class AdminRecoveryService
                      WHERE user_id=:admin AND status<>\'revoked\'',
                     ['admin' => $adminId, 'reason' => $reason]
                 )->rowCount();
+                $invalidatedWebAuthnChallenges = $db->query(
+                    'UPDATE webauthn_challenges
+                     SET used_at=NOW()
+                     WHERE user_id=:admin AND used_at IS NULL',
+                    ['admin' => $adminId]
+                )->rowCount();
                 $deletedSessions = $db->query(
                     'DELETE FROM sessions WHERE user_id=:admin',
                     ['admin' => $adminId]
                 )->rowCount();
+                $mobileReset = (new AdminMobileSecurityResetService($db))->revokeAll($adminId, $reason);
+                $invalidatedStepUps = $db->query(
+                    'UPDATE security_step_up_authorizations
+                     SET invalidated_at=NOW()
+                     WHERE user_id=:admin AND consumed_at IS NULL AND invalidated_at IS NULL',
+                    ['admin' => $adminId]
+                )->rowCount();
                 $db->query(
-                    'UPDATE users SET session_version=session_version+1,updated_at=NOW() WHERE id=:admin',
+                    'UPDATE users
+                     SET two_factor_enabled=0,two_factor_secret=NULL,force_2fa_setup=1,
+                         session_version=session_version+1,updated_at=NOW()
+                     WHERE id=:admin',
                     ['admin' => $adminId]
                 );
+                $twoFactorReset = true;
                 $db->query(
                     'UPDATE security_settings
                      SET dors3_mode=CASE WHEN dors3_mode=\'required\' THEN \'test\' ELSE dors3_mode END,
@@ -93,6 +125,10 @@ final class AdminRecoveryService
                         'used_recovery_code_public_id' => (string)$usedCode['public_id'],
                         'sessions_ended' => $deletedSessions,
                         'credentials_revoked' => $revokedCredentials,
+                        'webauthn_challenges_invalidated' => $invalidatedWebAuthnChallenges,
+                        'mobile_admin_reset' => $mobileReset,
+                        'step_up_authorizations_invalidated' => $invalidatedStepUps,
+                        'two_factor_reset' => $twoFactorReset,
                         'password_changed' => false,
                     ]
                 );
@@ -106,6 +142,10 @@ final class AdminRecoveryService
             'admin_login' => $admin['login_name'],
             'reason' => $reason,
             'credentials_revoked' => $revokedCredentials,
+            'webauthn_challenges_invalidated' => $invalidatedWebAuthnChallenges,
+            'mobile_admin_reset' => $mobileReset,
+            'step_up_authorizations_invalidated' => $invalidatedStepUps,
+            'two_factor_reset' => $twoFactorReset,
             'sessions_ended' => $deletedSessions,
             'session_version_before' => (int)$admin['session_version'],
             'session_version_after' => (int)$admin['session_version'] + 1,

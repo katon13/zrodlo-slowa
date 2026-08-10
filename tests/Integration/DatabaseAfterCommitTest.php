@@ -70,7 +70,7 @@ final class DatabaseAfterCommitTest extends TestCase
             SlowoSnajperConfig::fromRoot(dirname(__DIR__, 2)),
         );
 
-        $job = $dispatcher->queueTalentAward($userId, 'comment_bonus', 'phpunit_signal_failure', $userId);
+        $job = $dispatcher->queueTalentAward($userId, 'share_bonus', 'phpunit_signal_failure', $userId);
         try {
             self::assertTrue($job['queued']);
             self::assertFalse($job['signal_scheduled']);

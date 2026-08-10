@@ -130,6 +130,7 @@ Na potrzeby Regulaminu poniższe pojęcia oznaczają:
 3. **Użytkownik** — każda osoba korzystająca z Serwisu, niezależnie od tego, czy posiada Konto.
 4. **Czytelnik** — Użytkownik korzystający z treści Serwisu, w szczególności czytający artykuły, kupujący treści premium, biorący udział w ankietach lub korzystający z Portfela.
 5. **Autor** — Użytkownik posiadający uprawnienia do tworzenia, zapisywania, przesyłania i publikowania treści za pośrednictwem Serwisu, po spełnieniu warunków określonych przez Operatora.
+5a. **Komentator** — Użytkownik uprawniony do przygotowywania podpisanych opinii i polemik kierowanych do Redakcji. Komentator korzysta z Talent i Portfela TT, lecz nie posiada uprawnienia do publikowania zwykłych artykułów ani do wypłat pieniężnych.
 6. **Redakcja** — osoby lub role wskazane przez Operatora do oceny, korekty, opracowania, zatwierdzania, odrzucania, publikacji, archiwizacji, moderacji i zarządzania treściami.
 7. **Redaktor Główny** — rola odpowiedzialna za pierwszy etap decyzji redakcyjnej, w szczególności obsługę statusów `submitted`, `review`, `approved`, `rejected`.
 8. **Wydawca** — rola odpowiedzialna za przygotowanie treści do publikacji, ekspozycję, kolejność, publikację, archiwizację i widoczność treści.
@@ -138,7 +139,7 @@ Na potrzeby Regulaminu poniższe pojęcia oznaczają:
 11. **Administrator** — rola posiadająca najwyższy zakres uprawnień technicznych i organizacyjnych w Serwisie.
 12. **Księgowa / Finanse** — rola odpowiedzialna za nadzór nad wypłatami, raportami finansowymi, płatnościami i rozliczeniami.
 13. **Konto** — indywidualne konto Użytkownika w Serwisie.
-14. **Treść** — każdy materiał wprowadzony do Serwisu, w szczególności tekst, artykuł, tytuł, lead, body, komentarz, zdjęcie, grafika, plik, opis, metadane, tłumaczenie, zgłoszenie, ankieta, odpowiedź, wiadomość, materiał promocyjny albo inny wkład Użytkownika.
+14. **Treść** — każdy materiał wprowadzony do Serwisu, w szczególności tekst, artykuł, tytuł, lead, body, opinia, polemika, zdjęcie, grafika, plik, opis, metadane, tłumaczenie, zgłoszenie, ankieta, odpowiedź, wiadomość, materiał promocyjny albo inny wkład Użytkownika.
 15. **Artykuł** — Treść autorska podlegająca procesowi redakcyjnemu, publikacji, sprzedaży, tłumaczeniu lub archiwizacji.
 16. **Tekst źródłowy** — podstawowa wersja Artykułu, najczęściej polska, przechowywana w głównej tabeli artykułów.
 17. **Tłumaczenie** — wersja językowa Artykułu lub innego elementu Serwisu, przygotowana automatycznie, ręcznie lub hybrydowo.
@@ -292,7 +293,7 @@ Na potrzeby Regulaminu poniższe pojęcia oznaczają:
 1. Czytelnik może korzystać z treści publicznych, kupować treści premium, wspierać Autorów, brać udział w ankietach, zdobywać punkty Talent i korzystać z innych funkcji udostępnionych przez Operatora.
 2. Czytelnik nie może kopiować, rozpowszechniać, odsprzedawać, publikować, udostępniać ani omijać zabezpieczeń treści premium.
 3. Dostęp do zakupionej treści premium ma charakter osobisty, niezbywalny i ograniczony do Konta Użytkownika, chyba że Operator postanowi inaczej.
-4. Czytelnik odpowiada za swoje działania, komentarze, zgłoszenia, odpowiedzi w ankietach i aktywność premiowaną.
+4. Czytelnik odpowiada za swoje działania, zgłoszenia, odpowiedzi w ankietach, opublikowane opinie lub polemiki i aktywność premiowaną.
 5. Czytelnik nie może podejmować działań sztucznie zwiększających naliczanie Talent, bonusów, odsłon, kliknięć, reklam, ankiet lub wynagrodzeń.
 
 ---
@@ -613,7 +614,7 @@ Zakazane jest przesyłanie, publikowanie, promowanie, sprzedawanie, linkowanie l
    7. skierować do ponownej weryfikacji;
    8. usunąć fragment;
    9. usunąć całość;
-   10. zablokować komentarze;
+   10. zablokować wysyłanie opinii i polemik do Redakcji;
    11. zablokować monetyzację;
    12. zablokować tłumaczenie;
    13. zablokować Konto;
@@ -717,7 +718,7 @@ Zakazane jest przesyłanie, publikowanie, promowanie, sprzedawanie, linkowanie l
 2. Cena jest wskazywana w Serwisie przed zakupem, chyba że dostęp wynika z promocji, bonusu, subskrypcji albo innego mechanizmu.
 3. Zakup treści premium uprawnia do dostępu w zakresie określonym przez Serwis.
 4. Dostęp ma charakter osobisty i nie może być odsprzedawany, udostępniany publicznie, kopiowany ani obchodzony.
-5. Operator może stosować model podziału przychodu, w szczególności 70% dla Autora i 30% dla Serwisu, jeżeli tak wynika z aktualnej konfiguracji i zasad.
+5. Operator stosuje publikowaną, wersjonowaną zasadę podziału wpływu. Zasadą startową jest 40% dla Autora, 40% dla Serwisu i 20% dla Safety Fund; dla danego zakupu wiążąca jest wersja aktywna w chwili księgowania.
 6. Podział przychodu może dotyczyć ceny brutto, netto albo innej podstawy rozliczeniowej określonej przez Operatora, z uwzględnieniem prowizji operatorów płatności, podatków i kosztów.
 7. Operator może zmieniać ceny, promocje i dostępność treści premium.
 8. Zmiana ceny nie wpływa na zakup już dokonany, chyba że doszło do błędu, fraudu, nadużycia albo konieczności korekty zgodnie z prawem.
@@ -739,26 +740,18 @@ Zakazane jest przesyłanie, publikowanie, promowanie, sprzedawanie, linkowanie l
 # 29. PUNKTY TALENT
 
 1. Talent jest wewnętrznym systemem punktowym Serwisu.
-2. Talent może być przyznawany za aktywność, w szczególności:
-   1. rejestrację;
-   2. logowanie;
-   3. dzień wizyty;
-   4. komentarz;
-   5. kliknięcie w link;
-   6. reakcję;
-   7. udostępnienie;
-   8. zgłoszenie błędu;
-   9. czytanie artykułów reklamowych;
-   10. oglądanie reklam;
-   11. udział w ankiecie;
-   12. otworzenie wiadomości od Redakcji;
-   13. inne aktywności.
-3. Talent nie jest pieniądzem, walutą, instrumentem płatniczym, pieniądzem elektronicznym ani prawem bezwarunkowym do wypłaty, chyba że bezwzględnie obowiązujące prawo albo osobna decyzja Operatora stanowi inaczej.
-4. Operator może ustalać, zmieniać, ograniczać, zawieszać albo usuwać zasady naliczania Talent.
-5. Operator może anulować Talent naliczony błędnie, automatycznie, fraudowo, wielokrotnie, z naruszeniem Regulaminu albo przez błąd systemu.
-6. Talent może wygasać, jeżeli Operator tak postanowi i poinformuje Użytkowników zgodnie z Regulaminem.
-7. Talent może być wymieniany na korzyści, środki, dostęp, bonusy albo inne świadczenia tylko wtedy, gdy Serwis taką funkcję udostępnia.
-8. Użytkownik nie może sprzedawać, przenosić, dziedziczyć, wypożyczać, cesjonować ani handlować Talent poza mechanizmami Serwisu.
+2. Talent może być przyznawany wyłącznie za aktywność posiadającą aktywną regułę i wiarygodny punkt wyzwolenia, w szczególności za rejestrację, potwierdzoną aktywną wizytę, zweryfikowane przeczytanie tekstu, skuteczne polecenie aplikacji oraz pierwszą publikację podpisanej opinii lub polemiki przez Redakcję.
+3. W ŹRÓDLE SŁOWA nie funkcjonuje system szybkich komentarzy. Odpowiedź na tekst jest samodzielną opinią albo polemiką, przechodzi przez obieg redakcyjny i staje się osobną publikacją.
+4. Szkic opinii lub polemiki, samo wysłanie do Redakcji, odrzucenie oraz późniejsza rewizja nie tworzą prawa do TT. Jedna pierwsza publikacja może utworzyć najwyżej jedną nagrodę.
+5. Kwalifikacja aktywnej reguły oraz liczba TT należna za opublikowaną opinię lub polemikę są zapisywane w chwili pierwszej publikacji. Późniejsza zmiana albo wyłączenie reguły przez Administratora nie zmienia tego snapshotu.
+5a. TT za opinię lub polemikę może otrzymać zarówno Komentator, jak i Autor. Wysłanie tekstu przez Autora może wymagać zatwierdzenia w istniejącym mechanizmie 3DORS Author; Komentator korzysta z ograniczonego obiegu przeznaczonego wyłącznie dla własnych polemik.
+6. Reguły historyczne albo pozbawione wiarygodnego dowodu zdarzenia pozostają nieaktywne do czasu wdrożenia odpowiednich zabezpieczeń. Sama deklaracja Użytkownika nie stanowi dowodu aktywności.
+7. Talent nie jest pieniądzem, walutą, instrumentem płatniczym, pieniądzem elektronicznym ani prawem bezwarunkowym do wypłaty, chyba że bezwzględnie obowiązujące prawo albo osobna decyzja Operatora stanowi inaczej.
+8. Operator może ustalać, zmieniać, ograniczać, zawieszać albo usuwać zasady naliczania Talent z poszanowaniem zapisanych snapshotów zdarzeń, które już prawidłowo powstały.
+9. Operator może anulować Talent naliczony błędnie, automatycznie, fraudowo, wielokrotnie, z naruszeniem Regulaminu albo przez błąd systemu.
+10. Talent może wygasać, jeżeli Operator tak postanowi i poinformuje Użytkowników zgodnie z Regulaminem.
+11. Talent może być wymieniany na korzyści, środki, dostęp, bonusy albo inne świadczenia tylko wtedy, gdy Serwis taką funkcję udostępnia.
+12. Użytkownik nie może sprzedawać, przenosić, dziedziczyć, wypożyczać, cesjonować ani handlować Talent poza mechanizmami Serwisu.
 
 ---
 
@@ -789,6 +782,7 @@ Zakazane jest przesyłanie, publikowanie, promowanie, sprzedawanie, linkowanie l
    10. wykorzystywanie błędów systemu.
 6. Operator może odmówić naliczenia bonusu, cofnąć bonus, zablokować Konto, zablokować wypłatę albo skierować sprawę do analizy antyfraudowej.
 7. Wyniki ankiet i sond mogą być wykorzystywane redakcyjnie, statystycznie, reklamowo i analitycznie, zgodnie z prawem i Polityką Prywatności.
+8. Jeżeli konkretna ankieta przewiduje nagrodę pieniężną, jej kwota jest zapisywana z odpowiedzią ankietową. Ewentualne TT są naliczane oddzielnie przez aktywną regułę Talent; wyłączenie tej reguły nie odbiera prawidłowo zapisanej nagrody pieniężnej ankiety.
 
 ---
 
@@ -1076,7 +1070,7 @@ Zakazane jest przesyłanie, publikowanie, promowanie, sprzedawanie, linkowanie l
    5. wypłat;
    6. Talent;
    7. AI;
-   8. komentarzy;
+   8. opinii i polemik kierowanych do Redakcji;
    9. zakupów;
    10. paneli redakcyjnych.
 3. Operator może zastosować blokadę prewencyjną, jeżeli wymaga tego bezpieczeństwo.

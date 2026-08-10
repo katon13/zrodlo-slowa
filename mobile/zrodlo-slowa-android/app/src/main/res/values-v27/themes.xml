@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.ZrodloSlowa.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/zs_intro_cream</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_source_mark_red</item>
+        <item name="android:statusBarColor">@color/zs_intro_cream</item>
+        <item name="android:navigationBarColor">@color/zs_intro_cream</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="postSplashScreenTheme">@style/Theme.ZrodloSlowa</item>
+    </style>
+</resources>

@@ -89,7 +89,7 @@ $statusBadge = function($status, $map) {
         <div class="admin-section-head">
             <div>
                 <p class="kicker">Sprzedaż treści</p>
-                <h2>Artykuły Premium (70/30)</h2>
+                <h2>Artykuły Premium — Autor / Serwis / Safety Fund</h2>
             </div>
         </div>
         <ul class="zs-report-stats">
@@ -106,6 +106,10 @@ $statusBadge = function($status, $map) {
                 <div class="split-item">
                     <span class="label">Dla Serwisu</span>
                     <span class="value"><?= $money($premium['total_publisher_fee'] ?? 0) ?></span>
+                </div>
+                <div class="split-item">
+                    <span class="label">Safety Fund</span>
+                    <span class="value is-positive"><?= $money($premium['total_safety_fund'] ?? 0) ?></span>
                 </div>
             </li>
             <li>

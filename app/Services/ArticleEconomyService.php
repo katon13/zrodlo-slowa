@@ -5,8 +5,9 @@ use App\Core\Database;
 
 final class ArticleEconomyService
 {
-    public const DEFAULT_AUTHOR_SHARE = 70.00;
-    public const DEFAULT_PLATFORM_SHARE = 30.00;
+    public const DEFAULT_AUTHOR_SHARE = 40.00;
+    public const DEFAULT_PLATFORM_SHARE = 40.00;
+    public const DEFAULT_SAFETY_FUND_SHARE = 20.00;
 
     public function __construct(
         private readonly Database $db,
@@ -15,9 +16,12 @@ final class ArticleEconomyService
 
     public function valueArticle(int $articleId, int $adminId, array $data): void
     {
-        $article = $this->db->one('SELECT id FROM articles WHERE id=:id LIMIT 1', ['id' => $articleId]);
+        $article = $this->db->one('SELECT id,response_to_article_id FROM articles WHERE id=:id LIMIT 1', ['id' => $articleId]);
         if (!$article) {
             throw new \RuntimeException('Nie znaleziono tekstu do wyceny.');
+        }
+        if (!empty($article['response_to_article_id'])) {
+            throw new \RuntimeException('Opinia lub polemika pozostaje bezpłatna i może otrzymać wyłącznie TT za publikację.');
         }
 
         $priceMinor = $this->parsePriceMinor((string)($data['price'] ?? '0'));
@@ -47,8 +51,10 @@ final class ArticleEconomyService
             $isUnique = false;
         }
 
-        $authorShare = $this->normalizePercent($data['author_share_percent'] ?? self::DEFAULT_AUTHOR_SHARE, self::DEFAULT_AUTHOR_SHARE);
-        $platformShare = 100.00 - $authorShare;
+        $splitPolicy = (new SafetyFundService($this->db))->currentPolicy();
+        $authorShare = (int)$splitPolicy['author_basis_points'] / 100;
+        $platformShare = (int)$splitPolicy['platform_basis_points'] / 100;
+        $safetyFundShare = (int)$splitPolicy['safety_fund_basis_points'] / 100;
         $pricingStatus = $accessMode === 'paid' ? 'priced' : 'free';
         $note = trim((string)($data['editor_valuation_note'] ?? ''));
         $articleLabel = trim((string)($data['article_label'] ?? ''));
@@ -85,6 +91,9 @@ final class ArticleEconomyService
                 'article_label' => $articleLabel !== '' ? $articleLabel : null,
                 'author_share_percent' => $authorShare,
                 'platform_share_percent' => $platformShare,
+                'safety_fund_share_percent' => $safetyFundShare,
+                'split_policy_id' => (int)$splitPolicy['id'],
+                'split_policy_version' => (int)$splitPolicy['version'],
             ], JSON_UNESCAPED_UNICODE),
         ]);
     }
@@ -96,6 +105,9 @@ final class ArticleEconomyService
             $article = $articleService->findPublished($articleId);
             if (!$article) {
                 throw new \RuntimeException('Nie znaleziono opublikowanego tekstu.');
+            }
+            if (!empty($article['response_to_article_id'])) {
+                throw new \RuntimeException('Opinia lub polemika nie jest sprzedawana.');
             }
             if ((int)$article['author_id'] === $buyerId) {
                 throw new \RuntimeException('Autor ma dostęp do własnego tekstu bez zakupu.');
@@ -124,16 +136,27 @@ final class ArticleEconomyService
             $accessHours = max(1, (int)($settings['premium_access_hours'] ?? 12));
             $priceMinor = (int)$article['price_minor'];
             $authorId = (int)$article['author_id'];
-            $authorShare = $this->normalizePercent($article['author_share_percent'] ?? self::DEFAULT_AUTHOR_SHARE, self::DEFAULT_AUTHOR_SHARE);
-            $platformShare = 100.00 - $authorShare;
-            $authorAmount = (int)round($priceMinor * ($authorShare / 100));
-            $platformAmount = $priceMinor - $authorAmount;
+            $safetyFund = new SafetyFundService($db);
+            $splitPolicy = $safetyFund->currentPolicy();
+            $split = $safetyFund->splitAmount($priceMinor, $splitPolicy);
+            $authorBasisPoints = (int)$splitPolicy['author_basis_points'];
+            $platformBasisPoints = (int)$splitPolicy['platform_basis_points'];
+            $safetyFundBasisPoints = (int)$splitPolicy['safety_fund_basis_points'];
+            $authorShare = $authorBasisPoints / 100;
+            $platformShare = $platformBasisPoints / 100;
+            $safetyFundShare = $safetyFundBasisPoints / 100;
+            $authorAmount = $split['author_amount_minor'];
+            $platformAmount = $split['platform_amount_minor'];
+            $safetyFundAmount = $split['safety_fund_amount_minor'];
             $currency = (string)($article['currency'] ?? 'PLN');
             $accessUntil = date('Y-m-d H:i:s', time() + ($accessHours * 3600));
 
             $ledger = new LedgerService($db, new \App\Services\FinancialService($db));
             $platformId = $this->platformUserId();
-            $ledger->lockWalletsForUsers([$buyerId, $authorId, $platformId]);
+            $safetyFundId = $safetyFund->fundUserId();
+            $ledger->lockWalletsForUsers([$buyerId, $authorId, $platformId, $safetyFundId]);
+
+            $idempotencyPrefix = 'article-purchase:' . $buyerId . ':' . $articleId;
 
             $ledger->post($buyerId, 'article_charge', -$priceMinor, 0, 'Zakup tekstu: ' . $article['title'], [
                 'source_module' => 'article',
@@ -141,25 +164,60 @@ final class ArticleEconomyService
                 'ref_type' => 'article',
                 'ref_id' => $articleId,
                 'counterparty_user_id' => $authorId,
-                'meta' => ['currency' => $currency],
+                'idempotency_key' => $idempotencyPrefix . ':buyer',
+                'meta' => [
+                    'currency' => $currency,
+                    'split_policy_id' => (int)$splitPolicy['id'],
+                    'split_policy_version' => (int)$splitPolicy['version'],
+                ],
             ]);
 
-            $ledger->post($authorId, 'article_sale_author_share', $authorAmount, 0, '70% dla autora: ' . $article['title'], [
+            $ledger->post($authorId, 'article_sale_author_share', $authorAmount, 0, '', [
                 'source_module' => 'article',
                 'account_type' => 'slowo',
                 'ref_type' => 'article',
                 'ref_id' => $articleId,
                 'counterparty_user_id' => $buyerId,
-                'meta' => ['buyer_user_id' => $buyerId, 'currency' => $currency, 'share_percent' => $authorShare],
+                'idempotency_key' => $idempotencyPrefix . ':author',
+                'meta' => [
+                    'buyer_user_id' => $buyerId,
+                    'currency' => $currency,
+                    'share_basis_points' => $authorBasisPoints,
+                    'split_policy_id' => (int)$splitPolicy['id'],
+                    'split_policy_version' => (int)$splitPolicy['version'],
+                ],
             ]);
 
-            $ledger->post($platformId, 'article_sale_platform_share', $platformAmount, 0, '30% dla serwisu: ' . $article['title'], [
+            $ledger->post($platformId, 'article_sale_platform_share', $platformAmount, 0, '', [
                 'source_module' => 'platform',
                 'account_type' => 'main',
                 'ref_type' => 'article',
                 'ref_id' => $articleId,
                 'counterparty_user_id' => $authorId,
-                'meta' => ['buyer_user_id' => $buyerId, 'currency' => $currency, 'share_percent' => $platformShare],
+                'idempotency_key' => $idempotencyPrefix . ':platform',
+                'meta' => [
+                    'buyer_user_id' => $buyerId,
+                    'currency' => $currency,
+                    'share_basis_points' => $platformBasisPoints,
+                    'split_policy_id' => (int)$splitPolicy['id'],
+                    'split_policy_version' => (int)$splitPolicy['version'],
+                ],
+            ]);
+
+            $safetyFundLedgerTransactionId = $ledger->post($safetyFundId, 'article_sale_safety_fund_share', $safetyFundAmount, 0, '', [
+                'source_module' => 'safety_fund',
+                'account_type' => 'main',
+                'ref_type' => 'article',
+                'ref_id' => $articleId,
+                'counterparty_user_id' => $authorId,
+                'idempotency_key' => $idempotencyPrefix . ':safety-fund',
+                'meta' => [
+                    'buyer_user_id' => $buyerId,
+                    'currency' => $currency,
+                    'share_basis_points' => $safetyFundBasisPoints,
+                    'split_policy_id' => (int)$splitPolicy['id'],
+                    'split_policy_version' => (int)$splitPolicy['version'],
+                ],
             ]);
 
             $paymentService = new PaymentService($db);
@@ -172,13 +230,20 @@ final class ArticleEconomyService
                 'raw' => [
                     'author_amount_minor' => $authorAmount,
                     'platform_amount_minor' => $platformAmount,
+                    'safety_fund_amount_minor' => $safetyFundAmount,
                     'author_share_percent' => $authorShare,
                     'platform_share_percent' => $platformShare,
+                    'safety_fund_share_percent' => $safetyFundShare,
+                    'author_share_basis_points' => $authorBasisPoints,
+                    'platform_share_basis_points' => $platformBasisPoints,
+                    'safety_fund_share_basis_points' => $safetyFundBasisPoints,
+                    'split_policy_id' => (int)$splitPolicy['id'],
+                    'split_policy_version' => (int)$splitPolicy['version'],
                     'access_hours' => $accessHours,
                 ],
             ]);
 
-            $purchaseId = $db->insert('INSERT INTO article_purchases(article_id,buyer_user_id,author_user_id,payment_id,total_amount_minor,author_amount_minor,platform_amount_minor,author_share_percent,platform_share_percent,currency,status,access_granted_until,created_at) VALUES(:article,:buyer,:author,:payment,:total,:author_amount,:platform_amount,:author_share,:platform_share,:currency,\'paid\',:until,NOW())', [
+            $purchaseId = $db->insert('INSERT INTO article_purchases(article_id,buyer_user_id,author_user_id,payment_id,total_amount_minor,author_amount_minor,platform_amount_minor,safety_fund_amount_minor,author_share_percent,platform_share_percent,author_share_basis_points,platform_share_basis_points,safety_fund_share_basis_points,split_policy_id,currency,status,access_granted_until,created_at) VALUES(:article,:buyer,:author,:payment,:total,:author_amount,:platform_amount,:fund_amount,:author_share,:platform_share,:author_bps,:platform_bps,:fund_bps,:policy,:currency,\'paid\',:until,NOW())', [
                 'article' => $articleId,
                 'buyer' => $buyerId,
                 'author' => $authorId,
@@ -186,13 +251,18 @@ final class ArticleEconomyService
                 'total' => $priceMinor,
                 'author_amount' => $authorAmount,
                 'platform_amount' => $platformAmount,
+                'fund_amount' => $safetyFundAmount,
                 'author_share' => number_format($authorShare, 2, '.', ''),
                 'platform_share' => number_format($platformShare, 2, '.', ''),
+                'author_bps' => $authorBasisPoints,
+                'platform_bps' => $platformBasisPoints,
+                'fund_bps' => $safetyFundBasisPoints,
+                'policy' => (int)$splitPolicy['id'],
                 'currency' => $currency,
                 'until' => $accessUntil,
             ]);
 
-            $db->insert('INSERT INTO platform_revenues(payment_id, article_id, buyer_user_id, author_user_id, total_amount_minor, author_income_minor, publisher_fee_minor, publisher_fee_percent, currency, created_at) VALUES(:payment,:article,:buyer,:author,:total,:author_amount,:platform_amount,:platform_share,:currency,NOW())', [
+            $db->insert('INSERT INTO platform_revenues(payment_id, article_id, buyer_user_id, author_user_id, total_amount_minor, author_income_minor, publisher_fee_minor, safety_fund_amount_minor, publisher_fee_percent, author_share_basis_points, platform_share_basis_points, safety_fund_share_basis_points, split_policy_id, currency, created_at) VALUES(:payment,:article,:buyer,:author,:total,:author_amount,:platform_amount,:fund_amount,:platform_share,:author_bps,:platform_bps,:fund_bps,:policy,:currency,NOW())', [
                 'payment' => $paymentId,
                 'article' => $articleId,
                 'buyer' => $buyerId,
@@ -200,9 +270,25 @@ final class ArticleEconomyService
                 'total' => $priceMinor,
                 'author_amount' => $authorAmount,
                 'platform_amount' => $platformAmount,
+                'fund_amount' => $safetyFundAmount,
                 'platform_share' => number_format($platformShare, 2, '.', ''),
+                'author_bps' => $authorBasisPoints,
+                'platform_bps' => $platformBasisPoints,
+                'fund_bps' => $safetyFundBasisPoints,
+                'policy' => (int)$splitPolicy['id'],
                 'currency' => $currency,
             ]);
+
+            $safetyFund->recordAllocation(
+                $purchaseId,
+                $paymentId,
+                $articleId,
+                $splitPolicy,
+                $priceMinor,
+                $safetyFundAmount,
+                $currency,
+                $safetyFundLedgerTransactionId,
+            );
 
             $articleService->grantAccess($buyerId, $articleId, $paymentId, 'wallet', $accessHours);
 
@@ -234,11 +320,18 @@ final class ArticleEconomyService
         if ($platform) {
             return (int)$platform['id'];
         }
-        $userId = $this->db->insert('INSERT INTO users(email, phone, password_hash, display_name, status, can_write, talent_enabled, wallet_enabled, payout_enabled, permissions_updated_at, created_at) VALUES(\'platform@zrodlo-slowa.local\',NULL,:hash,\'Platforma ŹRÓDŁO SŁOWA\',\'active\',0,0,1,0,NOW(),NOW())', [
+        $sql = 'INSERT INTO users(email, phone, password_hash, display_name, status, can_write, talent_enabled, wallet_enabled, payout_enabled, permissions_updated_at, created_at) VALUES(\'platform@zrodlo-slowa.local\',NULL,:hash,\'Platforma ŹRÓDŁO SŁOWA\',\'active\',0,0,1,0,NOW(),NOW())';
+        $sql .= $this->db->isPostgres()
+            ? ' ON CONFLICT (email) DO NOTHING'
+            : ' ON DUPLICATE KEY UPDATE email=VALUES(email)';
+        $this->db->query($sql, [
             'hash' => password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT),
         ]);
-        $this->db->query('INSERT INTO wallets(user_id,main_available_minor,main_reserved_minor,slowo_available_minor,slowo_reserved_minor,available_minor,pending_minor,reserved_minor,points_balance,currency,created_at) VALUES(:id,0,0,0,0,0,0,0,0,\'PLN\',NOW())', ['id' => $userId]);
-        return $userId;
+        $created = $this->db->one('SELECT id FROM users WHERE email=\'platform@zrodlo-slowa.local\' LIMIT 1');
+        if ($created === null) {
+            throw new \RuntimeException('Nie udało się odczytać konta serwisu.');
+        }
+        return (int)$created['id'];
     }
 
     private function settings(array $names): array
@@ -261,18 +354,13 @@ final class ArticleEconomyService
         if ($normalized === '') {
             return 0;
         }
-        if (!is_numeric($normalized)) {
+        if (preg_match('/^\d+(?:\.\d{1,2})?$/D', $normalized) !== 1) {
             throw new \InvalidArgumentException('Cena musi być liczbą.');
         }
-        return max(0, (int)round(((float)$normalized) * 100));
-    }
-
-    private function normalizePercent(mixed $value, float $default): float
-    {
-        $percent = is_numeric($value) ? (float)$value : $default;
-        if ($percent < 1.00 || $percent > 99.00) {
-            $percent = $default;
+        [$whole, $fraction] = array_pad(explode('.', $normalized, 2), 2, '');
+        if (strlen($whole) > 12) {
+            throw new \InvalidArgumentException('Cena jest zbyt wysoka.');
         }
-        return round($percent, 2);
+        return ((int)$whole * 100) + (int)str_pad($fraction, 2, '0');
     }
 }

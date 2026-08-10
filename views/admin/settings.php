@@ -12,7 +12,6 @@
         'site.tagline' => 'Hasło serwisu',
         'migration.status' => 'Stan przygotowania serwisu',
         'premium_access_hours' => 'Czas dostępu premium (godziny)',
-        'publisher_fee_percent' => 'Udział serwisu (%)',
         'slowo_snajper.enabled' => 'SNAJPER SŁOWA',
         'slowo_snajper.strict_mode' => 'Tryb ścisły',
         'slowo_snajper.audit_enabled' => 'Audyt administracyjny',
@@ -25,7 +24,7 @@
 
     $keyGroups = [
         'SERWIS' => ['site.name', 'site.tagline', 'migration.status'],
-        'EKONOMIA' => ['premium_access_hours', 'publisher_fee_percent'],
+        'EKONOMIA' => ['premium_access_hours'],
     ];
 
     $settingsByGroup = [];
@@ -40,7 +39,8 @@
         // Ustawienia zarządzane przez dedykowane, walidowane panele nie mogą
         // pojawiać się drugi raz w surowym formularzu "Pozostałe".
         if (
-            str_starts_with($s['name'], 'slowo_snajper.')
+            $s['name'] === 'publisher_fee_percent'
+            || str_starts_with($s['name'], 'slowo_snajper.')
             || str_starts_with($s['name'], 'ai.')
             || str_starts_with($s['name'], 'payments.')
             || str_starts_with($s['name'], 'stripe.')
@@ -64,6 +64,19 @@
         is_array($rules ?? null) ? $rules : [],
         static fn(array $rule): bool => !empty($rule['is_active'])
     ));
+    $referralOverview = is_array($referral_overview ?? null) ? $referral_overview : [];
+    $referralPromotion = is_array($referralOverview['promotion'] ?? null) ? $referralOverview['promotion'] : [];
+    $referralCounts = is_array($referralOverview['status_counts'] ?? null) ? $referralOverview['status_counts'] : [];
+    $referralRecent = is_array($referralOverview['recent_invitations'] ?? null) ? $referralOverview['recent_invitations'] : [];
+    $promotionDateInput = static function (?string $value): string {
+        if ($value === null || trim($value) === '') return '';
+        try {
+            return (new DateTimeImmutable($value, new DateTimeZone('UTC')))
+                ->setTimezone(new DateTimeZone('Europe/Warsaw'))->format('Y-m-d\TH:i');
+        } catch (Throwable) {
+            return '';
+        }
+    };
     $settingValues = array_column($settings, 'value', 'name');
     ?>
 
@@ -113,7 +126,7 @@
     <!-- 2. EKONOMIA -->
     <section class="zs-settings-section zs-operator-settings-section">
         <div class="zs-operator-section-head">
-            <div><p class="kicker">Model rozliczeń</p><h2>Ekonomia</h2><p>Czas dostępu do treści premium i podział przychodu między autora a serwis.</p></div>
+            <div><p class="kicker">Model rozliczeń</p><h2>Ekonomia</h2><p>Czas dostępu do treści premium. Globalny podział Autor / Serwis / Safety Fund jest wersjonowany i zarządzany w module Safety Fund.</p></div>
             <span>Wpływa na rozliczenia</span>
         </div>
         <form action="/admin/settings" method="POST">
@@ -128,15 +141,13 @@
                         </div>
                         <div class="zs-setting-meta">
                             <span class="zs-setting-key">Klucz: <?php echo e($s['name']); ?></span>
-                            <?php if ($s['name'] === 'publisher_fee_percent'): ?>
-                                <p class="zs-setting-description">Model 70/30: Udział autora wynosi <?php echo 100 - (int)$s['value']; ?>%.</p>
-                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
             <div class="zs-settings-actions">
                 <button type="submit" class="btn-red">Zapisz ekonomię</button>
+                <a class="btn-line" href="/admin/safety-fund#policy">Otwórz politykę Safety Fund</a>
             </div>
         </form>
     </section>
@@ -358,7 +369,7 @@
             <div>
                 <p class="kicker">PROGRAM AKTYWNOŚCI</p>
                 <h2>Program Talent</h2>
-                <p>Ustal, za jakie potwierdzone działania użytkownik otrzyma punkty Talent lub środki pieniężne.</p>
+                <p>Ustal wartości wyłącznie dla działań z wiarygodnym punktem wyzwolenia. Reguły historyczne, samozgłaszane i bez dowodu pozostają widoczne do kontroli, ale ich aktywacja jest zablokowana.</p>
             </div>
             <div class="zs-talent-summary" aria-label="Podsumowanie reguł programu Talent">
                 <div><strong><?php echo $activeTalentRuleCount; ?></strong><span>aktywnych</span></div>
@@ -373,6 +384,90 @@
                 <p>Aktywna wizyta dzienna wymaga bieżącego sygnału obecności z widocznej karty. Czytanie artykułu ma dodatkową kontrolę czasu i postępu.</p>
             </div>
         </div>
+
+        <section class="zs-talent-group zs-referral-admin" id="talent-promotion" aria-labelledby="talent-promotion-title">
+            <div class="zs-talent-group-head">
+                <?php echo zs_icon('share'); ?>
+                <div>
+                    <p class="kicker">PROMOCJA APLIKACJI</p>
+                    <h3 id="talent-promotion-title">Bonus za instalację i polecenie</h3>
+                    <p>Kontrolowana promocja nad istniejącym Talentem. Kwota jest kopiowana do zaproszenia podczas wysyłki, więc późniejsza zmiana nie modyfikuje starych zaproszeń.</p>
+                </div>
+                <span class="zs-talent-state<?= !empty($referralPromotion['is_promoted']) ? ' is-active' : '' ?>"><?= !empty($referralPromotion['is_promoted']) ? 'PROMOWANE' : 'WYŁĄCZONE' ?></span>
+            </div>
+
+            <div class="zs-referral-admin-stats">
+                <article><strong><?= (int)($referralCounts['mail_queued'] ?? 0) + (int)($referralCounts['sent'] ?? 0) + (int)($referralCounts['link_opened'] ?? 0) + (int)($referralCounts['installed'] ?? 0) + (int)($referralCounts['registered'] ?? 0) ?></strong><span>aktywnych zaproszeń</span></article>
+                <article><strong><?= (int)($referralCounts['reward_queued'] ?? 0) + (int)($referralCounts['rewarded'] ?? 0) ?></strong><span>skutecznych poleceń</span></article>
+                <article><strong><?= (int)($referralCounts['mail_dead_letter'] ?? 0) ?></strong><span>dead letter e-mail</span></article>
+            </div>
+
+            <form action="/admin/settings/talent-promotion" method="POST" class="zs-talent-form zs-referral-promotion-form">
+                <?php echo csrf_field(); ?>
+                <div class="zs-talent-rule-card is-active">
+                    <div class="zs-talent-rule-controls">
+                        <label>
+                            <span>Nagroda dla każdej strony</span>
+                            <div class="zs-input-with-unit"><input type="number" min="1" max="1000000" step="1" required name="promotion[reward_points]" value="<?= e((string)($referralPromotion['reward_points'] ?? 1000)) ?>"><b>TT</b></div>
+                        </label>
+                        <label>
+                            <span>Aktywne zaproszenia / osoba</span>
+                            <div class="zs-input-with-unit"><input type="number" min="1" max="100" step="1" required name="promotion[active_invitation_limit]" value="<?= e((string)($referralPromotion['active_invitation_limit'] ?? 3)) ?>"><b>szt.</b></div>
+                        </label>
+                        <label>
+                            <span>Skuteczne polecenia / osoba</span>
+                            <div class="zs-input-with-unit"><input type="number" min="1" max="100" step="1" required name="promotion[successful_referral_limit]" value="<?= e((string)($referralPromotion['successful_referral_limit'] ?? 3)) ?>"><b>szt.</b></div>
+                        </label>
+                        <label>
+                            <span>Ważność zaproszenia</span>
+                            <div class="zs-input-with-unit"><input type="number" min="1" max="365" step="1" required name="promotion[invitation_valid_days]" value="<?= e((string)($referralPromotion['invitation_valid_days'] ?? 30)) ?>"><b>dni</b></div>
+                        </label>
+                        <label><span>Promuj od</span><input type="datetime-local" required name="promotion[starts_at]" value="<?= e($promotionDateInput($referralPromotion['starts_at'] ?? null)) ?>"></label>
+                        <label><span>Promuj do</span><input type="datetime-local" name="promotion[ends_at]" value="<?= e($promotionDateInput($referralPromotion['ends_at'] ?? null)) ?>"><small>Puste pole oznacza brak daty końcowej.</small></label>
+                        <label class="zs-talent-switch">
+                            <input type="checkbox" name="promotion[is_promoted]" value="1" <?= !empty($referralPromotion['is_promoted']) ? 'checked' : '' ?>>
+                            <span class="zs-talent-switch-track" aria-hidden="true"><i></i></span>
+                            <span>Promuj w portfelu i na stronie „Jak zarabiać”</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="zs-critical-confirmation">
+                    <?php echo zs_icon('shield'); ?>
+                    <div class="zs-critical-confirmation-copy"><strong>Zmiana kontrolowana przez 3DORS</strong><p>Nowa wartość obejmie wyłącznie zaproszenia utworzone po zapisie.</p></div>
+                    <label><span>Hasło administratora</span><input type="password" name="critical_password" required autocomplete="current-password"></label>
+                    <button type="submit" class="btn-red">Zapisz promocję</button>
+                </div>
+            </form>
+
+            <div class="zs-referral-admin-history-head">
+                <h4>Ostatnie zaproszenia</h4>
+                <p>Historia pokazuje zapisany snapshot TT, stan realizacji oraz wynik wysyłki e-mail.</p>
+            </div>
+            <?php if ($referralRecent !== []): ?>
+                <div class="table-wrap zs-referral-admin-table">
+                    <table>
+                        <thead><tr><th>Data</th><th>Polecający</th><th>Zaproszony e-mail</th><th>Snapshot</th><th>Status</th><th>Poczta</th></tr></thead>
+                        <tbody>
+                        <?php foreach ($referralRecent as $invitation): ?>
+                            <tr>
+                                <td><?= e((string)$invitation['created_at']) ?></td>
+                                <td><?= e((string)$invitation['inviter_email']) ?></td>
+                                <td><?= e((string)$invitation['invited_email']) ?></td>
+                                <td><strong><?= number_format((int)$invitation['reward_points'], 0, ',', ' ') ?> TT</strong></td>
+                                <td><?= e((string)$invitation['status']) ?></td>
+                                <td><?= e((string)($invitation['mail_status'] ?? '—')) ?><?= (string)($invitation['mail_status'] ?? '') === 'dead_letter' ? ' — wymaga kontroli' : '' ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <div class="zs-referral-admin-empty">
+                    <strong>Brak zaproszeń do wyświetlenia.</strong>
+                    <span>Pierwsze zaproszenie pojawi się tutaj po wysłaniu go przez użytkownika z portfela.</span>
+                </div>
+            <?php endif; ?>
+        </section>
 
         <form action="/admin/settings/talent-rules" method="POST" class="zs-talent-form">
             <?php echo csrf_field(); ?>
@@ -393,6 +488,9 @@
                             $ruleType = (string)$r['activity_type'];
                             $fieldId = 'talent-' . str_replace('_', '-', $ruleType);
                             $isActive = !empty($r['is_active']);
+                            $isResponsePublicationRule = $ruleType === 'response_publication_bonus';
+                            $isSurveyRule = $ruleType === 'survey_reward';
+                            $isTalentOnlyRule = $isResponsePublicationRule || $isSurveyRule;
                             ?>
                             <article class="zs-talent-rule-card<?php echo $isActive ? ' is-active' : ''; ?><?php echo ($r['operator_tone'] ?? '') === 'warning' ? ' is-warning' : ''; ?>" data-talent-rule>
                                 <div class="zs-talent-rule-main">
@@ -405,6 +503,10 @@
                                             <?php endif; ?>
                                         </div>
                                         <p><?php echo e((string)$r['operator_description']); ?></p>
+                                        <div class="zs-talent-rule-readiness<?php echo !empty($r['operator_activation_locked']) ? ' is-locked' : ' is-ready'; ?>">
+                                          <strong><?php echo e((string)($r['operator_readiness'] ?? 'NIEZWERYFIKOWANE')); ?></strong>
+                                          <span><?php echo e((string)($r['operator_trigger'] ?? '')); ?></span>
+                                        </div>
                                     </div>
                                     <span class="zs-talent-state<?php echo $isActive ? ' is-active' : ''; ?>" data-talent-state><?php echo $isActive ? 'Aktywna' : 'Wyłączona'; ?></span>
                                 </div>
@@ -417,6 +519,29 @@
                                             <b>TT</b>
                                         </div>
                                     </label>
+                                    <?php if ($isResponsePublicationRule): ?>
+                                    <label for="<?php echo e($fieldId); ?>-deposit">
+                                        <span>Kaucja przy wysłaniu</span>
+                                        <div class="zs-input-with-unit">
+                                            <input id="<?php echo e($fieldId); ?>-deposit" type="number" min="0" max="1000000" step="1" required name="rules[<?php echo e($ruleType); ?>][submission_deposit_points]" value="<?php echo e((string)($r['submission_deposit_points'] ?? 0)); ?>">
+                                            <b>TT</b>
+                                        </div>
+                                        <small>0 wyłącza kaucję. Kwota jest zapisywana przy pierwszym wysłaniu i nie zmienia się dla tej polemiki. Przełącznik nagrody poniżej nie wyłącza kaucji.</small>
+                                    </label>
+                                    <?php endif; ?>
+                                    <?php if ($isTalentOnlyRule): ?>
+                                      <input type="hidden" name="rules[<?php echo e($ruleType); ?>][money]" value="0">
+                                      <input type="hidden" name="rules[<?php echo e($ruleType); ?>][limit]" value="0">
+                                      <div class="zs-talent-tt-only">
+                                        <?php if ($isResponsePublicationRule): ?>
+                                          <strong>Nagroda i kaucja wyłącznie w TT</strong>
+                                          <span>Kaucja jest pobierana tylko raz przy pierwszym wysłaniu. Wraca po publikacji, a po odrzuceniu przechodzi na rzecz serwisu. Nagroda za publikację ma osobny snapshot.</span>
+                                        <?php else: ?>
+                                          <strong>Ta karta kontroluje wyłącznie TT</strong>
+                                          <span>Kwotę PLN, budżet i limit odpowiedzi ustalasz w konkretnej ankiecie. Wyłączenie tej reguły daje 0 TT, ale nie odbiera należnych PLN.</span>
+                                        <?php endif; ?>
+                                      </div>
+                                    <?php else: ?>
                                     <label for="<?php echo e($fieldId); ?>-money">
                                         <span>Kwota pieniężna</span>
                                         <div class="zs-input-with-unit">
@@ -432,11 +557,12 @@
                                         </div>
                                         <small>0 oznacza brak limitu</small>
                                     </label>
+                                    <?php endif; ?>
                                     <label class="zs-talent-switch" for="<?php echo e($fieldId); ?>-active">
                                         <input type="hidden" name="rules[<?php echo e($ruleType); ?>][exists]" value="1">
-                                        <input id="<?php echo e($fieldId); ?>-active" type="checkbox" name="rules[<?php echo e($ruleType); ?>][active]" <?php echo $isActive ? 'checked' : ''; ?> data-talent-toggle>
+                                        <input id="<?php echo e($fieldId); ?>-active" type="checkbox" name="rules[<?php echo e($ruleType); ?>][active]" <?php echo $isActive ? 'checked' : ''; ?> <?php echo !empty($r['operator_activation_locked']) ? 'disabled' : ''; ?> data-talent-toggle>
                                         <span class="zs-talent-switch-track" aria-hidden="true"><i></i></span>
-                                        <span>Przyznawaj tę nagrodę</span>
+                                        <span><?php echo !empty($r['operator_activation_locked']) ? 'Aktywacja zablokowana do czasu wiarygodnego dowodu' : 'Przyznawaj tę nagrodę'; ?></span>
                                     </label>
                                 </div>
                             </article>

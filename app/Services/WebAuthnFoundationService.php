@@ -15,13 +15,17 @@ final class WebAuthnFoundationService
         private readonly array $config,
     ) {}
 
-    /** @return array{enabled:bool,library_ready:bool,rp_id:string,origin:string,user_verification:string} */
+    /** @return array{enabled:bool,library_ready:bool,authorization_ready:bool,attestation_ready:bool,rp_id:string,origin:string,user_verification:string} */
     public function status(): array
     {
         $webauthn = is_array($this->config['webauthn'] ?? null) ? $this->config['webauthn'] : [];
         return [
             'enabled' => (bool)($webauthn['enabled'] ?? false) && (bool)($this->config['fido2_enabled'] ?? false),
             'library_ready' => class_exists(\Webauthn\PublicKeyCredential::class),
+            // Biblioteka i magazyn challenge są jedynie fundamentem. Nie udostępniamy
+            // pełnej rejestracji/ceremonii ani walidacji atestacji authenticatora.
+            'authorization_ready' => false,
+            'attestation_ready' => false,
             'rp_id' => (string)($webauthn['rp_id'] ?? ''),
             'origin' => (string)($webauthn['origin'] ?? ''),
             'user_verification' => (string)($webauthn['user_verification'] ?? ''),

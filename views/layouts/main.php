@@ -43,6 +43,7 @@ $content = (string)($content ?? '');
       <a href="<?= e(public_language_url($currentLanguage, '/articles?cat=najnowsze')) ?>"><?= e(t('layout.menu.latest', $currentLanguage)) ?></a>
       <button class="main-topics-toggle" data-topics-toggle aria-expanded="false" aria-controls="topics-panel"><?= e(mb_strtoupper(t('layout.menu.topics', $currentLanguage), 'UTF-8')) ?></button>
       <a href="<?= e(public_language_url($currentLanguage, '/surveys')) ?>"><?= e(t('layout.menu.polls', $currentLanguage)) ?></a>
+      <a href="<?= e(public_language_url($currentLanguage, '/jak-zarabiac')) ?>#opinie-i-polemiki"><?= e(t('layout.menu.opinions', $currentLanguage)) ?></a>
       <a href="<?= e(public_language_url($currentLanguage, '/campaigns')) ?>"><?= e(t('layout.menu.ads', $currentLanguage)) ?></a>
       <a href="<?= e(public_language_url($currentLanguage, '/jak-zarabiac')) ?>"><?= e(t('layout.menu.how_to_earn', $currentLanguage)) ?></a>
     </nav>
@@ -64,7 +65,9 @@ $content = (string)($content ?? '');
         <a href="<?= e(public_language_url($currentLanguage, '/wallet')) ?>" class="nav-icon" title="<?= e(t('wallet.title', $currentLanguage)) ?>" aria-label="<?= e(t('wallet.title', $currentLanguage)) ?>">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path></svg>
         </a>
-        <a href="<?= e(public_language_url($currentLanguage, '/author')) ?>" class="nav-icon" title="<?= e(t('layout.header.author_panel', $currentLanguage)) ?>" aria-label="<?= e(t('layout.header.author_panel', $currentLanguage)) ?>">
+        <?php $writingPanelPath = ($_SESSION['role'] ?? '') === 'commentator' ? '/opinie' : '/author'; ?>
+        <?php $writingPanelLabel = ($_SESSION['role'] ?? '') === 'commentator' ? t('layout.menu.opinions', $currentLanguage) : t('layout.header.author_panel', $currentLanguage); ?>
+        <a href="<?= e(public_language_url($currentLanguage, $writingPanelPath)) ?>" class="nav-icon" title="<?= e($writingPanelLabel) ?>" aria-label="<?= e($writingPanelLabel) ?>">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
         </a>
         <?php if (($_SESSION['role'] ?? '') === 'admin'): ?>

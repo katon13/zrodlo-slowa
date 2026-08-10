@@ -4,11 +4,37 @@ namespace App\Controllers;
 use App\Services\AuthService;
 use App\Services\AuthSecurityService;
 use App\Services\AuthenticationFlowService;
+use App\Services\Dors3UiText;
 use App\Services\UserService;
 
 final class AuthController extends BaseController
 {
-    public function showRegister(): string { return $this->view('auth/register', ['title' => t('auth.register.title')]); }
+    public function showRegister(): string
+    {
+        $registrationNonce = trim((string)($_GET['refn'] ?? ''));
+        $referralEmail = '';
+        if ($registrationNonce !== '') {
+            try {
+                $context = $this->appReferralService()->registrationContext($registrationNonce);
+                $referralEmail = (string)$context['invited_email'];
+            } catch (\Throwable $error) {
+                http_response_code(410);
+                return $this->view('layouts/error', [
+                    'title' => 'Rejestracja z aplikacji wygasła',
+                    'message' => $this->safeError(
+                        $error,
+                        'Ta sesja rejestracji jest nieprawidłowa albo wygasła. Otwórz ponownie zaproszenie w aplikacji.',
+                        'referral_registration_context',
+                    ),
+                ]);
+            }
+        }
+        return $this->view('auth/register', [
+            'title' => t('auth.register.title'),
+            'registration_nonce' => $registrationNonce,
+            'referral_email' => $referralEmail,
+        ]);
+    }
     public function showLogin(): string { return $this->view('auth/login', ['title' => t('auth.login.title')]); }
     public function showForgot(): string { return $this->view('auth/forgot', ['title' => t('auth.forgot.title')]); }
     public function showReset(): string { return $this->view('auth/reset', ['title' => t('auth.reset.title'), 'token' => $_GET['token'] ?? '']); }
@@ -29,29 +55,115 @@ final class AuthController extends BaseController
         ]);
     }
 
+    public function showMobileChallenge(): string
+    {
+        $pending = $this->app->session->get('_pending_dors3_mobile_login');
+        if (!is_array($pending) || (int)($pending['expires_at'] ?? 0) <= time()) {
+            $this->app->session->remove('_pending_dors3_mobile_login');
+            $this->app->session->logout();
+            $this->app->session->flash('error', Dors3UiText::get('messages.mobile_login_expired'));
+            redirect(public_language_url(public_language(), '/login'));
+        }
+        return $this->view('auth/dors3_mobile_challenge', [
+            'title' => 'Potwierdzenie 3DORS Mobile',
+            'approval_request_id' => (string)$pending['public_id'],
+            'expires_at' => (int)$pending['expires_at'],
+            'application_variant' => (string)$pending['application_variant'],
+        ]);
+    }
+
+    public function completeMobileChallenge(): never
+    {
+        $pending = $this->app->session->get('_pending_dors3_mobile_login');
+        if (!is_array($pending) || (int)($pending['expires_at'] ?? 0) <= time()) {
+            $this->app->session->remove('_pending_dors3_mobile_login');
+            $this->app->session->logout();
+            redirect(public_language_url(public_language(), '/login'));
+        }
+        try {
+            $status = $this->dors3Mobile()->approvalStatus((string)$pending['public_id']);
+            if ((string)$status['status'] !== 'approved') {
+                throw new \RuntimeException('Decyzja mobilna nie została zatwierdzona.');
+            }
+            $context = $this->app->session->authenticationContext();
+            $now = time();
+            $factors = $context instanceof \App\Security\Authentication\AuthenticationContext
+                ? $context->factors
+                : ['password'];
+            $factors[] = 'mobile_' . (string)$pending['application_variant'];
+            $this->app->session->setAuthenticationContext(new \App\Security\Authentication\AuthenticationContext(
+                $context instanceof \App\Security\Authentication\AuthenticationContext ? $context->method : 'password',
+                array_values(array_unique($factors)),
+                $context instanceof \App\Security\Authentication\AuthenticationContext ? $context->authenticatedAt : $now,
+                $now,
+            ));
+            $destination = (string)($pending['destination'] ?? '/');
+            $this->app->session->remove('_pending_dors3_mobile_login');
+            $this->securityEvents()->record(
+                $this->app->session->userId(),
+                'mobile.login.completed',
+                'success',
+                'medium',
+                'mobile_approval',
+                (string)$pending['public_id'],
+                null,
+                null,
+                null,
+                null,
+                ['application_variant' => (string)$pending['application_variant']]
+            );
+            redirect(public_language_url(public_language(), $destination));
+        } catch (\Throwable $error) {
+            $this->app->session->flash('error', $this->safeError($error, Dors3UiText::get('messages.mobile_login_finish_failed'), 'dors3_mobile_login'));
+            redirect(public_language_url(public_language(), '/login/3dors-mobile'));
+        }
+    }
+
     public function register(): never
     {
+        $registrationNonce = trim((string)($_POST['registration_nonce'] ?? ''));
+        if (preg_match('/^[A-Za-z0-9_-]{43}$/D', $registrationNonce) !== 1) {
+            $registrationNonce = '';
+        }
         try {
             $service = new AuthService($this->app->db);
-            $user = $service->register([
-                'display_name' => trim($_POST['display_name'] ?? ''),
-                'email' => trim($_POST['email'] ?? ''),
-                'phone' => trim($_POST['phone'] ?? ''),
+            $registrationData = [
+                'display_name' => trim((string)($_POST['display_name'] ?? '')),
+                'email' => trim((string)($_POST['email'] ?? '')),
+                'phone' => trim((string)($_POST['phone'] ?? '')),
                 'password' => (string)($_POST['password'] ?? ''),
                 'role' => 'author',
-            ]);
+            ];
+            $talent = $this->talentService();
+            $user = $this->app->db->transaction(function () use ($service, $talent, $registrationData, $registrationNonce): array {
+                if ($registrationNonce !== '') {
+                    $context = $this->appReferralService()->registrationContext($registrationNonce, true);
+                    if (!hash_equals(
+                        strtolower((string)$context['invited_email']),
+                        strtolower((string)$registrationData['email'])
+                    )) {
+                        throw new \RuntimeException('Adres e-mail rejestracji nie zgadza się z zaproszeniem.');
+                    }
+                }
+                $registeredUser = $service->registerWithTalentEntitlement($registrationData, $talent);
+                if ($registrationNonce !== '') {
+                    $this->appReferralService()->consumeRegistrationNonce(
+                        $registrationNonce,
+                        (int)$registeredUser['id'],
+                        (string)$registrationData['email'],
+                    );
+                }
+                return $registeredUser;
+            });
             
             $this->app->session->login($user['id'], $user['role']);
 
-            // Etap 2: bonus live za rejestrację po założeniu sesji.
-            $talent = $this->talentService();
-            $talent->queueAward((int)$user['id'], 'registration_bonus');
-            
             $this->app->session->flash('success', 'Konto autora zostało utworzone i czeka na akceptację redakcji. Po zatwierdzeniu uzyskasz dostęp do dodawania tekstów.');
             redirect(public_language_url(public_language(), '/author'));
         } catch (\Throwable $e) {
             $this->app->session->flash('error', $this->safeError($e, 'Nie udało się utworzyć konta.', 'auth_register'));
-            redirect(public_language_url(public_language(), '/register'));
+            $path = '/register' . ($registrationNonce !== '' ? '?refn=' . rawurlencode($registrationNonce) : '');
+            redirect(public_language_url(public_language(), $path));
         }
     }
 
@@ -186,7 +298,75 @@ final class AuthController extends BaseController
                 'Uzupełnij zabezpieczenia konta wymagane dla wysokiej roli: ' . implode(', ', $missing) . '.'
             );
         }
+        if ($userId !== null && $this->beginMobileLoginIfConfigured($userId, (string)($result['destination'] ?? '/'))) {
+            redirect(public_language_url(public_language(), '/login/3dors-mobile'));
+        }
         redirect(public_language_url(public_language(), (string)($result['destination'] ?? '/')));
+    }
+
+    private function beginMobileLoginIfConfigured(int $userId, string $destination): bool
+    {
+        $mobile = $this->app->config['dors3']['mobile'] ?? null;
+        $role = (string)$this->app->session->role();
+        $variant = $role === 'admin' ? 'admin' : ($role === 'author' ? 'author' : '');
+        if (
+            !is_array($mobile)
+            || $variant === ''
+        ) {
+            return false;
+        }
+        try {
+            if (!\App\Security\Dors3\MobileApprovalConfiguration::isVariantEnabled($mobile, $variant)) {
+                return false;
+            }
+            $hasDevice = (int)$this->app->db->cell(
+                'SELECT COUNT(*) FROM security_mobile_devices WHERE user_id=:user AND application_variant=:variant AND status=\'active\'',
+                ['user' => $userId, 'variant' => $variant]
+            ) > 0;
+            if (!$hasDevice) {
+                if ((string)$mobile['mode'] === 'required') {
+                    throw new \RuntimeException('Tryb required wymaga aktywnego urządzenia 3DORS Mobile.');
+                }
+                return false;
+            }
+            $request = $this->dors3Mobile()->createApprovalRequest(
+                $userId,
+                $variant,
+                'login',
+                'auth.login',
+                'user',
+                (string)$userId,
+                [
+                    Dors3UiText::get('fields.operation') => Dors3UiText::option('operations', 'auth.login'),
+                    Dors3UiText::get('fields.account') => (string)$userId,
+                    Dors3UiText::get('fields.initiating_device') => mb_substr(trim((string)($_SERVER['HTTP_USER_AGENT'] ?? 'Browser')), 0, 120),
+                ],
+            );
+        } catch (\Throwable $error) {
+            if ((string)$mobile['mode'] === 'required') {
+                $this->app->session->logout();
+                throw new \RuntimeException('Wymagane potwierdzenie 3DORS Mobile jest obecnie niedostępne.', 0, $error);
+            }
+            error_log('[dors3_mobile_login] test mode unavailable: ' . $error::class);
+            return false;
+        }
+        $this->app->session->set('_pending_dors3_mobile_login', [
+            'public_id' => (string)$request['public_id'],
+            'expires_at' => (int)$request['expires_at'],
+            'application_variant' => $variant,
+            'destination' => $destination,
+        ]);
+        return true;
+    }
+
+    private function dors3Mobile(): \App\Services\Dors3MobileService
+    {
+        return new \App\Services\Dors3MobileService(
+            $this->app->db,
+            \App\Services\SecretCipher::fromEnvironment(),
+            $this->securityEvents(),
+            is_array($this->app->config['dors3'] ?? null) ? $this->app->config['dors3'] : [],
+        );
     }
 
     private function authenticationFlow(): AuthenticationFlowService

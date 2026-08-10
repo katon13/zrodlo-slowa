@@ -1,16 +1,16 @@
 <section class="admin-page-head">
-  <p class="kicker">3DORS · DRZWI 1</p>
-  <h1>Odblokowanie panelu administracyjnego</h1>
-  <p>Sesja administratora została zablokowana po 15 minutach bezczynności. Zwykła część serwisu nadal działa.</p>
+  <p class="kicker"><?= e(dors3_t('admin_messages.unlock_kicker')) ?></p>
+  <h1><?= e(dors3_t('admin_messages.unlock_title')) ?></h1>
+  <p><?= e(dors3_t('admin_messages.unlock_description')) ?></p>
 </section>
 
 <section class="admin-panel-block" style="max-width:680px">
-  <h2>Ponownie potwierdź tożsamość</h2>
+  <h2><?= e(dors3_t('admin_messages.reconfirm_identity')) ?></h2>
   <form method="post" action="/admin/security/unlock" autocomplete="off">
     <?= csrf_field() ?>
     <input type="hidden" name="return_path" value="<?= e((string)($return_path ?? '/admin')) ?>">
-    <label for="dors3-unlock-password">Aktualne hasło administratora</label>
+    <label for="dors3-unlock-password"><?= e(dors3_t('admin_messages.current_admin_password')) ?></label>
     <input id="dors3-unlock-password" type="password" name="password" required autocomplete="current-password">
-    <button class="btn btn-primary" type="submit">Odblokuj panel</button>
+    <button class="btn btn-primary" type="submit"><?= e(dors3_t('admin_messages.unlock_button')) ?></button>
   </form>
 </section>

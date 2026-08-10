@@ -12,7 +12,7 @@ final class EarningsNotificationServiceTest extends DatabaseTestCase
     {
         $userId = $this->user('notification-owner');
         $otherUserId = $this->user('notification-other');
-        $firstId = $this->notification($userId, 'comment_bonus');
+        $firstId = $this->notification($userId, 'share_bonus');
         $secondId = $this->notification($userId, 'share_bonus');
         $service = new EarningsNotificationService($this->database);
 
@@ -28,7 +28,7 @@ final class EarningsNotificationServiceTest extends DatabaseTestCase
         $job = (new DurableJobQueue($this->database))->enqueue(
             'earnings.critical',
             'earnings.talent_award',
-            ['user_id' => $userId, 'activity_type' => 'comment_bonus'],
+            ['user_id' => $userId, 'activity_type' => 'share_bonus'],
             'notification-owner-job-' . bin2hex(random_bytes(5)),
         );
         self::assertNotNull($service->jobForUser((string)$job['public_id'], $userId));

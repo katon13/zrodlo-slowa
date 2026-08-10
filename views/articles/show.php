@@ -4,6 +4,10 @@ $has_access = (bool)($has_access ?? false);
 $current_language = (string)($current_language ?? (function_exists('public_language') ? public_language() : 'pl'));
 $uiLanguage = strtolower($current_language);
 $currentLanguage = $uiLanguage;
+$publishedResponses = is_array($published_responses ?? null) ? $published_responses : [];
+$responseEligibility = is_array($response_eligibility ?? null) ? $response_eligibility : [];
+$responseSourceArticle = is_array($response_source_article ?? null) ? $response_source_article : null;
+$isResponsePublication = !empty($article['response_to_article_id']);
 
 $isPaid = (($article['access_mode'] ?? 'free') === 'paid');
 $isPremium = (int)($article['is_premium'] ?? 0) === 1;
@@ -70,8 +74,9 @@ $formatArticleMoney = static function (int $minor) use ($currencyService, $uiLan
 };
 
 $supportAmounts = [500, 1000, 2000, 5000];
-$authorShare = (float)($article['author_share_percent'] ?? 70);
-$platformShare = (float)($article['platform_share_percent'] ?? 30);
+$authorShare = ((int)($revenue_split_policy['author_basis_points'] ?? 4000)) / 100;
+$platformShare = ((int)($revenue_split_policy['platform_basis_points'] ?? 4000)) / 100;
+$safetyFundShare = ((int)($revenue_split_policy['safety_fund_basis_points'] ?? 2000)) / 100;
 $primaryMedia = $media[0]['path'] ?? null;
 $editorialLabel = \App\Services\ArticleLabelPresenter::display(
     (string)($article['article_label'] ?? ''),
@@ -80,6 +85,7 @@ $editorialLabel = \App\Services\ArticleLabelPresenter::display(
 $label = $editorialLabel
     ?? ($isUnique ? t('article.unique.badge', $uiLanguage) : ($isPremium ? t('article.premium.badge', $uiLanguage) : ($isPaid ? t('article.paid.badge', $uiLanguage) : t('article.type.text', $uiLanguage))));
 $currencyInfo = str_replace('{currency}', $displayCurrency, t('article.support.currency_info', $uiLanguage));
+$responseSubmissionDepositPoints = max(0, (int)($response_submission_deposit_points ?? 0));
 if (trim($currencyInfo) === '') {
     $currencyInfo = str_replace('PLN', $displayCurrency, t('article.support.pln_info', $uiLanguage));
 }
@@ -94,6 +100,14 @@ if (trim($currencyInfo) === '') {
       <div class="alert alert-info article-translation-fallback"><?= e(t('article.translation.fallback_notice', $uiLanguage)) ?></div>
     <?php endif; ?>
     <h1 class="article-title"><?= e($article['title']) ?></h1>
+
+    <?php if ($isResponsePublication && $responseSourceArticle !== null): ?>
+      <a class="zs-response-source-link" href="/article?id=<?= (int)$responseSourceArticle['id'] ?>">
+        <span><?= e(t('article.response.source_label', $uiLanguage)) ?></span>
+        <strong><?= e((string)$responseSourceArticle['title']) ?></strong>
+        <small><?= e(t('article.response.source_cta', $uiLanguage)) ?></small>
+      </a>
+    <?php endif; ?>
 
     <?php if (!empty($article['lead'])): ?>
       <p class="lead"><?= e($article['lead']) ?></p>
@@ -151,12 +165,12 @@ if (trim($currencyInfo) === '') {
       <?php endif; ?>
       <div class="article-body dropcap" data-article-reading-body><?= nl2br(e($article['body'])) ?></div>
     <?php else: ?>
-      <div class="paywall-note">
+      <div class="paywall-note" id="dostep-do-tekstu">
         <div class="kicker"><?= e(t('article.paywall.editorial_access', $uiLanguage)) ?></div>
         <h2><?= e(t('article.paywall.locked', $uiLanguage)) ?></h2>
         <?php if ($pricingStatus === 'priced' && $priceMinor > 0): ?>
           <p><span class="price"><?= e($formatArticleMoney($priceMinor)) ?></span> · <?= e(t('article.paywall.access_after_purchase', $uiLanguage)) ?></p>
-          <?php $splitNotice = str_replace(['{author}', '{platform}'], [number_format($authorShare, 0), number_format($platformShare, 0)], t('article.paywall.split_notice', $uiLanguage)); ?>
+          <?php $splitNotice = str_replace(['{author}', '{platform}', '{safety_fund}'], [number_format($authorShare, 0), number_format($platformShare, 0), number_format($safetyFundShare, 0)], t('article.paywall.split_notice', $uiLanguage)); ?>
           <p><?= e($splitNotice) ?></p>
           <?php if (!empty($_SESSION['user_id'])): ?>
             <form method="post" action="<?= e(public_language_url($current_language, '/article/buy')) ?>">
@@ -173,6 +187,60 @@ if (trim($currencyInfo) === '') {
         <?php endif; ?>
       </div>
     <?php endif; ?>
+
+    <section class="zs-response-publications" id="opinie-i-polemiki">
+      <div class="zs-response-publications-head">
+        <div>
+          <p class="kicker"><?= e(t('article.response.kicker', $uiLanguage)) ?></p>
+          <h2><?= e(t('article.response.title', $uiLanguage)) ?></h2>
+          <p><?= e(t('article.response.description', $uiLanguage)) ?></p>
+        </div>
+        <span class="zs-response-principle"><?= e(t('article.response.badge', $uiLanguage)) ?></span>
+      </div>
+
+      <ol class="zs-response-steps">
+        <li><b>1</b><span><?= e(t('article.response.step_draft', $uiLanguage)) ?></span></li>
+        <li><b>2</b><span><?= e(t('article.response.step_submit', $uiLanguage)) ?></span></li>
+        <li><b>3</b><span><?= e(t('article.response.step_publish', $uiLanguage)) ?></span></li>
+      </ol>
+      <?php if ($responseSubmissionDepositPoints > 0): ?>
+        <div class="zs-response-deposit-public">
+          <strong><?= e(str_replace('{points}', (string)$responseSubmissionDepositPoints, t('article.response.deposit_title', $uiLanguage))) ?></strong>
+          <span><?= e(t('article.response.deposit_body', $uiLanguage)) ?></span>
+        </div>
+      <?php endif; ?>
+
+      <div class="zs-response-cta-row">
+        <?php if (!empty($responseEligibility['can_respond']) && $has_access): ?>
+          <a class="btn-red" href="/opinie/nowa?article_id=<?= (int)$article['id'] ?>"><?= e(t('article.response.cta', $uiLanguage)) ?></a>
+          <a class="btn-line" href="/opinie"><?= e(t('article.response.mine', $uiLanguage)) ?></a>
+        <?php elseif (!empty($responseEligibility['can_respond'])): ?>
+          <a class="btn-red" href="#dostep-do-tekstu"><?= e(t('article.response.buy_before_response', $uiLanguage)) ?></a>
+          <a class="btn-line" href="/opinie"><?= e(t('article.response.mine', $uiLanguage)) ?></a>
+          <span><?= e(t('article.response.access_required', $uiLanguage)) ?></span>
+        <?php elseif (empty($_SESSION['user_id'])): ?>
+          <a class="btn-red" href="/login"><?= e(t('article.response.login', $uiLanguage)) ?></a>
+          <span><?= e(t('article.response.role_required', $uiLanguage)) ?></span>
+        <?php else: ?>
+          <a class="btn-line" href="/opinie"><?= e(t('article.response.mine', $uiLanguage)) ?></a>
+          <span><?= e(t('article.response.role_required', $uiLanguage)) ?></span>
+        <?php endif; ?>
+      </div>
+
+      <?php if ($publishedResponses !== []): ?>
+        <div class="zs-published-responses">
+          <div class="zs-published-responses-title"><strong><?= e(t('article.response.published', $uiLanguage)) ?></strong><span><?= count($publishedResponses) ?></span></div>
+          <?php foreach ($publishedResponses as $response): ?>
+            <article>
+              <div><span><?= e(t('article.response.type', $uiLanguage)) ?></span><h3><a href="/article?id=<?= (int)$response['id'] ?>"><?= e((string)$response['title']) ?></a></h3><p><?= e((string)($response['lead'] ?? '')) ?></p></div>
+              <footer><strong><?= e((string)$response['author_name']) ?></strong><time><?= e((string)$response['published_at']) ?></time></footer>
+            </article>
+          <?php endforeach; ?>
+        </div>
+      <?php else: ?>
+        <div class="zs-response-empty-public"><strong><?= e(t('article.response.empty_title', $uiLanguage)) ?></strong><span><?= e(t('article.response.empty_body', $uiLanguage)) ?></span></div>
+      <?php endif; ?>
+    </section>
   </article>
 
   <aside>
@@ -194,6 +262,10 @@ if (trim($currencyInfo) === '') {
             <span><?= e(t('article.premium.platform_share', $uiLanguage)) ?></span>
             <strong><?= number_format($platformShare, 0) ?>%</strong>
           </div>
+          <div class="share-item">
+            <span><?= e(t('article.premium.safety_fund_share', $uiLanguage)) ?></span>
+            <strong><?= number_format($safetyFundShare, 0) ?>%</strong>
+          </div>
         </div>
 
         <?php if ($has_access && !empty($access_grant['expires_at'])): ?>
@@ -208,6 +280,7 @@ if (trim($currencyInfo) === '') {
       </section>
     <?php endif; ?>
 
+    <?php if (!$isResponsePublication): ?>
     <section class="card support-box">
       <div class="support-content">
         <div class="support-header">
@@ -254,6 +327,7 @@ if (trim($currencyInfo) === '') {
         <?php endif; ?>
       </div>
     </section>
+    <?php endif; ?>
 
     <section class="related">
       <h3><?= e(t('article.related.title', $uiLanguage)) ?></h3>

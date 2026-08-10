@@ -10,6 +10,9 @@ final class AuthSecurityService
 {
     private const HIGH_ROLES = ['admin', 'chief_editor', 'editor', 'publisher', 'proofreader', 'accountant'];
 
+    /** @var array<int,string|null> */
+    private array $twoFactorSecretCache = [];
+
     public function __construct(
         private readonly Database $db,
         private readonly SlowoSnajperConfig $config,
@@ -170,13 +173,16 @@ final class AuthSecurityService
 
     public function currentTwoFactorSecret(int $userId): ?string
     {
+        if (array_key_exists($userId, $this->twoFactorSecretCache)) {
+            return $this->twoFactorSecretCache[$userId];
+        }
         $secret = $this->db->cell('SELECT two_factor_secret FROM users WHERE id=:id LIMIT 1', ['id' => $userId]);
         if (!$secret) {
-            return null;
+            return $this->twoFactorSecretCache[$userId] = null;
         }
         $secret = (string)$secret;
         if (str_starts_with($secret, 'v1:')) {
-            return SecretCipher::fromEnvironment()->decrypt($secret);
+            return $this->twoFactorSecretCache[$userId] = SecretCipher::fromEnvironment()->decrypt($secret);
         }
 
         // Jednorazowa, bezpieczna migracja historycznego sekretu przy pierwszym użyciu.
@@ -186,7 +192,7 @@ final class AuthSecurityService
              WHERE id=:id AND two_factor_secret=:legacy',
             ['encrypted' => $encrypted, 'id' => $userId, 'legacy' => $secret]
         );
-        return $secret;
+        return $this->twoFactorSecretCache[$userId] = $secret;
     }
 
     public function enableTwoFactor(int $userId, string $code): void

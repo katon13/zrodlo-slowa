@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="brand_name">SOURCE OF WORD</string>
+    <string name="dors3_logo_description">3DORS logo</string>
+    <string name="home_device_not_registered">This device is not registered yet.</string>
+    <string name="home_register_device">Register device</string>
+    <string name="home_connection_problem">Temporary connection problem…</string>
+    <string name="home_waiting_for_request">Waiting for a request…</string>
+    <string name="home_scan_qr">Scan QR</string>
+    <string name="home_demo_mode">Demo mode (debug only)</string>
+    <string name="qr_scanner_hint">Point the camera at the QR code</string>
+    <string name="qr_camera_permission_required">Allow 3DORS to access the camera to scan a QR code.</string>
+    <string name="qr_camera_permission_action">ALLOW CAMERA</string>
+    <string name="enrollment_title">Device registration</string>
+    <string name="label_service">Service</string>
+    <string name="label_environment">Environment</string>
+    <string name="label_organization">Organization</string>
+    <string name="label_person">Person</string>
+    <string name="label_account">Account</string>
+    <string name="label_role">Role</string>
+    <string name="label_purpose">Purpose</string>
+    <string name="purpose_enrollment">Device registration</string>
+    <string name="enrollment_create_key">CREATE KEY AND REGISTER</string>
+    <string name="enrollment_creating_key">Creating a key in Android Keystore…</string>
+    <string name="enrollment_panel_approval_title">Panel approval</string>
+    <string name="enrollment_panel_approval_description">Compare the code with the administrator panel. The administrator enters it together with their password in the same panel session. The phone cannot activate itself.</string>
+    <string name="enrollment_server_status">Server status: %1$s</string>
+    <string name="enrollment_check_activation">CHECK ACTIVATION</string>
+    <string name="enrollment_code_mismatch">THE CODE DOES NOT MATCH</string>
+    <string name="enrollment_completed">Device active. The administrator approved it in the linked panel session.</string>
+    <string name="environment_value">Environment: %1$s</string>
+    <string name="status_pending">Pending</string><string name="status_completed">Completed on phone</string><string name="status_confirmed">Active</string><string name="status_active">Active</string><string name="status_suspended">Suspended</string><string name="status_lost">Lost</string><string name="status_revoked">Revoked</string><string name="status_expired">Expired</string><string name="status_unknown">Unknown status</string>
+    <string name="approval_loading">Loading operation…</string>
+    <string name="approval_signing">Biometric verification and signing…</string>
+    <string name="approval_device_suspended">The administrator suspended this device. Contact the organization to restore access.</string>
+    <string name="approval_device_revoked">This device has been revoked. Register the phone again to continue.</string>
+    <string name="approval_already_processed">This request has already been processed on this phone.</string>
+    <string name="approval_generic_error">The operation could not be loaded or approved. Try again.</string>
+    <string name="approval_service">Service</string><string name="approval_account_and_role">Account and role</string><string name="approval_operation_type">Operation type</string><string name="approval_valid_until">Valid until</string>
+    <string name="approval_approve">APPROVE</string><string name="approval_reject">REJECT</string>
+    <string name="approval_approved">Approved. You may return to the browser or computer.</string>
+    <string name="approval_rejected_title">Operation rejected</string><string name="approval_rejected_description">The decision was signed and sent to the system.</string>
+    <string name="approval_expired_title">Request expired</string><string name="approval_expired_description">The decision window has expired. Start the operation again on the computer.</string><string name="action_back">Back</string>
+    <string name="biometric_approve_subtitle">Use biometrics to approve this operation</string><string name="biometric_reject_subtitle">Use biometrics to reject this operation</string>
+    <string name="operation_auth_login">Login</string><string name="operation_article_submit">Submit article to the newsroom</string><string name="operation_article_send_to_editor">Send article to editor</string><string name="operation_article_approve_version">Approve article version</string><string name="operation_article_publish">Publish article</string><string name="operation_article_unpublish">Unpublish article</string><string name="operation_article_export_sources">Export source materials</string><string name="operation_confidential_material_access">Access confidential material</string>
+    <string name="operation_payout_approve">Approve payout</string><string name="operation_payout_reject">Reject payout</string><string name="operation_wallet_adjust">Adjust wallet</string><string name="operation_payout_details_admin_change">Change payout details as administrator</string><string name="operation_ledger_manual_correction">Manual ledger correction</string><string name="operation_role_change">Change user role</string><string name="operation_security_settings_change">Change security settings</string><string name="operation_device_register">Register device</string><string name="operation_device_revoke">Revoke device</string><string name="operation_admin_approve">Approve administrator</string><string name="operation_dors3_policy_change">Change 3DORS policy</string><string name="operation_backup_restore">Restore backup</string><string name="operation_sensitive_data_export">Export sensitive data</string><string name="operation_financial_settings_change">Change newsroom revenue split</string><string name="operation_safety_fund_disbursement">Use Safety Fund resources</string>
+    <string name="operation_payout_details_change">Change own payout details</string><string name="operation_wallet_own_operation">Own wallet operation</string><string name="operation_agreement_action">Author agreement operation</string><string name="operation_unknown">3DORS operation</string>
+    <string name="demo_gallery_title">Screen gallery (debug only)</string>
+    <string name="demo_gallery_description">Demo mode — it does not connect to the real backend.</string>
+    <string name="demo_approved">Approved (demo). The real screen looks the same.</string>
+    <string name="demo_scenario_login">Administrator login</string>
+    <string name="demo_scenario_withdrawal">Funds payout</string>
+    <string name="demo_scenario_publication">Content publication</string>
+    <string name="demo_scenario_confidential">Confidential material</string>
+    <string name="demo_scenario_rejected">Operation rejection</string>
+    <string name="demo_scenario_expired">Request expiry</string>
+</resources>

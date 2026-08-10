@@ -14,8 +14,7 @@ final class PayoutMethodService
 
     public function create(int $userId, string $type, string $label, string $accountRef): int
     {
-        $allowed = (int)$this->db->cell('SELECT payout_enabled FROM users WHERE id=:id LIMIT 1', ['id' => $userId]);
-        if ($allowed !== 1) throw new \RuntimeException('Dodawanie metod wypłaty wymaga aktywnej zgody na wypłaty.');
+        (new UserService($this->db))->assertPayoutAccountEligible($userId);
         if (!in_array($type, ['bank','blik','paypal','manual'], true)) $type = 'manual';
         if ($label === '' || $accountRef === '') throw new \InvalidArgumentException('Nazwa i dane wypłaty są wymagane.');
         return $this->db->transaction(function(Database $db) use ($userId, $type, $label, $accountRef) {

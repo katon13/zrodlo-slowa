@@ -40,6 +40,16 @@ abstract class BaseController
         );
     }
 
+    protected function appReferralService(): \App\Services\AppReferralService
+    {
+        return new \App\Services\AppReferralService(
+            $this->app->db,
+            new \App\Services\MailService($this->app->db),
+            $this->earningsDispatcher(),
+            $this->app->queueSignals,
+        );
+    }
+
     protected function earningsPresenceService(): \App\Services\EarningsPresenceService
     {
         return new \App\Services\EarningsPresenceService(

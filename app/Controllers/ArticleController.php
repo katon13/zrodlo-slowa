@@ -6,6 +6,8 @@ use App\Services\SupportService;
 use App\Services\ArticleEconomyService;
 use App\Services\ArticleTranslationService;
 use App\Services\ArticleSeoService;
+use App\Services\SafetyFundService;
+use App\Services\ResponsePublicationService;
 
 final class ArticleController extends BaseController
 {
@@ -122,7 +124,13 @@ final class ArticleController extends BaseController
         $articleReadProof = !$isPrivatePreview && $userId !== null && $grant !== null
             ? $this->articleReadProofService()->start($userId, $articleId)
             : null;
+        $publishedResponses = $isPrivatePreview ? [] : $service->publishedResponses($articleId, 20);
+        $publishedResponses = $this->applyPublicLanguageToArticleList($publishedResponses);
+        $responseSourceArticle = !empty($sourceArticle['response_to_article_id'])
+            ? $service->findPublished((int)$sourceArticle['response_to_article_id'])
+            : null;
 
+        $responsePublicationService = new ResponsePublicationService($this->app->db);
         return $this->view('articles/show', [
             'title' => $seoMeta['title'] ?: $article['title'],
             'seo_meta' => $seoMeta,
@@ -139,6 +147,11 @@ final class ArticleController extends BaseController
             'has_access' => $grant !== null,
             'access_grant' => $grant,
             'article_read_proof' => $articleReadProof,
+            'published_responses' => $publishedResponses,
+            'response_source_article' => $responseSourceArticle,
+            'response_eligibility' => $responsePublicationService->eligibility($userId),
+            'response_submission_deposit_points' => $responsePublicationService->submissionDepositPoints(),
+            'revenue_split_policy' => (new SafetyFundService($this->app->db))->currentPolicy(),
             'flash_success' => $this->app->session->pullFlash('success'),
             'flash_error' => $this->app->session->pullFlash('error')
         ]);
@@ -252,7 +265,7 @@ final class ArticleController extends BaseController
         try {
             (new ArticleEconomyService($this->app->db, $this->notificationOutboxDispatcher()))
                 ->purchaseWithWallet($userId, $articleId);
-            $this->app->session->flash('success', 'Dostęp został wykupiony. Autor otrzymał 70%, a 30% zostało zaksięgowane dla serwisu.');
+            $this->app->session->flash('success', t('article.purchase.success_split', public_language()));
         } catch (\Throwable $e) {
             $this->app->session->flash('error', $this->safeError($e, 'Nie udało się wykupić dostępu.', 'article_purchase'));
         }

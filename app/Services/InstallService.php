@@ -51,7 +51,10 @@ final class InstallService
             $schemaFile = $this->schemaFile($db);
             $schemaStatements = $this->sqlRunner->runFile($db, $schemaFile);
             $schemaLoaded = true;
-            $migrations = $migrationService->baselineCurrentFiles();
+            // The base dump is intentionally a stable snapshot. Every later change must
+            // still be executed, not merely recorded as an applied migration. Otherwise
+            // a clean installation can silently miss tables and columns added afterwards.
+            $migrations = $migrationService->migrate();
         } else {
             $migrations = $migrationService->migrate();
         }
@@ -105,10 +108,12 @@ final class InstallService
                 'financial_ledger_anchors' => ['period_start', 'period_end', 'merkle_root', 'previous_anchor_hash', 'anchor_hash', 'manifest_json'],
                 'financial_approvals' => ['requested_by', 'requested_role', 'approved_by', 'approved_role', 'admin_note', 'status'],
                 'mail_queue' => ['status', 'attempts', 'max_attempts', 'available_at', 'locked_at', 'locked_by', 'message_id', 'idempotency_key', 'dead_lettered_at', 'created_at', 'updated_at'],
+                'talent_promotions' => ['code', 'reward_points', 'active_invitation_limit', 'successful_referral_limit', 'is_promoted', 'starts_at', 'ends_at'],
+                'app_referral_invitations' => ['public_id', 'promotion_id', 'inviter_user_id', 'invitee_user_id', 'invited_email', 'reward_points', 'token_hash', 'device_hash', 'registration_nonce_hash', 'registration_nonce_expires_at', 'registration_nonce_used_at', 'status', 'mail_queue_id', 'expires_at', 'registered_at', 'first_session_at', 'reward_queued_at'],
                 'background_jobs' => ['public_id', 'queue_name', 'job_type', 'status', 'payload_json', 'idempotency_key', 'retry_policy', 'attempts', 'max_attempts', 'lease_expires_at'],
                 'background_job_events' => ['background_job_id', 'event_type', 'to_status', 'created_at'],
                 'scheduler_runs' => ['task_name', 'scheduled_for', 'status'],
-                'articles' => ['status', 'access_mode', 'price_minor', 'published_at', 'revision_of_article_id'],
+                'articles' => ['status', 'access_mode', 'price_minor', 'published_at', 'revision_of_article_id', 'response_to_article_id', 'response_reward_qualified', 'response_reward_points', 'response_reward_job_public_id'],
                 'ai_jobs' => ['estimated_cost_minor', 'actual_cost_minor', 'budget_period', 'budget_status'],
             ];
             foreach ($columnsToCheck as $table => $columns) {
@@ -366,7 +371,7 @@ final class InstallService
             'site.tagline' => 'Pisz. Publikuj. Zarabiaj.',
             'migration.status' => 'ready',
             'premium_access_hours' => '12',
-            'publisher_fee_percent' => '30',
+            'publisher_fee_percent' => '40',
             'ai.enabled' => '0',
             'ai.default_provider' => 'openai',
             'ai.openai.model' => 'gpt-5.5',

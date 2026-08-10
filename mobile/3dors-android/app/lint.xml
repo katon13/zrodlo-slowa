@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Projektowy opt-in dla androidx.camera.core.ExperimentalGetImage. Użycie
+    jest już świadomie ograniczone do jednej, opisanej funkcji
+    (QrScannerScreen.kt: analyzeImageProxy z @OptIn), ale lint (AGP) w tej
+    wersji nie honoruje lokalnego @OptIn dla tej konkretnej adnotacji — to
+    zalecana przez sam komunikat lintu konfiguracja project-wide opt-in.
+-->
+<lint>
+    <issue id="UnsafeOptInUsageError">
+        <option name="opt-in" value="androidx.camera.core.ExperimentalGetImage" />
+    </issue>
+</lint>

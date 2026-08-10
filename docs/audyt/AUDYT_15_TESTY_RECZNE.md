@@ -25,7 +25,7 @@
 
 ## 5. Scenariusze Finansowe
 - [ ] **Doładowanie Portfela**: Czy symulacja opłaconej sesji Stripe (test) dodaje środki do Konta Głównego?
-- [ ] **Zakup Artykułu**: Czy zakup tekstu premium odejmuje środki kupującemu i dodaje 70% autorowi (Konto Zarobkowe)?
+- [ ] **Zakup Artykułu**: Czy zakup tekstu premium odejmuje środki kupującemu i atomowo księguje 40% autorowi, 40% serwisowi i 20% Safety Fund?
 - [ ] **Wypłata**: Czy zlecenie wypłaty rezerwuje środki w portfelu autora?
 - [ ] **Bonusy**: Czy przeczytanie artykułu przez zalogowanego użytkownika nalicza punkty Talent?
 

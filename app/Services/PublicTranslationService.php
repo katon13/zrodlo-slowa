@@ -105,32 +105,25 @@ final class PublicTranslationService
             return $this->phrases;
         }
 
-        $path = $this->rootPath . '/resources/lang/public.json';
-        if (!is_file($path)) {
-            $this->phrases = [];
-            return $this->phrases;
-        }
-
-        $raw = file_get_contents($path);
-        if ($raw === false) {
-            $this->phrases = [];
-            return $this->phrases;
-        }
-
-        $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) {
-            $this->phrases = [];
-            return $this->phrases;
-        }
-
         $phrases = [];
-        foreach ($decoded as $key => $values) {
-            if (!is_string($key) || !is_array($values)) {
+        foreach (['public.json', 'safety_fund.json'] as $catalog) {
+            $path = $this->rootPath . '/resources/lang/' . $catalog;
+            if (!is_file($path)) {
                 continue;
             }
-            foreach ($values as $language => $value) {
-                if (is_string($language) && is_string($value)) {
-                    $phrases[$key][$language] = $value;
+            $raw = file_get_contents($path);
+            $decoded = $raw !== false ? json_decode($raw, true) : null;
+            if (!is_array($decoded)) {
+                continue;
+            }
+            foreach ($decoded as $key => $values) {
+                if (!is_string($key) || !is_array($values)) {
+                    continue;
+                }
+                foreach ($values as $language => $value) {
+                    if (is_string($language) && is_string($value)) {
+                        $phrases[$key][$language] = $value;
+                    }
                 }
             }
         }

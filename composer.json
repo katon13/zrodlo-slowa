@@ -12,6 +12,7 @@
         "ext-pdo": "*",
         "ext-sodium": "*",
         "aws/aws-sdk-php": "^3.0",
+        "endroid/qr-code": "^6.0.9",
         "firebase/php-jwt": "^7.1",
         "symfony/mailer": "^7.4",
         "web-auth/webauthn-lib": "^5.3.5"

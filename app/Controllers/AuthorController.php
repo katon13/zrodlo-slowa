@@ -1,6 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Services\Dors3UiText;
+
 use App\Services\ArticleService;
 use App\Services\WalletService;
 use App\Services\UploadService;
@@ -50,6 +52,7 @@ final class AuthorController extends BaseController
             'article_submit_blocked_until' => $blockedUntil,
             'article_submit_block_reason' => $user['article_submit_block_reason'] ?? null,
             'is_article_submit_blocked' => $isSubmitBlocked,
+            'can_publish' => in_array('publisher', $roles, true) || in_array('chief_editor', $roles, true),
         ];
     }
 
@@ -164,13 +167,43 @@ final class AuthorController extends BaseController
     {
         $userId = $this->requireApprovedAuthor();
         try {
+            $this->enforceArticleSubmitRateLimit($userId);
             $block = (new UserService($this->app->db))->authorSubmitBlockInfo($userId);
             if (!empty($block['is_blocked'])) {
                 $until = $block['blocked_until'] ? (' do: ' . $block['blocked_until']) : '';
                 throw new \RuntimeException('Redakcja czasowo zablokowała możliwość wysyłania tekstów' . $until . '.');
             }
 
-            (new ArticleService($this->app->db))->submit((int)$_POST['id'], $userId);
+            $articleId = (int)$_POST['id'];
+            if ($this->mobileApprovalEnabled('article_submit_approval')) {
+                $issuedAt = time();
+                $fingerprint = (new \App\Services\Dors3OperationFingerprintService($this->app->db))
+                    ->articleSubmit($articleId, $userId, $issuedAt);
+                $request = $this->dors3Mobile()->createOperationApprovalRequest(
+                    $userId,
+                    'article.submit',
+                    'article',
+                    (string)$articleId,
+                    $fingerprint['display_fields'],
+                    $fingerprint['fingerprint'],
+                    ['article_id' => $articleId, 'author_id' => $userId],
+                    $issuedAt,
+                );
+                $msg = Dors3UiText::get('messages.article_submit_waiting');
+                if ($this->isAjax()) {
+                    $this->json([
+                        'success' => true,
+                        'approval_required' => true,
+                        'approval_request_id' => $request['public_id'],
+                        'expires_at' => $request['expires_at'],
+                        'message' => $msg,
+                    ]);
+                }
+                $this->app->session->flash('success', $msg);
+                redirect('/author');
+            }
+
+            (new ArticleService($this->app->db))->submit($articleId, $userId);
             $msg = 'Tekst wysłany do redakcji.';
             if ($this->isAjax()) {
                 $this->json(['success' => true, 'message' => $msg]);
@@ -183,6 +216,79 @@ final class AuthorController extends BaseController
             $this->app->session->flash('error', $this->safeError($e, 'Nie udało się wysłać tekstu.', 'article_submit'));
         }
         redirect('/author');
+    }
+
+    public function publishArticle(): never
+    {
+        $userId = $this->requireApprovedAuthor();
+        $roles = (new UserService($this->app->db))->findUserStatus($userId)['roles'] ?? '';
+        $roleList = array_filter(explode(',', (string)$roles));
+        try {
+            if (!in_array('publisher', $roleList, true) && !in_array('chief_editor', $roleList, true)) {
+                throw new \RuntimeException('Publikacja wymaga roli wydawcy lub redaktora naczelnego.');
+            }
+            if (!$this->mobileApprovalEnabled('article_publish_approval')) {
+                throw new \RuntimeException('Publikacja autora wymaga jawnie włączonego 3DORS Author.');
+            }
+            $articleId = (int)($_POST['id'] ?? 0);
+            $issuedAt = time();
+            $fingerprint = (new \App\Services\Dors3OperationFingerprintService($this->app->db))
+                ->articlePublish($articleId, $userId, $issuedAt);
+            $request = $this->dors3Mobile()->createOperationApprovalRequest(
+                $userId,
+                'article.publish',
+                'article',
+                (string)$articleId,
+                $fingerprint['display_fields'],
+                $fingerprint['fingerprint'],
+                ['article_id' => $articleId, 'author_id' => $userId],
+                $issuedAt,
+            );
+            $msg = Dors3UiText::get('messages.article_publish_waiting');
+            if ($this->isAjax()) {
+                $this->json(['success' => true, 'approval_required' => true, 'approval_request_id' => $request['public_id'], 'message' => $msg]);
+            }
+            $this->app->session->flash('success', $msg);
+        } catch (\Throwable $error) {
+            if ($this->isAjax()) {
+                $this->json(['success' => false, 'message' => $this->safeError($error, 'Nie udało się rozpocząć publikacji.', 'article_publish')]);
+            }
+            $this->app->session->flash('error', $this->safeError($error, 'Nie udało się rozpocząć publikacji.', 'article_publish'));
+        }
+        redirect('/author');
+    }
+
+    private function mobileApprovalEnabled(string $flag): bool
+    {
+        $mobile = $this->app->config['dors3']['mobile'] ?? null;
+        return is_array($mobile)
+            && \App\Security\Dors3\MobileApprovalConfiguration::isEnabled($mobile, 'author', $flag);
+    }
+
+    private function enforceArticleSubmitRateLimit(int $userId): void
+    {
+        $limiter = $this->app->rateLimiter;
+        if ($limiter === null || !$limiter->available()) {
+            return;
+        }
+        $ipHash = hash('sha256', \App\Core\RequestContext::ipAddress() ?? 'unknown');
+        $accountKey = 'article-submit:account:' . $userId;
+        $ipKey = 'article-submit:ip:' . $ipHash;
+        if ($limiter->tooManyAttempts($accountKey, 10) || $limiter->tooManyAttempts($ipKey, 30)) {
+            throw new \RuntimeException('Przekroczono limit wysyłania tekstów. Spróbuj ponownie za kilka minut.');
+        }
+        $limiter->hit($accountKey, 600);
+        $limiter->hit($ipKey, 600);
+    }
+
+    private function dors3Mobile(): \App\Services\Dors3MobileService
+    {
+        return new \App\Services\Dors3MobileService(
+            $this->app->db,
+            \App\Services\SecretCipher::fromEnvironment(),
+            $this->securityEvents(),
+            is_array($this->app->config['dors3'] ?? null) ? $this->app->config['dors3'] : [],
+        );
     }
 
     public function uploadImageAjax(): string

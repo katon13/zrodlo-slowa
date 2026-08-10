@@ -41,7 +41,11 @@ final class EarningsJobHandler implements BackgroundJobHandlerInterface
                 'job_public_id' => (string)($job['public_id'] ?? ''),
                 'job_created_at' => (string)($job['created_at'] ?? ''),
             ]),
-            'earnings.survey_reward' => $this->surveyReward((int)($payload['response_id'] ?? 0)),
+            'earnings.survey_reward' => $this->surveyReward($payload + [
+                'job_idempotency_key' => (string)($job['idempotency_key'] ?? ''),
+                'job_public_id' => (string)($job['public_id'] ?? ''),
+                'job_created_at' => (string)($job['created_at'] ?? ''),
+            ]),
             default => throw new NonRetryableJobException('Nieobsługiwany typ naliczenia.'),
         };
         $notificationId = (int)($result['notification_id'] ?? 0);
@@ -122,12 +126,14 @@ final class EarningsJobHandler implements BackgroundJobHandlerInterface
         ];
     }
 
-    private function surveyReward(int $responseId): array
+    /** @param array<string,mixed> $payload */
+    private function surveyReward(array $payload): array
     {
+        $responseId = (int)($payload['response_id'] ?? 0);
         if ($responseId <= 0) {
             throw new NonRetryableJobException('Brak identyfikatora odpowiedzi ankietowej.');
         }
-        return $this->db->transaction(function (Database $db) use ($responseId): array {
+        return $this->db->transaction(function (Database $db) use ($responseId, $payload): array {
             $response = $db->one(
                 'SELECT r.*,s.id AS source_survey_id
                  FROM survey_responses r
@@ -142,7 +148,9 @@ final class EarningsJobHandler implements BackgroundJobHandlerInterface
                 return [
                     'awarded' => true,
                     'duplicate' => true,
-                    'transaction_id' => (int)$response['wallet_transaction_id'],
+                    'transaction_id' => $response['wallet_transaction_id'] !== null
+                        ? (int)$response['wallet_transaction_id']
+                        : null,
                 ];
             }
             if ((string)$response['reward_status'] !== 'pending') {
@@ -154,44 +162,71 @@ final class EarningsJobHandler implements BackgroundJobHandlerInterface
             $rewardMinor = max(0, (int)$response['reward_amount_minor']);
             $keys = ActivityUiHelper::keysFor('survey_reward');
             $ledger = new LedgerService($db, new FinancialService($db));
-            $transactionId = $ledger->post($userId, 'survey_reward', $rewardMinor, 50, $keys['message_key'], [
-                'source_module' => 'system',
-                'account_type' => 'slowo',
-                'title_key' => $keys['title_key'],
-                'message_key' => $keys['message_key'],
-                'description_key' => $keys['description_key'],
-                'ref_type' => 'survey',
-                'ref_id' => $surveyId,
-                'idempotency_key' => 'survey:' . $surveyId . ':user:' . $userId,
-                'meta' => [
+            $transactionId = $rewardMinor > 0
+                ? $ledger->post($userId, 'survey_reward', $rewardMinor, 0, $keys['message_key'], [
+                    'source_module' => 'system',
+                    'account_type' => 'slowo',
+                    'title_key' => $keys['title_key'],
+                    'message_key' => $keys['message_key'],
+                    'description_key' => $keys['description_key'],
+                    'ref_type' => 'survey_response',
+                    'ref_id' => $responseId,
+                    'idempotency_key' => 'survey-response:' . $responseId . ':money',
+                    'meta' => [
+                        'survey_id' => $surveyId,
+                        'survey_response_id' => $responseId,
+                        'reward_amount_minor' => $rewardMinor,
+                    ],
+                ])
+                : null;
+
+            // The survey owns the PLN snapshot. Talent independently owns TT and
+            // may legitimately decide 0 TT when its survey rule is inactive.
+            $talentResult = (new TalentService(
+                $db,
+                $ledger,
+                businessClock: null,
+                fraudGuard: new FraudGuardService($db, $this->config),
+            ))->award(
+                $userId,
+                'survey_reward',
+                'survey_response',
+                $responseId,
+                $payload + [
                     'survey_id' => $surveyId,
                     'survey_response_id' => $responseId,
-                    'reward_amount_minor' => $rewardMinor,
+                    'survey_reward_amount_minor' => $rewardMinor,
                 ],
-            ]);
+            );
             $db->query(
                 'UPDATE survey_responses SET wallet_transaction_id=:tx,reward_status=\'paid\' WHERE id=:id',
                 ['tx' => $transactionId, 'id' => $responseId]
             );
-            $notificationId = $db->insert('INSERT INTO activity_bonus_notifications(
-                    user_id,activity_type,amount_minor,points_amount,message,title_key,message_key,
-                    description_key,reference_type,reference_id,created_at
-                 ) VALUES(:user,\'survey_reward\',:amount,50,:message,:title_key,:message_key,
-                    :description_key,\'survey\',:survey,NOW())', [
-                'user' => $userId,
-                'amount' => $rewardMinor,
-                'message' => $keys['message_key'],
-                'title_key' => $keys['title_key'],
-                'message_key' => $keys['message_key'],
-                'description_key' => $keys['description_key'],
-                'survey' => $surveyId,
-            ]);
+            $notificationId = null;
+            if ($rewardMinor > 0) {
+                $notificationId = $db->insert('INSERT INTO activity_bonus_notifications(
+                        user_id,activity_type,amount_minor,points_amount,message,title_key,message_key,
+                        description_key,reference_type,reference_id,created_at
+                     ) VALUES(:user,\'survey_reward\',:amount,0,:message,:title_key,:message_key,
+                        :description_key,\'survey_response\',:response,NOW())', [
+                    'user' => $userId,
+                    'amount' => $rewardMinor,
+                    'message' => $keys['message_key'],
+                    'title_key' => $keys['title_key'],
+                    'message_key' => $keys['message_key'],
+                    'description_key' => $keys['description_key'],
+                    'response' => $responseId,
+                ]);
+            }
             return [
                 'awarded' => true,
                 'duplicate' => false,
                 'transaction_id' => $transactionId,
-                'notification_id' => $notificationId,
+                'notification_id' => $notificationId ?? ($talentResult['notification_id'] ?? null),
                 'user_id' => $userId,
+                'amount_minor' => $rewardMinor,
+                'points' => (int)($talentResult['points'] ?? 0),
+                'talent_decision' => (string)($talentResult['decision'] ?? 'unknown'),
             ];
         });
     }

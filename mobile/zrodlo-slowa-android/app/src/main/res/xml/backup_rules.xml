@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Zgodnie z pkt 14 dyspozycji ("brak backupu danych aplikacji"):
+    wyklucza wszystkie domeny danych aplikacji (w tym sesję WebView i lokalny
+    wybór języka) z automatycznego backupu na urządzeniach starszych niż API 31.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="database" path="." />
+    <exclude domain="file" path="." />
+    <exclude domain="external" path="." />
+    <exclude domain="root" path="." />
+</full-backup-content>

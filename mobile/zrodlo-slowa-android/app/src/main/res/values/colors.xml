@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Paleta marki Źródło Słowa — spójna z istniejącą aplikacją 3DORS Mobile
+    (ciemny motyw, czerwony akcent), zgodnie z makietą wizualną dostarczoną
+    przez użytkownika.
+-->
+<resources>
+    <color name="zs_red">#B90012</color>
+    <color name="zs_red_dark">#8F0010</color>
+    <color name="zs_black">#0B0B0B</color>
+    <color name="zs_surface_dark">#1A1A1A</color>
+    <color name="zs_surface_variant_dark">#262626</color>
+    <color name="zs_outline_dark">#3A3A3A</color>
+    <color name="zs_text_secondary_dark">#B3B3B3</color>
+    <color name="zs_success">#4CAF6D</color>
+    <color name="zs_warning">#C98A2C</color>
+    <color name="zs_error">#E5484D</color>
+
+    <!-- Jasne, kremowe tło czołówki (IntroBackgroundColor w SourceLogoAnimation.kt) — używane też jako tło systemowego Splash Screen API, aby uniknąć czarnego mignięcia przed czołówką. -->
+    <color name="zs_intro_cream">#FBF6EE</color>
+</resources>

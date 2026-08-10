@@ -15,6 +15,7 @@ if ($healthPath === '/health/live' || $healthPath === '/health/ready') {
     $statusCode = 200;
 
     if ($healthPath === '/health/ready') {
+        $heartbeatPdo = null;
         $checks = [
             'php' => version_compare(PHP_VERSION, '8.3.0', '>='),
             'pdo_pgsql' => extension_loaded('pdo_pgsql'),
@@ -47,6 +48,7 @@ if ($healthPath === '/health/live' || $healthPath === '/health/ready') {
                     throw new RuntimeException('Invalid DB_SCHEMA.');
                 }
                 $pdo->exec('SET search_path TO "' . str_replace('"', '""', $schema) . '"');
+                $heartbeatPdo = $pdo;
                 $checks['schema'] = (int)$pdo->query(
                     "SELECT CASE WHEN to_regclass('users') IS NOT NULL THEN 1 ELSE 0 END"
                 )->fetchColumn() === 1;
@@ -149,6 +151,42 @@ if ($healthPath === '/health/live' || $healthPath === '/health/ready') {
         $payload['checks'] = $checks;
         $payload['schema'] = ($checks['schema'] ?? false) ? 'postgresql' : 'not_installed';
         $statusCode = $ready ? 200 : 503;
+
+        // Docker odpytuje readiness niezależnie dla app-1 i app-2. Wartownik
+        // dostaje dzięki temu jawny heartbeat, zamiast uznawać brak zdarzeń za zdrowie instancji.
+        if ($heartbeatPdo instanceof PDO && ($checks['schema'] ?? false)) {
+            try {
+                $heartbeatTable = (string)$heartbeatPdo->query(
+                    "SELECT COALESCE(to_regclass('security_instance_heartbeats')::text,'')"
+                )->fetchColumn();
+                if ($heartbeatTable !== '') {
+                    $expectedInstances = array_values(array_filter(
+                        array_map('trim', explode(',', (string)(getenv('SENTINEL_EXPECTED_INSTANCES') ?: 'app-1,app-2'))),
+                        static fn(string $item): bool => preg_match('/^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$/D', $item) === 1,
+                    ));
+                    $statement = $heartbeatPdo->prepare(
+                        'INSERT INTO security_instance_heartbeats(
+                            instance_id,instance_role,expected,ready,last_seen_at,last_ready_at,created_at,updated_at
+                         ) VALUES(:instance,\'application\',:expected,:ready,NOW(),CASE WHEN :ready_again THEN NOW() ELSE NULL END,NOW(),NOW())
+                         ON CONFLICT(instance_id) DO UPDATE SET
+                            instance_role=EXCLUDED.instance_role,
+                            expected=EXCLUDED.expected,
+                            ready=EXCLUDED.ready,
+                            last_seen_at=NOW(),
+                            last_ready_at=CASE WHEN EXCLUDED.ready THEN NOW() ELSE security_instance_heartbeats.last_ready_at END,
+                            updated_at=NOW()'
+                    );
+                    $statement->execute([
+                        'instance' => $instanceId,
+                        'expected' => in_array($instanceId, $expectedInstances, true),
+                        'ready' => $ready,
+                        'ready_again' => $ready,
+                    ]);
+                }
+            } catch (Throwable $error) {
+                error_log('[3dors_sentinel_heartbeat] instance=' . $instanceId . ' error=' . $error::class);
+            }
+        }
     }
 
     http_response_code($statusCode);
@@ -160,6 +198,25 @@ if ($healthPath === '/health/live' || $healthPath === '/health/ready') {
 }
 
 require_once __DIR__ . '/../app/Core/bootstrap.php';
+
+$wellKnownPath = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
+if ($wellKnownPath === '/.well-known/assetlinks.json') {
+    $fingerprints = array_values(array_filter(array_map(
+        static fn(string $value): string => strtoupper(trim($value)),
+        explode(',', (string)env('ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS', ''))
+    ), static fn(string $value): bool => preg_match('/^(?:[A-F0-9]{2}:){31}[A-F0-9]{2}$/D', $value) === 1));
+    header('Content-Type: application/json; charset=UTF-8');
+    header('Cache-Control: public, max-age=3600');
+    echo json_encode($fingerprints === [] ? [] : [[
+        'relation' => ['delegate_permission/common.handle_all_urls'],
+        'target' => [
+            'namespace' => 'android_app',
+            'package_name' => 'pl.zrodloslowa.app',
+            'sha256_cert_fingerprints' => $fingerprints,
+        ],
+    ]], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    exit;
+}
 
 $objectPath = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH);
 if (
@@ -187,12 +244,18 @@ use App\Controllers\AuthController;
 use App\Controllers\ArticleController;
 use App\Controllers\SurveyController;
 use App\Controllers\CampaignController;
-use App\Controllers\ActivityController;
 use App\Controllers\AuthorController;
+use App\Controllers\ResponsePublicationController;
 use App\Controllers\ReaderController;
 use App\Controllers\WalletController;
 use App\Controllers\DonationController;
 use App\Controllers\Dors3AdminController;
+use App\Controllers\Dors3SentinelController;
+use App\Controllers\Dors3MobileAdminController;
+use App\Controllers\Dors3MobileApiController;
+use App\Controllers\MobileSessionController;
+use App\Controllers\AdminWebRecoveryController;
+use App\Controllers\SafetyFundAdminController;
 use App\Controllers\AdminController;
 use App\Controllers\AccountSecurityController;
 use App\Controllers\FinanceController;
@@ -206,6 +269,7 @@ use App\Controllers\SitemapController;
 use App\Controllers\AccountController;
 use App\Controllers\OAuthController;
 use App\Controllers\EarningsApiController;
+use App\Controllers\AppReferralController;
 
 $rootPath = dirname(__DIR__);
 
@@ -220,7 +284,17 @@ $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->get('/login/2fa', [AuthController::class, 'showTwoFactorChallenge']);
 $router->post('/login/2fa', [AuthController::class, 'verifyTwoFactorChallenge']);
+$router->get('/login/3dors-mobile', [AuthController::class, 'showMobileChallenge']);
+$router->post('/login/3dors-mobile/complete', [AuthController::class, 'completeMobileChallenge']);
 $router->post('/logout', [AuthController::class, 'logout']);
+$router->get('/security/recovery', [AdminWebRecoveryController::class, 'show']);
+$router->post('/security/recovery/start', [AdminWebRecoveryController::class, 'start']);
+$router->post('/security/recovery/enrollment/start', [AdminWebRecoveryController::class, 'startEnrollment']);
+$router->post('/security/recovery/enrollments/{enrollment_public_id}/approve', [AdminWebRecoveryController::class, 'approveEnrollment']);
+$router->post('/security/recovery/enrollments/{enrollment_public_id}/cancel', [AdminWebRecoveryController::class, 'cancelEnrollment']);
+$router->post('/security/recovery/codes/generate', [AdminWebRecoveryController::class, 'generateCodes']);
+$router->post('/security/recovery/codes/confirm', [AdminWebRecoveryController::class, 'confirmCodes']);
+$router->post('/security/recovery/finish', [AdminWebRecoveryController::class, 'finish']);
 $router->get('/password/forgot', [AuthController::class, 'showForgot']);
 $router->post('/password/forgot', [AuthController::class, 'forgot']);
 $router->get('/password/reset', [AuthController::class, 'showReset']);
@@ -246,12 +320,18 @@ $router->post('/campaign/click', [CampaignController::class, 'clickAd']);
 $router->post('/campaign/sponsored-read', [CampaignController::class, 'sponsoredRead']);
 $router->post('/campaign/ppv', [CampaignController::class, 'ppv']);
 $router->post('/campaign/live-join', [CampaignController::class, 'liveJoin']);
-$router->post('/activity/record', [ActivityController::class, 'record']);
 $router->post('/api/earnings/presence', [EarningsApiController::class, 'presence']);
 $router->get('/api/earnings/notifications', [EarningsApiController::class, 'notifications']);
 $router->post('/api/earnings/notifications/ack', [EarningsApiController::class, 'acknowledgeNotifications']);
 $router->get('/api/earnings/jobs/status', [EarningsApiController::class, 'jobStatus']);
 $router->post('/api/earnings/article-read', [EarningsApiController::class, 'articleRead']);
+$router->get('/api/mobile/session', [MobileSessionController::class, 'show']);
+$router->get('/app/referral/{token}', [AppReferralController::class, 'landing']);
+$router->get('/api/talent/referrals', [AppReferralController::class, 'overview']);
+$router->post('/api/talent/referrals', [AppReferralController::class, 'create']);
+$router->post('/api/mobile/referral/install', [AppReferralController::class, 'mobileInstall'], ['csrf' => false]);
+$router->post('/api/mobile/referral/registration-nonce', [AppReferralController::class, 'mobileRegistrationNonce'], ['csrf' => false]);
+$router->post('/api/mobile/referral/first-session', [AppReferralController::class, 'mobileFirstSession'], ['csrf' => false]);
 
 $router->get('/authors', [AuthorController::class, 'authorsShortcut']);
 $router->get('/author', [AuthorController::class, 'dashboard']);
@@ -260,9 +340,17 @@ $router->post('/author/articles', [AuthorController::class, 'storeArticle']);
 $router->get('/author/articles/edit', [AuthorController::class, 'editArticle']);
 $router->post('/author/articles/update', [AuthorController::class, 'updateArticle']);
 $router->post('/author/articles/submit', [AuthorController::class, 'submitArticle']);
+$router->post('/author/articles/publish', [AuthorController::class, 'publishArticle']);
 $router->post('/author/articles/upload-image', [AuthorController::class, 'uploadImageAjax']);
 $router->post('/author/articles/delete-image', [AuthorController::class, 'deleteImageAjax']);
 $router->post('/author/media/update-position', [AuthorController::class, 'updateImagePositionAjax']);
+
+$router->get('/opinie', [ResponsePublicationController::class, 'dashboard']);
+$router->get('/opinie/nowa', [ResponsePublicationController::class, 'create']);
+$router->post('/opinie', [ResponsePublicationController::class, 'store']);
+$router->get('/opinie/edytuj', [ResponsePublicationController::class, 'edit']);
+$router->post('/opinie/aktualizuj', [ResponsePublicationController::class, 'update']);
+$router->post('/opinie/wyslij', [ResponsePublicationController::class, 'submit']);
 
 $router->get('/reader', [ReaderController::class, 'dashboard']);
 $router->get('/account/settings', [AccountController::class, 'showSettings']);
@@ -284,15 +372,39 @@ $router->post('/wallet/transfer/talent-to-pln', [WalletTransferController::class
 $router->post('/wallet/payout-methods', [WalletController::class, 'createPayoutMethod']);
 $router->post('/wallet/payout-request', [WalletController::class, 'requestPayout']);
 
+$router->post('/auth/3dors/mobile/start', [Dors3MobileApiController::class, 'startAuth']);
+$router->get('/auth/3dors/mobile/status/{public_id}', [Dors3MobileApiController::class, 'authStatus']);
+$router->post('/api/3dors/mobile/enrollment/complete', [Dors3MobileApiController::class, 'completeEnrollment'], ['csrf' => false]);
+$router->post('/api/3dors/mobile/enrollment/confirm', [Dors3MobileApiController::class, 'confirmEnrollment'], ['csrf' => false]);
+$router->get('/api/3dors/mobile/requests/{public_id}', [Dors3MobileApiController::class, 'requestDetails']);
+$router->post('/api/3dors/mobile/requests/{public_id}/approve', [Dors3MobileApiController::class, 'approve'], ['csrf' => false]);
+$router->post('/api/3dors/mobile/requests/{public_id}/reject', [Dors3MobileApiController::class, 'reject'], ['csrf' => false]);
+$router->get('/api/3dors/mobile/devices/{device_public_id}/pending-request', [Dors3MobileApiController::class, 'pendingRequest']);
+$router->get('/api/3dors/mobile/devices/{device_public_id}/status', [Dors3MobileApiController::class, 'deviceStatus']);
+$router->post('/api/3dors/mobile/devices/{device_public_id}/heartbeat', [Dors3MobileApiController::class, 'heartbeat'], ['csrf' => false]);
+
 $router->get('/donations', [DonationController::class, 'campaign']);
 $router->post('/donations/manual', [DonationController::class, 'manualDonation']);
 
 $router->get('/admin', [AdminController::class, 'dashboard']);
+$router->get('/admin/safety-fund', [SafetyFundAdminController::class, 'index']);
+$router->post('/admin/safety-fund/policy', [SafetyFundAdminController::class, 'requestPolicyChange']);
+$router->post('/admin/safety-fund/disbursements', [SafetyFundAdminController::class, 'requestDisbursement']);
 $router->get('/admin/security/3dors', [Dors3AdminController::class, 'index']);
+$router->get('/admin/security/sentinel', [Dors3SentinelController::class, 'index']);
+$router->post('/admin/security/sentinel/alerts/{alert_public_id}/acknowledge', [Dors3SentinelController::class, 'acknowledge']);
+$router->post('/admin/security/sentinel/alerts/{alert_public_id}/resolve', [Dors3SentinelController::class, 'resolve']);
 $router->get('/admin/security/unlock', [Dors3AdminController::class, 'showUnlock']);
 $router->post('/admin/security/unlock', [Dors3AdminController::class, 'unlock']);
 $router->post('/admin/security/3dors/recovery/generate', [Dors3AdminController::class, 'generateRecoveryCodes']);
 $router->post('/admin/security/3dors/recovery/confirm', [Dors3AdminController::class, 'confirmRecoveryCodes']);
+$router->post('/admin/security/mobile/enrollment/start', [Dors3MobileAdminController::class, 'startEnrollment']);
+$router->post('/admin/security/mobile/enrollments/{enrollment_public_id}/approve', [Dors3MobileAdminController::class, 'approveEnrollment']);
+$router->post('/admin/security/mobile/devices/{device_public_id}/suspend', [Dors3MobileAdminController::class, 'suspend']);
+$router->post('/admin/security/mobile/devices/{device_public_id}/resume', [Dors3MobileAdminController::class, 'resume']);
+$router->post('/admin/security/mobile/devices/{device_public_id}/revoke', [Dors3MobileAdminController::class, 'revoke']);
+$router->post('/admin/security/mobile/devices/{device_public_id}/mark-lost', [Dors3MobileAdminController::class, 'markLost']);
+$router->post('/admin/security/mobile/enrollments/{enrollment_public_id}/cancel', [Dors3MobileAdminController::class, 'cancelEnrollment']);
 $router->post('/admin/cache/clear', [AdminController::class, 'clearCache']);
 $router->get('/admin/articles', [AdminController::class, 'articles']);
 $router->get('/admin/editorial', [AdminController::class, 'editorial']);
@@ -347,6 +459,7 @@ $router->get('/admin/settings', [AdminController::class, 'settings']);
 $router->post('/admin/settings', [AdminController::class, 'updateSettings']);
 $router->post('/admin/settings/slowo-snajper', [AdminController::class, 'updateSnajperSettings']);
 $router->post('/admin/settings/talent-rules', [AdminController::class, 'updateTalentRules']);
+$router->post('/admin/settings/talent-promotion', [AdminController::class, 'updateTalentPromotion']);
 $router->post('/admin/users/talent-reward', [AdminController::class, 'manualTalentReward']);
 $router->get('/admin/mails', [AdminController::class, 'mails']);
 $router->get('/admin/payments', [FinanceController::class, 'payments']);

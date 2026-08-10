@@ -77,12 +77,12 @@ final class EarningsDecisionTest extends DatabaseTestCase
         $this->database->query(
             'UPDATE activity_reward_rules
              SET is_active=1,points_amount=10,amount_minor=25,daily_limit=5
-             WHERE activity_type=\'comment_bonus\''
+             WHERE activity_type=\'share_bonus\''
         );
         $context = ['job_idempotency_key' => 'phpunit-award-' . bin2hex(random_bytes(8))];
 
-        $first = $this->service()->award($userId, 'comment_bonus', context: $context);
-        $retry = $this->service()->award($userId, 'comment_bonus', context: $context);
+        $first = $this->service()->award($userId, 'share_bonus', context: $context);
+        $retry = $this->service()->award($userId, 'share_bonus', context: $context);
 
         self::assertSame('awarded', $first['decision']);
         self::assertSame('duplicate', $retry['decision']);

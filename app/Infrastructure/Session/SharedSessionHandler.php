@@ -15,6 +15,7 @@ final class SharedSessionHandler implements \SessionHandlerInterface, \SessionUp
         private readonly ?ValkeyClientInterface $valkey,
         private readonly Database $database,
         private readonly int $ttlSeconds,
+        private readonly bool $readOnly = false,
     ) {}
 
     public function open(string $path, string $name): bool
@@ -51,10 +52,12 @@ final class SharedSessionHandler implements \SessionHandlerInterface, \SessionUp
             if (!is_string($payload)) {
                 return '';
             }
-            try {
-                $this->valkey?->set($this->key($id), $payload, $this->ttl());
-            } catch (\Throwable) {
-                // PostgreSQL pozostaje bezpiecznym, współdzielonym fallbackiem.
+            if (!$this->readOnly) {
+                try {
+                    $this->valkey?->set($this->key($id), $payload, $this->ttl());
+                } catch (\Throwable) {
+                    // PostgreSQL pozostaje bezpiecznym, współdzielonym fallbackiem.
+                }
             }
             return $payload;
         } catch (\Throwable $error) {
@@ -65,6 +68,9 @@ final class SharedSessionHandler implements \SessionHandlerInterface, \SessionUp
 
     public function write(string $id, string $data): bool
     {
+        if ($this->readOnly) {
+            return true;
+        }
         $valkeyWritten = false;
         try {
             if ($this->valkey !== null) {
@@ -113,6 +119,9 @@ final class SharedSessionHandler implements \SessionHandlerInterface, \SessionUp
 
     public function destroy(string $id): bool
     {
+        if ($this->readOnly) {
+            return true;
+        }
         $ok = true;
         try {
             $this->valkey?->delete($this->key($id));
@@ -132,6 +141,9 @@ final class SharedSessionHandler implements \SessionHandlerInterface, \SessionUp
 
     public function gc(int $max_lifetime): int|false
     {
+        if ($this->readOnly) {
+            return 0;
+        }
         try {
             return $this->database->query(
                 'DELETE FROM sessions WHERE last_activity<:minimum',
@@ -171,6 +183,9 @@ final class SharedSessionHandler implements \SessionHandlerInterface, \SessionUp
 
     public function updateTimestamp(string $id, string $data): bool
     {
+        if ($this->readOnly) {
+            return true;
+        }
         return $this->write($id, $data);
     }
 

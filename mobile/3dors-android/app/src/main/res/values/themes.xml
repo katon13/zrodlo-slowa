@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+        Aplikacja ma działać domyślnie w dark mode (dyspozycja pkt 4), dlatego
+        wariant values/themes.xml (dzień) dziedziczy te same, ciemne kolory marki
+        co values-night/themes.xml. Brak przełącznika jasny/ciemny w tym etapie.
+    -->
+    <style name="Theme._3DORSMobile" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Firmowa czerwień Źródła Słowa jako główny kolor akcji (nie niebieski). -->
+        <item name="colorPrimary">@color/dors3_red</item>
+        <item name="colorPrimaryVariant">@color/dors3_red_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/dors3_red</item>
+        <item name="colorSecondaryVariant">@color/dors3_red_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:windowBackground">@color/dors3_black</item>
+        <item name="android:statusBarColor">@color/dors3_black</item>
+        <item name="android:navigationBarColor">@color/dors3_black</item>
+    </style>
+</resources>

@@ -7,80 +7,87 @@ final class EconomyMapService
 {
     public function __construct(private readonly Database $db) {}
 
-    public function publicFlows(): array
+    public function publicFlows(string $language = 'pl'): array
     {
+        $policy = (new SafetyFundService($this->db))->currentPolicy();
+        $articleReceiver = $this->replace('economy.flow.article.receiver', $language, [
+            'author' => $this->percent((int)$policy['author_basis_points']),
+            'platform' => $this->percent((int)$policy['platform_basis_points']),
+            'fund' => $this->percent((int)$policy['safety_fund_basis_points']),
+        ]);
         return [
             [
-                'label' => 'Tekst premium / unikalny',
-                'payer' => 'Czytelnik',
-                'action' => 'Kupuje dostęp do tekstu',
-                'receiver' => '70% Autor / 30% Serwis',
+                'label' => $this->text('economy.flow.article.label', $language),
+                'payer' => $this->text('economy.actor.reader', $language),
+                'action' => $this->text('economy.flow.article.action', $language),
+                'receiver' => $articleReceiver,
                 'wallet' => [
-                    'article_charge' => 'Zakup tekstu',
-                    'article_sale_author_share' => 'Udział autora',
-                    'article_sale_platform_share' => 'Udział serwisu'
+                    'article_charge' => ActivityUiHelper::getLabel('article_charge', $language),
+                    'article_sale_author_share' => ActivityUiHelper::getLabel('article_sale_author_share', $language),
+                    'article_sale_platform_share' => ActivityUiHelper::getLabel('article_sale_platform_share', $language),
+                    'article_sale_safety_fund_share' => ActivityUiHelper::getLabel('article_sale_safety_fund_share', $language),
                 ],
-                'note' => 'Tekst ma cenę ustaloną przez redakcję. Dostęp trwa domyślnie 12 godzin.',
+                'note' => $this->text('economy.flow.article.note', $language),
                 'icon' => 'article'
             ],
             [
-                'label' => 'Aktywność użytkownika',
-                'payer' => 'System / Budżet aktywności',
-                'action' => 'Nagradza za rejestrację, wizyty i interakcje',
-                'receiver' => 'Użytkownik',
+                'label' => $this->text('economy.flow.activity.label', $language),
+                'payer' => $this->text('economy.actor.activity_budget', $language),
+                'action' => $this->text('economy.flow.activity.action', $language),
+                'receiver' => $this->text('economy.actor.user', $language),
                 'wallet' => [
-                    'activity_bonus' => 'Bonus aktywności',
-                    'day_visit_bonus' => 'Wizyta dzienna'
+                    'activity_bonus' => ActivityUiHelper::getLabel('activity_bonus', $language),
+                    'day_visit_bonus' => ActivityUiHelper::getLabel('day_visit_bonus', $language),
                 ],
-                'note' => 'Każdy bonus trafia do portfela i buduje lojalność czytelnika.',
+                'note' => $this->text('economy.flow.activity.note', $language),
                 'icon' => 'sun'
             ],
             [
-                'label' => 'Ankieta / sondaż',
-                'payer' => 'Zleceniodawca / Redakcja',
-                'action' => 'Płaci za opinie i dane',
-                'receiver' => 'Użytkownik + Serwis',
+                'label' => $this->text('economy.flow.survey.label', $language),
+                'payer' => $this->text('economy.actor.client_newsroom', $language),
+                'action' => $this->text('economy.flow.survey.action', $language),
+                'receiver' => $this->text('economy.actor.user_platform', $language),
                 'wallet' => [
-                    'survey_reward' => 'Nagroda za ankietę'
+                    'survey_reward' => ActivityUiHelper::getLabel('survey_reward', $language),
                 ],
-                'note' => 'Ankiety są strategicznym modułem przychodowym, nie dodatkiem.',
+                'note' => $this->text('economy.flow.survey.note', $language),
                 'icon' => 'survey'
             ],
             [
-                'label' => 'Reklama i kampanie',
-                'payer' => 'Reklamodawca',
-                'action' => 'Płaci za zasięg i kliknięcia',
-                'receiver' => 'Użytkownik + Serwis',
+                'label' => $this->text('economy.flow.campaign.label', $language),
+                'payer' => $this->text('economy.actor.advertiser', $language),
+                'action' => $this->text('economy.flow.campaign.action', $language),
+                'receiver' => $this->text('economy.actor.user_platform', $language),
                 'wallet' => [
-                    'ad_view_reward' => 'Nagroda za obejrzenie',
-                    'ad_click_reward' => 'Nagroda za kliknięcie',
-                    'sponsored_article_read_bonus' => 'Treść sponsorowana'
+                    'ad_view_reward' => ActivityUiHelper::getLabel('ad_view_reward', $language),
+                    'ad_click_reward' => ActivityUiHelper::getLabel('ad_click_reward', $language),
+                    'sponsored_article_read_bonus' => ActivityUiHelper::getLabel('sponsored_article_read_bonus', $language),
                 ],
-                'note' => 'Każda akcja kampanii jest zapisana jako zdarzenie ekonomiczne.',
+                'note' => $this->text('economy.flow.campaign.note', $language),
                 'icon' => 'eye'
             ],
             [
-                'label' => 'PPV / Wydarzenia live',
-                'payer' => 'Uczestnik',
-                'action' => 'Opłaca udział w wydarzeniu',
-                'receiver' => 'Autor / Serwis',
+                'label' => $this->text('economy.flow.live.label', $language),
+                'payer' => $this->text('economy.actor.participant', $language),
+                'action' => $this->text('economy.flow.live.action', $language),
+                'receiver' => $this->text('economy.actor.author_platform', $language),
                 'wallet' => [
-                    'ppv_reward' => 'Nagroda PPV',
-                    'live_event_reward' => 'Nagroda za live'
+                    'ppv_reward' => ActivityUiHelper::getLabel('ppv_reward', $language),
+                    'live_event_reward' => ActivityUiHelper::getLabel('live_event_reward', $language),
                 ],
-                'note' => 'Model płatności za konkretne wydarzenia wysokiej jakości.',
+                'note' => $this->text('economy.flow.live.note', $language),
                 'icon' => 'video'
             ],
             [
-                'label' => 'Wypłata środków',
-                'payer' => 'Portfel systemu',
-                'action' => 'Realizuje wypłatę na konto',
-                'receiver' => 'Autor / Użytkownik',
+                'label' => $this->text('economy.flow.payout.label', $language),
+                'payer' => $this->text('economy.actor.system_wallet', $language),
+                'action' => $this->text('economy.flow.payout.action', $language),
+                'receiver' => $this->text('economy.actor.author_user', $language),
                 'wallet' => [
-                    'payout_request' => 'Wniosek',
-                    'payout_paid' => 'Wypłacono'
+                    'payout_request' => ActivityUiHelper::getLabel('payout_request', $language),
+                    'payout_paid' => ActivityUiHelper::getLabel('payout_paid', $language),
                 ],
-                'note' => 'Wypłata po osiągnięciu progu i weryfikacji redakcyjnej.',
+                'note' => $this->text('economy.flow.payout.note', $language),
                 'icon' => 'payout'
             ],
         ];
@@ -89,7 +96,7 @@ final class EconomyMapService
     public function adminSummary(): array
     {
         return [
-            'article_sales' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(total_amount_minor),0) total, COALESCE(SUM(author_income_minor),0) author, COALESCE(SUM(publisher_fee_minor),0) platform FROM platform_revenues'),
+            'article_sales' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(total_amount_minor),0) total, COALESCE(SUM(author_income_minor),0) author, COALESCE(SUM(publisher_fee_minor),0) platform, COALESCE(SUM(safety_fund_amount_minor),0) safety_fund FROM platform_revenues'),
             'bonuses' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(amount_minor),0) total, COALESCE(SUM(points_amount),0) points FROM activity_reward_logs'),
             'surveys' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(reward_amount_minor),0) rewards FROM survey_responses'),
             'campaigns' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(cost_minor),0) cost, COALESCE(SUM(reward_minor),0) rewards FROM campaign_events'),
@@ -105,5 +112,25 @@ final class EconomyMapService
         } catch (\Throwable) {
             return [];
         }
+    }
+
+    private function text(string $key, string $language): string
+    {
+        return function_exists('t') ? t($key, $language) : $key;
+    }
+
+    /** @param array<string,string> $values */
+    private function replace(string $key, string $language, array $values): string
+    {
+        $text = $this->text($key, $language);
+        foreach ($values as $name => $value) {
+            $text = str_replace('{' . $name . '}', $value, $text);
+        }
+        return $text;
+    }
+
+    private function percent(int $basisPoints): string
+    {
+        return number_format($basisPoints / 100, $basisPoints % 100 === 0 ? 0 : 2, ',', ' ') . '%';
     }
 }

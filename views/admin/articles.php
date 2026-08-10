@@ -51,6 +51,9 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
         <article class="chief-editor-card" id="article-<?= $articleId ?>">
           <div class="chief-editor-main">
             <span class="admin-label">Tekst #<?= $articleId ?></span>
+            <?php if (!empty($a['response_to_article_id'])): ?>
+              <span class="zs-status-badge review">OPINIA / POLEMIKA DO #<?= (int)$a['response_to_article_id'] ?></span>
+            <?php endif; ?>
             <h3><?= e((string)($a['title'] ?? '')) ?></h3>
             <?php if (!empty($a['lead'])): ?>
               <p><?= e(mb_strimwidth((string)$a['lead'], 0, 220, '…', 'UTF-8')) ?></p>
@@ -59,6 +62,9 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
               <span>Autor: <?= e((string)($a['author_name'] ?? '—')) ?></span>
               <span>Status: <b><?= e($statusLabels[$status] ?? $status) ?></b></span>
               <span>Aktualizacja: <?= e($updatedAt ?: '—') ?></span>
+              <?php if (!empty($a['response_to_article_id'])): ?>
+                <span>Talent: <b><?= $a['response_reward_qualified'] === null ? 'snapshot dopiero przy publikacji' : (!empty($a['response_reward_qualified']) ? ((int)$a['response_reward_points'] . ' TT · job ' . e((string)$a['response_reward_job_public_id'])) : '0 TT · reguła nieaktywna przy publikacji') ?></b></span>
+              <?php endif; ?>
               <?php if ($isAuthorBlocked): ?>
                 <span class="author-submit-blocked">Autor zablokowany do: <b><?= e((string)$blockedUntil) ?></b></span>
               <?php endif; ?>

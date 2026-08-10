@@ -93,6 +93,54 @@ final class FreshInstallTest extends TestCase
         self::assertGreaterThan(300, $result['schema_statements']);
         self::assertSame('created', $result['admin']['status']);
 
+        $installedDatabase = new Database($this->databaseConfig['default']);
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='security_mobile_devices'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='author_agreements'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='security_events'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='security_settings'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='webauthn_challenges'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='revenue_split_policies'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='safety_fund_allocations'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_name='safety_fund_disbursements'"
+        ));
+        self::assertSame('4000/4000/2000', (string)$installedDatabase->cell(
+            "SELECT author_basis_points || '/' || platform_basis_points || '/' || safety_fund_basis_points
+             FROM revenue_split_policies WHERE status='active'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='activity_reward_logs' AND column_name='operation_key'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='activity_bonus_notifications' AND column_name='source_event_key'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='security_mobile_enrollments' AND column_name='device_completed_at'"
+        ));
+
+        $migrationDirectory = $root . '/database/postgresql/migrations';
+        $expectedMigrations = count(glob($migrationDirectory . '/*.sql') ?: []);
+        self::assertSame($expectedMigrations, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM schema_migrations WHERE status='applied'"
+        ));
+        self::assertSame(1, (int)$installedDatabase->cell(
+            "SELECT COUNT(*) FROM schema_migrations WHERE version='20260803_003_3dors_independent_audit' AND status='applied'"
+        ));
+
         $check = $installer->check();
         self::assertTrue($check['ok'], json_encode($check, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         self::assertSame([], $check['missing_items']);

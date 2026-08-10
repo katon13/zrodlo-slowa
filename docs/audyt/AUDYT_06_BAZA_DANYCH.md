@@ -18,7 +18,7 @@ System przeszedł niedawno konsolidację bazy danych. Historyczny mechanizm 57 m
 - `payments`: Rejestr wpłat zewnętrznych.
 - `payment_orders`: Zamówienia płatności (np. Stripe Checkout).
 - `payouts`: Zlecenia wypłat dla autorów.
-- `platform_revenues`: Rejestr przychodów platformy (prowizje 30%).
+- `platform_revenues`: Rejestr udziału serwisu i Safety Fund z migawką wersji polityki podziału.
 
 ### Użytkownicy i Uprawnienia
 - `users`: Dane podstawowe użytkowników, statusy kont, uprawnienia operacyjne (`can_write`, `wallet_enabled`).

@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Source of Word</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_articles">Articles</string>
+    <string name="nav_wallet">Wallet</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_account">Account</string>
+
+    <string name="placeholder_coming_soon">This screen will be implemented in the next stage.</string>
+
+    <string name="login_title">Sign in — %1$s</string>
+
+    <string name="notifications_empty">No new notifications.</string>
+    <string name="notifications_error">Could not load notifications. Check your connection.</string>
+    <string name="notifications_mark_all_read">Mark all as read</string>
+
+    <string name="action_change_language">Change language</string>
+    <string name="action_language_automatic">Automatic</string>
+
+    <string name="offline_title">No connection</string>
+    <string name="offline_message">Could not connect to Source of Word. Check your internet connection and try again.</string>
+    <string name="offline_retry">Try again</string>
+    <string name="offline_go_back">Go back</string>
+
+    <string name="action_search">Search</string>
+    <string name="action_menu">Menu</string>
+    <string name="menu_latest">Latest</string>
+    <string name="menu_topics">Topics</string>
+    <string name="menu_polls">Polls</string>
+    <string name="menu_ads">Ads</string>
+    <string name="menu_how_to_earn">How to earn</string>
+    <string name="menu_authors">Authors</string>
+    <string name="menu_tt_rate">TT RATE</string>
+    <string name="menu_login_account">Sign in / Account</string>
+    <string name="menu_join_author">Join as an author</string>
+
+    <string name="onboarding_title">Welcome to Source of Word</string>
+    <string name="onboarding_browse_guest">Browse without an account</string>
+    <string name="onboarding_have_account">I have an account — sign in</string>
+    <string name="onboarding_join_author">Join as an author</string>
+
+    <string name="intro_motto">Give it your own source.</string>
+
+    <string name="dors3_author_not_installed">The 3DORS Author app is not installed on this device.</string>
+    <string name="dors3_admin_blocked">This link leads to the 3DORS Admin panel — Source of Word does not open it.</string>
+    <string name="file_operation_web_only">This operation is available in the full web service.</string>
+</resources>

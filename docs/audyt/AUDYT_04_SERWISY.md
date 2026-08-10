@@ -22,7 +22,7 @@ System opiera się na architekturze Service Layer, gdzie kontrolery delegują z�
 - **WalletService.php**: Podstawowe operacje na portfelach.
 - **TalentService.php**: Przyznawanie punktów Talent i bonusów za aktywność (logowanie, czytanie, komentarze).
 - **WalletTopupService.php**: Procesowanie doładowań (m.in. ze Stripe).
-- **ArticleEconomyService.php**: Obsługa zakupu artykułów premium (podział 70/30).
+- **ArticleEconomyService.php**: Obsługa zakupu artykułów premium (wersjonowany podział 40/40/20).
 
 ### AI (OpenAI)
 - **AiFoundationService.php**: Centralne zarządzanie ustawieniami AI, planowaniem zadań i logowaniem zdarzeń AI.

@@ -17,6 +17,7 @@ $statusLabels = [
 
 $roleLabels = [
     'reader' => 'czytelnik',
+    'commentator' => 'komentator',
     'author' => 'autor',
     'editor' => 'redaktor',
     'chief_editor' => 'redaktor naczelny',
@@ -111,13 +112,13 @@ $authorUsers = count(array_filter($visibleUsers, static fn(array $user): bool =>
         $roles = (string)($u['roles'] ?? '');
         $roleList = array_values(array_filter(array_map('trim', explode(',', $roles))));
         $primaryRole = 'reader';
-        foreach (['admin', 'author', 'reader'] as $candidate) {
+        foreach (['admin', 'author', 'commentator', 'reader'] as $candidate) {
             if (in_array($candidate, $roleList, true)) {
                 $primaryRole = $candidate;
                 break;
             }
         }
-        $editorialRoles = array_values(array_diff($roleList, ['reader', 'author', 'admin']));
+        $editorialRoles = array_values(array_diff($roleList, ['reader', 'commentator', 'author', 'admin']));
         $hasWallet = !empty($u['wallet_id']);
       ?>
       <article class="admin-user-card status-row-<?= e($status) ?>" id="user-<?= (int)$u['id'] ?>">
@@ -157,13 +158,14 @@ $authorUsers = count(array_filter($visibleUsers, static fn(array $user): bool =>
           <div class="permission-switches">
             <?php foreach ($permissionLabels as $field => $meta): ?>
               <?php $checked = (int)($u[$field] ?? 0) === 1; ?>
+              <?php $lockedForCommentator = $primaryRole === 'commentator' && in_array($field, ['can_write','payout_enabled'], true); ?>
               <label class="permission-toggle <?= $checked ? 'is-active' : '' ?>" data-permission="<?= e($field) ?>">
                 <input type="hidden" name="<?= e($field) ?>" value="0">
-                <input type="checkbox" name="<?= e($field) ?>" value="1" <?= $checked ? 'checked' : '' ?>>
+                <input type="checkbox" name="<?= e($field) ?>" value="1" <?= $checked ? 'checked' : '' ?> <?= $lockedForCommentator ? 'disabled' : '' ?>>
                 <span class="toggle-dot" aria-hidden="true"></span>
                 <span>
                   <strong><?= e($meta['label']) ?></strong>
-                  <small><?= e($meta['hint']) ?></small>
+                  <small><?= e($lockedForCommentator ? ($field === 'can_write' ? 'rola pisze tylko opinie i polemiki' : 'komentator nie ma wypłat PLN') : $meta['hint']) ?></small>
                 </span>
               </label>
             <?php endforeach; ?>
@@ -208,10 +210,11 @@ $authorUsers = count(array_filter($visibleUsers, static fn(array $user): bool =>
             <label>
               <span>Typ konta</span>
               <select name="role">
-                <?php foreach (['reader','author','admin'] as $role): ?>
+                <?php foreach (['reader','commentator','author','admin'] as $role): ?>
                   <option value="<?= e($role) ?>" <?= $primaryRole === $role ? 'selected' : '' ?>><?= e($roleLabels[$role] ?? $role) ?></option>
                 <?php endforeach; ?>
               </select>
+              <small>Komentator publikuje wyłącznie opinie i polemiki, otrzymuje TT, ale ma trwale wyłączone wypłaty.</small>
             </label>
             <button class="btn-line compact" type="submit">Zmień</button>
           </form>

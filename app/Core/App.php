@@ -87,6 +87,7 @@ final class App
             : new NullQueueSignal();
 
         $sessionConfig = $appConfig['session'];
+        $readOnlyMobileSessionProbe = self::isReadOnlyMobileSessionProbe();
         ini_set('session.use_strict_mode', '1');
         ini_set('session.use_only_cookies', '1');
         ini_set('session.cookie_httponly', '1');
@@ -97,7 +98,8 @@ final class App
                 session_set_save_handler(new SharedSessionHandler(
                     $valkey,
                     $database,
-                    (int)($valkeyConfig['session_ttl_seconds'] ?? 86400)
+                    (int)($valkeyConfig['session_ttl_seconds'] ?? 86400),
+                    $readOnlyMobileSessionProbe,
                 ), true);
             } else {
                 self::configureSessionStorage($rootPath);
@@ -110,7 +112,8 @@ final class App
                 'httponly' => true,
                 'samesite' => (string)$sessionConfig['samesite'],
             ]);
-            if (!@session_start()) {
+            $sessionStartOptions = $readOnlyMobileSessionProbe ? ['read_and_close' => true] : [];
+            if (!@session_start($sessionStartOptions)) {
                 throw new \RuntimeException('Nie udało się uruchomić bezpiecznej sesji aplikacji.');
             }
         }
@@ -123,11 +126,11 @@ final class App
                 $currentUser = $database->one('SELECT session_version,status FROM users WHERE id=:id LIMIT 1', [
                     'id' => $session->userId(),
                 ]);
-                if (
+                $invalidSession =
                     $currentUser === null
                     || !in_array((string)$currentUser['status'], ['active', 'pending_author'], true)
-                    || (int)$currentUser['session_version'] !== (int)$session->get('_session_version', -1)
-                ) {
+                    || (int)$currentUser['session_version'] !== (int)$session->get('_session_version', -1);
+                if ($invalidSession && !$readOnlyMobileSessionProbe) {
                     $session->resetAnonymous();
                 }
             } catch (\PDOException $error) {
@@ -177,6 +180,13 @@ final class App
             }
         }
         return null;
+    }
+
+    private static function isReadOnlyMobileSessionProbe(): bool
+    {
+        $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+        $path = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+        return $method === 'GET' && $path === '/api/mobile/session';
     }
 
     private static function configureSessionStorage(string $rootPath): void

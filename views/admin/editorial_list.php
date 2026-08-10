@@ -93,6 +93,9 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
             <div class="editorial-card-info">
               <div class="info-top">
                 <span class="admin-label">ID #<?= $id ?> | <?= e($statusLabels[$status] ?? $status) ?></span>
+                <?php if (!empty($a['response_to_article_id'])): ?>
+                  <span class="zs-status-badge review">OPINIA / POLEMIKA DO #<?= (int)$a['response_to_article_id'] ?></span>
+                <?php endif; ?>
                 <?php if ($proofreadAt !== ''): ?>
                   <span class="zs-status-badge review editorial-proofread-badge">KOREKTA</span>
                 <?php endif; ?>
@@ -101,6 +104,11 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
               <div class="editorial-card-meta">
                 <span>Autor: <strong><?= e($a['author_name'] ?? '—') ?></strong></span>
                 <span>Kategoria: <strong><?= e($a['category_name'] ?? '—') ?></strong></span>
+                <?php if (!empty($a['response_to_article_id'])): ?>
+                  <span>Talent: <strong><?= $a['response_reward_qualified'] === null ? 'oczekuje na publikację' : (!empty($a['response_reward_qualified']) ? ((int)$a['response_reward_points'] . ' TT · snapshot') : '0 TT · snapshot niekwalifikowany') ?></strong></span>
+                  <?php $depositStatusLabels = ['not_required' => 'niewymagana', 'held' => 'pobrana', 'forfeited' => 'przepadła', 'refunded' => 'zwrócona']; ?>
+                  <span>Kaucja: <strong><?= $a['response_deposit_status'] === null ? 'niepobrana' : e($depositStatusLabels[(string)$a['response_deposit_status']] ?? (string)$a['response_deposit_status']) ?><?php if ($a['response_deposit_points'] !== null): ?> · <?= (int)$a['response_deposit_points'] ?> TT<?php endif; ?></strong></span>
+                <?php endif; ?>
               </div>
               <div class="editorial-card-dates">
                 <small>Zmiana: <?= e($updatedAt ? date('d.m.Y H:i', strtotime($updatedAt)) : '—') ?></small>

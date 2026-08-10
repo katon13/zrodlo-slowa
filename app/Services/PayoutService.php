@@ -39,10 +39,7 @@ final class PayoutService
         if ($amountMinor < 1000) {
             throw new \InvalidArgumentException('Minimalna wypłata to 10 PLN.');
         }
-        $allowed = (int)$this->db->cell('SELECT payout_enabled FROM users WHERE id=:id LIMIT 1', ['id' => $userId]);
-        if ($allowed !== 1) {
-            throw new \RuntimeException('Wypłaty nie są aktywne dla tego konta. Wymagana jest ręczna zgoda administracji.');
-        }
+        (new UserService($this->db))->assertPayoutAccountEligible($userId);
 
         $this->fraudGuard->assertPayoutAllowed($userId);
 
@@ -98,6 +95,7 @@ final class PayoutService
             $amountMinor = (int)$payout['amount_minor'];
 
             if (in_array($status, [self::STATUS_APPROVED, self::STATUS_PAID], true)) {
+                (new UserService($db))->assertPayoutAccountEligible($userId);
                 $this->fraudGuard->assertPayoutAllowed($userId, $payoutId);
             }
 

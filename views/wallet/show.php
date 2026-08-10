@@ -31,9 +31,9 @@ $money = $displayAmount;
 
 $isActivity = static fn($type) => in_array($type, [
     'login_bonus', 'registration_bonus', 'day_visit_bonus', 'article_read_bonus', 
-    'comment_bonus', 'poll_answer_bonus', 'share_bonus', 'link_click_bonus', 
+    'response_publication_bonus', 'poll_answer_bonus', 'share_bonus', 'link_click_bonus',
     'like_bonus', 'survey_reward', 'ad_watch_bonus', 'ad_click_reward', 
-    'newsletter_open_reward', 'ppv_reward', 'live_event_reward', 'manual_reward'
+    'newsletter_open_reward', 'ppv_reward', 'live_event_reward', 'manual_reward', 'app_referral_bonus'
 ]);
 ?>
 <section class="admin-page-head" data-wallet-lang="<?= e($lang) ?>" data-detected="<?= e(public_language()) ?>">
@@ -454,6 +454,37 @@ $isActivity = static fn($type) => in_array($type, [
     <?php endforeach; ?>
     </div>
   </section>
+
+  <section class="wallet-referral-panel" id="aktualne-w-talent" data-referral-widget hidden>
+    <div class="admin-section-head">
+      <div>
+        <p class="kicker"><?= t('wallet.referral.kicker', $lang) ?></p>
+        <h2><?= t('wallet.referral.title', $lang) ?></h2>
+      </div>
+      <span class="referral-promoted-badge" data-referral-badge hidden>PROMOWANE</span>
+    </div>
+    <div class="wallet-referral-loading" data-referral-loading><?= t('wallet.referral.loading', $lang) ?></div>
+    <div data-referral-content hidden>
+      <p class="wallet-referral-description" data-referral-description></p>
+      <div class="wallet-referral-stats">
+        <article><strong data-referral-reward>—</strong><span><?= t('wallet.referral.reward_each', $lang) ?></span></article>
+        <article><strong data-referral-active>—</strong><span><?= t('wallet.referral.active', $lang) ?></span></article>
+        <article><strong data-referral-success>—</strong><span><?= t('wallet.referral.successful', $lang) ?></span></article>
+      </div>
+      <ol class="wallet-referral-steps">
+        <li><?= t('wallet.referral.step_invite', $lang) ?></li>
+        <li><?= t('wallet.referral.step_install', $lang) ?></li>
+        <li><?= t('wallet.referral.step_session', $lang) ?></li>
+      </ol>
+      <form class="wallet-referral-form" data-referral-form>
+        <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
+        <label><span><?= t('wallet.referral.email_label', $lang) ?></span><input type="email" name="email" maxlength="190" required autocomplete="email" placeholder="<?= e(t('wallet.referral.email_placeholder', $lang)) ?>"></label>
+        <button type="submit" class="zs-btn-red"><?= t('wallet.referral.send', $lang) ?></button>
+      </form>
+      <p class="wallet-referral-message" data-referral-message role="status"></p>
+      <div class="wallet-referral-list" data-referral-list></div>
+    </div>
+  </section>
 <?php endif; ?>
 
 <script>
@@ -467,5 +498,103 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  var widget = document.querySelector('[data-referral-widget]');
+  if (!widget) return;
+  var loading = widget.querySelector('[data-referral-loading]');
+  var content = widget.querySelector('[data-referral-content]');
+  var form = widget.querySelector('[data-referral-form]');
+  var message = widget.querySelector('[data-referral-message]');
+  var statusLabels = <?= json_encode([
+      'mail_queued' => t('wallet.referral.status.mail_queued', $lang),
+      'sent' => t('wallet.referral.status.sent', $lang),
+      'link_opened' => t('wallet.referral.status.link_opened', $lang),
+      'installed' => t('wallet.referral.status.installed', $lang),
+      'registered' => t('wallet.referral.status.registered', $lang),
+      'reward_queued' => t('wallet.referral.status.reward_queued', $lang),
+      'rewarded' => t('wallet.referral.status.rewarded', $lang),
+      'mail_dead_letter' => t('wallet.referral.status.mail_dead_letter', $lang),
+      'expired' => t('wallet.referral.status.expired', $lang),
+      'cancelled' => t('wallet.referral.status.cancelled', $lang),
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+
+  function renderReferral(data) {
+    if (!data.promotion || data.pool_exhausted) {
+      widget.hidden = true;
+      return;
+    }
+    widget.hidden = false;
+    loading.hidden = true;
+    content.hidden = false;
+    var promotion = data.promotion;
+    widget.querySelector('[data-referral-badge]').hidden = !promotion;
+    widget.querySelector('[data-referral-description]').textContent = promotion
+      ? '<?= e(t('wallet.referral.description', $lang)) ?>'
+      : '<?= e(t('wallet.referral.inactive', $lang)) ?>';
+    widget.querySelector('[data-referral-reward]').textContent = promotion ? promotion.reward_points.toLocaleString() + ' TT' : '—';
+    widget.querySelector('[data-referral-active]').textContent = data.active_count + ' / ' + data.active_limit;
+    widget.querySelector('[data-referral-success]').textContent = data.successful_count + ' / ' + data.successful_limit;
+    form.hidden = !data.can_invite;
+    var list = widget.querySelector('[data-referral-list]');
+    list.replaceChildren();
+    if (!data.invitations.length) {
+      var empty = document.createElement('p');
+      empty.className = 'wallet-referral-empty';
+      empty.textContent = '<?= e(t('wallet.referral.no_invitations', $lang)) ?>';
+      list.appendChild(empty);
+      return;
+    }
+    data.invitations.forEach(function(invitation) {
+      var row = document.createElement('article');
+      row.className = 'wallet-referral-row';
+      var copy = document.createElement('div');
+      var email = document.createElement('strong');
+      email.textContent = invitation.invited_email;
+      var meta = document.createElement('small');
+      meta.textContent = invitation.reward_points.toLocaleString() + ' TT · ' + invitation.created_at;
+      copy.append(email, meta);
+      var state = document.createElement('span');
+      state.className = 'zs-status-badge is-' + invitation.status.replace(/_/g, '-');
+      state.textContent = statusLabels[invitation.status] || invitation.status;
+      row.append(copy, state);
+      list.appendChild(row);
+    });
+  }
+
+  function loadReferral() {
+    return fetch('/api/talent/referrals', {
+      credentials: 'same-origin',
+      headers: {'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest'}
+    }).then(function(response) { return response.json().then(function(body) {
+      if (!response.ok || !body.ok) throw new Error(body.error || '<?= e(t('wallet.referral.unavailable', $lang)) ?>');
+      return body;
+    }); }).then(renderReferral).catch(function(error) {
+      loading.textContent = error.message || '<?= e(t('wallet.referral.unavailable', $lang)) ?>';
+      loading.classList.add('is-error');
+    });
+  }
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    var button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    message.textContent = '<?= e(t('wallet.referral.sending', $lang)) ?>';
+    fetch('/api/talent/referrals', {
+      method: 'POST', credentials: 'same-origin',
+      headers: {'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
+      body: new URLSearchParams(new FormData(form)).toString()
+    }).then(function(response) { return response.json().then(function(body) {
+      if (!response.ok || !body.ok) throw new Error(body.error || '<?= e(t('wallet.referral.unavailable', $lang)) ?>');
+      return body;
+    }); }).then(function() {
+      form.reset();
+      message.textContent = '<?= e(t('wallet.referral.sent', $lang)) ?>';
+      return loadReferral();
+    }).catch(function(error) {
+      message.textContent = error.message || '<?= e(t('wallet.referral.unavailable', $lang)) ?>';
+    }).finally(function() { button.disabled = false; button.textContent = '<?= e(t('wallet.referral.send', $lang)) ?>'; });
+  });
+
+  loadReferral();
 });
 </script>

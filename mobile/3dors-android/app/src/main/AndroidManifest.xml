@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <application
+        android:name=".Dors3MobileApp"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme._3DORSMobile">
+
+        <!--
+            Cleartext traffic jest dopuszczony WYŁĄCZNIE w wariancie debug poprzez
+            app/src/debug/AndroidManifest.xml + network_security_config (ograniczone
+            do adresów deweloperskich/LAN). Wariant release używa wyłącznie HTTPS.
+        -->
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme._3DORSMobile">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Android App Link (produkcja) — wymaga zweryfikowanego assetlinks.json -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="${dors3AppLinkHost}"
+                    android:pathPrefix="/3dors/approve" />
+            </intent-filter>
+
+            <!--
+                Schemat deweloperski dors3-dev:// (wyłącznie debug) jest deklarowany
+                w app/src/debug/AndroidManifest.xml i nigdy nie trafia do release.
+            -->
+        </activity>
+    </application>
+
+</manifest>

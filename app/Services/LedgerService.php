@@ -2,8 +2,6 @@
 namespace App\Services;
 
 use App\Core\Database;
-use PDOException;
-
 final class LedgerService
 {
     public const POINTS_PER_PLN = 10;
@@ -18,6 +16,7 @@ final class LedgerService
         return [
             'login_bonus' => 'Bonus za logowanie',
             'registration_bonus' => 'Bonus za rejestrację',
+            'app_referral_bonus' => 'Bonus za polecenie aplikacji',
             'day_visit_bonus' => 'Bonus za dzisiejszą wizytę',
             'article_read_bonus' => 'Bonus za przeczytanie artykułu',
             'manual_reward' => 'Nagroda ręczna',
@@ -37,7 +36,11 @@ final class LedgerService
             'link_click_bonus' => 'Bonus za kliknięcie',
             'like_bonus' => 'Bonus za polubienie',
             'share_bonus' => 'Bonus za udostępnienie',
-            'comment_bonus' => 'Bonus za komentarz',
+            'response_publication_bonus' => 'Talent za opublikowaną opinię lub polemikę',
+            'response_submission_deposit_hold' => 'Kaucja za wysłanie opinii lub polemiki',
+            'response_submission_deposit_refund' => 'Zwrot kaucji po publikacji',
+            'response_submission_deposit_forfeit' => 'Przepadek kaucji po odrzuceniu',
+            'response_submission_deposit_forfeit_reversal' => 'Cofnięcie przepadku kaucji',
             'bug_report_bonus' => 'Bonus za zgłoszenie błędu',
             'sponsored_article_read_bonus' => 'Bonus za czytanie (sponsorowane)',
             'ad_watch_bonus' => 'Bonus za obejrzenie reklamy',
@@ -47,6 +50,11 @@ final class LedgerService
             'newsletter_open_reward' => 'Nagroda za newsletter',
             'ppv_reward' => 'Nagroda PPV',
             'live_event_reward' => 'Nagroda za live',
+            'article_charge' => 'Zakup dostępu do tekstu',
+            'article_sale_author_share' => 'Udział autora ze sprzedaży tekstu',
+            'article_sale_platform_share' => 'Udział serwisu ze sprzedaży tekstu',
+            'article_sale_safety_fund_share' => 'Udział Safety Fund ze sprzedaży tekstu',
+            'safety_fund_disbursement' => 'Wydatek Safety Fund',
         ];
     }
 
@@ -66,13 +74,11 @@ final class LedgerService
         $lock = $forUpdate ? ' FOR UPDATE' : '';
         $wallet = $this->db->one('SELECT * FROM wallets WHERE user_id=:id' . $lock, ['id' => $userId]);
         if (!$wallet) {
-            try {
-                $this->db->query('INSERT INTO wallets(user_id,main_available_minor,main_reserved_minor,slowo_available_minor,slowo_reserved_minor,available_minor,pending_minor,reserved_minor,points_balance,currency,created_at) VALUES(:id,0,0,0,0,0,0,0,0,\'PLN\',NOW())', ['id' => $userId]);
-            } catch (PDOException $e) {
-                if ((string)$e->getCode() !== '23000') {
-                    throw $e;
-                }
-            }
+            $sql = 'INSERT INTO wallets(user_id,main_available_minor,main_reserved_minor,slowo_available_minor,slowo_reserved_minor,available_minor,pending_minor,reserved_minor,points_balance,currency,created_at) VALUES(:id,0,0,0,0,0,0,0,0,\'PLN\',NOW())';
+            $sql .= $this->db->isPostgres()
+                ? ' ON CONFLICT (user_id) DO NOTHING'
+                : ' ON DUPLICATE KEY UPDATE user_id=VALUES(user_id)';
+            $this->db->query($sql, ['id' => $userId]);
             $wallet = $this->db->one('SELECT * FROM wallets WHERE user_id=:id' . $lock, ['id' => $userId]);
         }
         if (!$wallet) {

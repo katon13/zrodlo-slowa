@@ -1,6 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Services\Dors3UiText;
+
 use App\Core\Database;
 use App\Services\ArticleService;
 use App\Services\PayoutService;
@@ -31,6 +33,9 @@ final class AdminController extends BaseController
         $roleService = new RoleService($this->app->db);
         $database = $this->app->db;
         $pendingApprovals = $database->one('SELECT COUNT(*) as cnt FROM financial_approvals WHERE status=\'pending\'')['cnt'] ?? 0;
+        $sentinelOpenAlerts = $database->tableExists('security_alerts')
+            ? (int)$database->cell('SELECT COUNT(*) FROM security_alerts WHERE status<>\'resolved\'')
+            : 0;
 
         return $this->view('admin/dashboard', [
             'title' => 'Admin',
@@ -38,6 +43,7 @@ final class AdminController extends BaseController
             'pending_authors_count' => (new UserService($this->app->db))->pendingAuthorsCount(),
             'role_panels' => $roleService->panelsForRoles($roles, in_array('admin', $roles, true)),
             'pending_approvals_count' => $pendingApprovals,
+            'sentinel_open_alerts' => $sentinelOpenAlerts,
             'earnings_diagnostics' => (new EarningsDiagnosticsService(
                 $this->app->db,
                 $this->app->valkey,
@@ -695,6 +701,35 @@ final class AdminController extends BaseController
                 ['status' => (string)$payout['status']],
                 ['status' => $status],
             );
+            if ($this->mobileApprovalEnabled('payout_approval')) {
+                $issuedAt = time();
+                $fingerprint = (new \App\Services\Dors3OperationFingerprintService($this->app->db))
+                    ->payoutStatus($id, $status, $issuedAt);
+                $actionType = in_array($status, [PayoutService::STATUS_REJECTED, PayoutService::STATUS_CANCELLED], true)
+                    ? 'payout.reject'
+                    : 'payout.approve';
+                $request = $this->dors3Mobile()->createOperationApprovalRequest(
+                    $adminId,
+                    $actionType,
+                    'payout',
+                    (string)$id,
+                    $fingerprint['display_fields'],
+                    $fingerprint['fingerprint'],
+                    [
+                        'payout_id' => $id,
+                        'target_status' => $status,
+                        'admin_id' => $adminId,
+                        'admin_note' => $note,
+                    ],
+                    $issuedAt,
+                );
+                $this->app->session->flash(
+                    'success',
+                    Dors3UiText::get('messages.payout_waiting', ['id' => (string)$request['public_id']])
+                );
+                redirect('/admin/payouts');
+            }
+
             $financialService = new \App\Services\FinancialService($this->app->db);
             $financialService->requestApproval(
                 'payout_status_update',
@@ -864,6 +899,36 @@ final class AdminController extends BaseController
                 ['roles' => $beforeRoles],
                 ['primary_role' => $role],
             );
+            if ($this->mobileApprovalEnabled('admin_critical_approval')) {
+                $issuedAt = time();
+                $fingerprint = (new \App\Services\Dors3OperationFingerprintService($this->app->db))->adminCritical(
+                    'role.change',
+                    $adminId,
+                    'user',
+                    (string)$userId,
+                    ['kind' => 'primary_role', 'target_role' => $role],
+                    ['roles' => $beforeRoles],
+                    ['primary_role' => $role],
+                    $issuedAt,
+                );
+                $request = $this->dors3Mobile()->createOperationApprovalRequest(
+                    $adminId,
+                    'role.change',
+                    'user',
+                    (string)$userId,
+                    $fingerprint['display_fields'],
+                    $fingerprint['fingerprint'],
+                    [
+                        'kind' => 'primary_role',
+                        'target_user_id' => $userId,
+                        'target_role' => $role,
+                        'admin_id' => $adminId,
+                    ],
+                    $issuedAt,
+                );
+                $this->app->session->flash('success', Dors3UiText::get('messages.primary_role_waiting', ['id' => (string)$request['public_id']]));
+                redirect('/admin/users#user-' . $userId);
+            }
             (new UserService($this->app->db))->setPrimaryRole($userId, $role);
             $this->slowoSnajper()->audit($adminId, 'user_role_update', ['user_id'=>$userId, 'role'=>$role]);
             $this->app->session->flash('success', 'Typ konta użytkownika został zmieniony bez naruszania ról redakcyjnych.');
@@ -995,6 +1060,36 @@ final class AdminController extends BaseController
                 ['roles' => $beforeRoles],
                 ['requested_editorial_roles' => $requestedRoles],
             );
+            if ($this->mobileApprovalEnabled('admin_critical_approval')) {
+                $issuedAt = time();
+                $fingerprint = (new \App\Services\Dors3OperationFingerprintService($this->app->db))->adminCritical(
+                    'role.change',
+                    $adminId,
+                    'user',
+                    (string)$userId,
+                    ['kind' => 'editorial_roles'],
+                    ['roles' => $beforeRoles],
+                    ['requested_editorial_roles' => $requestedRoles],
+                    $issuedAt,
+                );
+                $request = $this->dors3Mobile()->createOperationApprovalRequest(
+                    $adminId,
+                    'role.change',
+                    'user',
+                    (string)$userId,
+                    $fingerprint['display_fields'],
+                    $fingerprint['fingerprint'],
+                    [
+                        'kind' => 'editorial_roles',
+                        'target_user_id' => $userId,
+                        'target_roles' => $requestedRoles,
+                        'admin_id' => $adminId,
+                    ],
+                    $issuedAt,
+                );
+                $this->app->session->flash('success', Dors3UiText::get('messages.editorial_roles_waiting', ['id' => (string)$request['public_id']]));
+                redirect('/admin/roles#user-' . $userId);
+            }
             $changed = (new RoleService($this->app->db))->syncEditorialRoles($userId, $_POST['roles'] ?? [], $adminId);
             $this->slowoSnajper()->audit($adminId, 'editorial_roles_update', [
                 'user_id' => $userId,
@@ -1114,6 +1209,9 @@ final class AdminController extends BaseController
             'rows' => $rows,
             'languages' => $languages,
             'article_translations_map' => $translationMap,
+            'revenue_split_policy' => $panelCode === 'moderator'
+                ? (new \App\Services\SafetyFundService($this->app->db))->currentPolicy()
+                : null,
             'snajper_page' => $page,
             'snajper_limit' => $limit,
         ]);
@@ -1347,12 +1445,16 @@ final class AdminController extends BaseController
         $this->requireAdmin();
         $settings = $this->app->db->all('SELECT * FROM settings ORDER BY name');
         $talentService = new \App\Services\TalentService($this->app->db, new \App\Services\LedgerService($this->app->db, new \App\Services\FinancialService($this->app->db)));
-        $rules = $talentService->getRules();
+        $rules = array_values(array_filter(
+            $talentService->getRules(),
+            static fn(array $rule): bool => (string)$rule['activity_type'] !== \App\Services\AppReferralService::ACTIVITY_TYPE
+        ));
         return $this->view('admin/settings', [
             'title' => 'Ustawienia, Talent i SNAJPER SŁOWA',
             'settings' => $settings,
             'rules' => $rules,
             'talent_rule_groups' => TalentRulePresenter::groups($rules),
+            'referral_overview' => $this->appReferralService()->adminOverview(),
             'slowo_snajper' => $this->slowoSnajperConfig()->all(),
         ]);
     }
@@ -1487,7 +1589,8 @@ final class AdminController extends BaseController
                         (int)($data['points'] ?? 0),
                         (int)round(((float)$money) * 100),
                         (int)($data['limit'] ?? 0),
-                        isset($data['active'])
+                        isset($data['active']),
+                        (int)($data['submission_deposit_points'] ?? 0)
                     );
                 }
             });
@@ -1496,6 +1599,52 @@ final class AdminController extends BaseController
             $this->app->session->flash('error', 'Nie udało się zapisać reguł Talentu: ' . $e->getMessage());
         }
         redirect('/admin/settings');
+    }
+
+    public function updateTalentPromotion(): never
+    {
+        $adminId = $this->requireAdmin();
+        try {
+            $input = is_array($_POST['promotion'] ?? null) ? $_POST['promotion'] : [];
+            if ($input === []) {
+                throw new \InvalidArgumentException('Brak danych promocji Talent.');
+            }
+            $service = $this->appReferralService();
+            $before = $service->latestPromotion();
+            $this->authorizeCriticalOperation(
+                $adminId,
+                'earnings.app_referral_promotion.update',
+                'talent_promotion',
+                \App\Services\AppReferralService::PROMOTION_CODE,
+                ['snapshot_policy' => 'reward_points zapisane w zaproszeniu nie są zmieniane'],
+                $before,
+                ['submitted_promotion' => $input],
+            );
+            $this->app->db->transaction(function () use ($service, $adminId, $input): void {
+                $service->updatePromotion($adminId, $input);
+            });
+            $this->app->session->flash('success', 'Promocja instalacyjna Talent została zapisana. Istniejące zaproszenia zachowały własną wartość TT.');
+        } catch (\Throwable $error) {
+            $this->app->session->flash('error', 'Nie udało się zapisać promocji Talent: ' . $error->getMessage());
+        }
+        redirect('/admin/settings#talent-promotion');
+    }
+
+    private function mobileApprovalEnabled(string $flag): bool
+    {
+        $mobile = $this->app->config['dors3']['mobile'] ?? null;
+        return is_array($mobile)
+            && \App\Security\Dors3\MobileApprovalConfiguration::isEnabled($mobile, 'admin', $flag);
+    }
+
+    private function dors3Mobile(): \App\Services\Dors3MobileService
+    {
+        return new \App\Services\Dors3MobileService(
+            $this->app->db,
+            \App\Services\SecretCipher::fromEnvironment(),
+            $this->securityEvents(),
+            is_array($this->app->config['dors3'] ?? null) ? $this->app->config['dors3'] : [],
+        );
     }
 
     public function manualTalentReward(): never

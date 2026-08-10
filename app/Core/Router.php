@@ -21,7 +21,13 @@ final class Router
     public function dispatch(string $method, string $uri): void
     {
         $path = parse_url($uri, PHP_URL_PATH) ?: '/';
-        $route = $this->routes[$method][$path] ?? null;
+        if ($this->app->session->get('_pending_dors3_mobile_login') !== null && !$this->mobileLoginGateAllows($path)) {
+            redirect('/login/3dors-mobile');
+        }
+        if ($this->app->session->get('_admin_recovery_capability') !== null && !$this->webRecoveryGateAllows($path)) {
+            redirect('/security/recovery');
+        }
+        $route = $this->routes[$method][$path] ?? $this->matchDynamicRoute($method, $path);
         if (!$route) {
             http_response_code(404);
             echo $this->app->view->render('layouts/error', ['title' => '404', 'message' => 'Nie znaleziono strony.']);
@@ -39,8 +45,59 @@ final class Router
         echo $controller->$action();
     }
 
+    private function mobileLoginGateAllows(string $path): bool
+    {
+        if (in_array($path, ['/login/3dors-mobile', '/login/3dors-mobile/complete', '/logout'], true)) {
+            return true;
+        }
+        if ($path === '/api/mobile/session') {
+            return true;
+        }
+        return str_starts_with($path, '/auth/3dors/mobile/status/')
+            || str_starts_with($path, '/api/3dors/mobile/');
+    }
+
+    private function webRecoveryGateAllows(string $path): bool
+    {
+        return in_array($path, ['/logout', '/api/mobile/session'], true)
+            || str_starts_with($path, '/security/recovery');
+    }
+
+    /** @return array{handler:array,csrf:bool}|null */
+    private function matchDynamicRoute(string $method, string $path): ?array
+    {
+        foreach ($this->routes[$method] ?? [] as $pattern => $route) {
+            if (!str_contains($pattern, '{')) {
+                continue;
+            }
+            $parameterNames = [];
+            $regexSegments = [];
+            foreach (explode('/', trim($pattern, '/')) as $segment) {
+                if (preg_match('/^\{([A-Za-z_][A-Za-z0-9_]*)\}$/D', $segment, $match) === 1) {
+                    $parameterNames[] = $match[1];
+                    $regexSegments[] = '([^/]{1,200})';
+                } else {
+                    $regexSegments[] = preg_quote($segment, '~');
+                }
+            }
+            $regex = '/' . implode('/', $regexSegments);
+            if (preg_match('~^' . $regex . '$~D', $path, $matches) !== 1) {
+                continue;
+            }
+            array_shift($matches);
+            foreach ($parameterNames as $index => $name) {
+                $_GET[$name] = rawurldecode((string)($matches[$index] ?? ''));
+            }
+            return $route;
+        }
+        return null;
+    }
+
     private function requiresStructuredAudit(string $path): bool
     {
+        if ($path === '/security/recovery' || str_starts_with($path, '/security/recovery/')) {
+            return true;
+        }
         if (str_starts_with($path, '/admin/')) {
             return true;
         }
@@ -52,7 +109,9 @@ final class Router
             '/article/support',
             '/survey/submit',
             '/campaign',
-            '/activity/record',
+            '/opinie',
+            '/api/talent/referrals',
+            '/api/mobile/referral',
             '/stripe/webhook',
             '/payment/webhook',
         ] as $financialPath) {

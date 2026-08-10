@@ -12,8 +12,9 @@ To wirtualna redakcja i system obiegu wartości, w którym:
 autor publikuje teksty,
 redakcja ocenia i wycenia treści,
 czytelnik płaci za teksty premium / unikalne / rynkowe,
-autor dostaje 70% przychodu,
-serwis/redakcja dostaje 30%,
+autor dostaje 40% przychodu,
+serwis/redakcja dostaje 40%,
+20% trafia do Safety Fund na ochronę autorów,
 zwykły użytkownik może zarabiać za aktywność,
 ankiety i sondaże tworzą osobny strategiczny moduł przychodowy,
 reklamodawcy/zleceniodawcy płacą za dostęp do społeczności, danych i opinii.
@@ -58,8 +59,8 @@ Proces:
 4. Tekst dostaje status: DARMOWY / PŁATNY / PREMIUM / UNIKALNY / SPECJALNY.
 5. Czytelnik kupuje dostęp.
 6. System zapisuje transakcję.
-7. 70% przychodu trafia do portfela autora.
-8. 30% zostaje dla serwisu/redakcji.
+7. 40% przychodu trafia do portfela autora.
+8. 40% zostaje dla serwisu/redakcji, a 20% trafia do Safety Fund.
 9. Autor może zlecić wypłatę.
 ```
 
@@ -683,8 +684,8 @@ zarobiłeś za...
 2. Informacja ma wartość.
 3. Opinia ma wartość.
 4. Aktywność społeczności ma wartość.
-5. Autor dostaje 70%.
-6. Serwis/redakcja dostaje 30%.
+5. Autor dostaje 40%.
+6. Serwis/redakcja dostaje 40%, a 20% trafia do Safety Fund.
 7. Czytelnik może zarabiać za aktywność.
 8. Ankiety i sondaże są kluczem przychodowym.
 9. System ma pokazywać użytkownikowi, że zarabia.

@@ -1,0 +1,1122 @@
+{
+  "economy.page_title": {
+    "pl": "Jak finansujemy autorów i serwis",
+    "en": "How we fund authors and the service",
+    "de": "Wie wir Autoren und den Dienst finanzieren",
+    "fr": "Comment nous finançons les auteurs et le service",
+    "it": "Come finanziamo gli autori e il servizio",
+    "es": "Cómo financiamos a los autores y al servicio"
+  },
+  "economy.hero.kicker": {
+    "pl": "Jasne zasady. Wspólna odpowiedzialność.",
+    "en": "Clear rules. Shared responsibility.",
+    "de": "Klare Regeln. Gemeinsame Verantwortung.",
+    "fr": "Des règles claires. Une responsabilité partagée.",
+    "it": "Regole chiare. Responsabilità condivisa.",
+    "es": "Reglas claras. Responsabilidad compartida."
+  },
+  "economy.hero.title": {
+    "pl": "Tak finansujemy pracę autora, redakcję i ochronę autorów",
+    "en": "This is how we fund authors, the newsroom and author protection",
+    "de": "So finanzieren wir Autoren, die Redaktion und den Autorenschutz",
+    "fr": "Voici comment nous finançons les auteurs, la rédaction et leur protection",
+    "it": "Così finanziamo gli autori, la redazione e la loro protezione",
+    "es": "Así financiamos a los autores, la redacción y su protección"
+  },
+  "economy.hero.lead": {
+    "pl": "Gdy czytelnik kupuje dostęp do płatnego tekstu, przychód dzielimy automatycznie według jednej jawnej zasady redakcji.",
+    "en": "When a reader buys access to a paid article, the revenue is divided automatically under one transparent newsroom rule.",
+    "de": "Wenn ein Leser Zugang zu einem kostenpflichtigen Artikel kauft, wird der Erlös automatisch nach einer transparenten Redaktionsregel aufgeteilt.",
+    "fr": "Lorsqu’un lecteur achète l’accès à un article payant, le revenu est réparti automatiquement selon une règle éditoriale transparente.",
+    "it": "Quando un lettore acquista l’accesso a un articolo a pagamento, il ricavo viene ripartito automaticamente secondo una regola editoriale trasparente.",
+    "es": "Cuando un lector compra acceso a un artículo de pago, el ingreso se reparte automáticamente según una norma editorial transparente."
+  },
+  "economy.policy.kicker": {
+    "pl": "Zasada redakcji",
+    "en": "Newsroom rule",
+    "de": "Redaktionsregel",
+    "fr": "Règle de la rédaction",
+    "it": "Regola editoriale",
+    "es": "Norma editorial"
+  },
+  "economy.policy.title": {
+    "pl": "Jeden wpływ, trzy odpowiedzialne cele",
+    "en": "One inflow, three responsible purposes",
+    "de": "Ein Erlös, drei verantwortungsvolle Zwecke",
+    "fr": "Un revenu, trois objectifs responsables",
+    "it": "Un ricavo, tre finalità responsabili",
+    "es": "Un ingreso, tres finalidades responsables"
+  },
+  "economy.policy.lead": {
+    "pl": "Podział dotyczy tego samego zakupu tekstu i jest wykonywany automatycznie w chwili jego zaksięgowania.",
+    "en": "The split applies to the same article purchase and is recorded automatically at the time of purchase.",
+    "de": "Die Aufteilung gilt für denselben Artikelkauf und wird beim Kauf automatisch verbucht.",
+    "fr": "La répartition s’applique au même achat d’article et est enregistrée automatiquement au moment de l’achat.",
+    "it": "La ripartizione si applica allo stesso acquisto dell’articolo ed è registrata automaticamente al momento dell’acquisto.",
+    "es": "El reparto se aplica a la misma compra del artículo y se registra automáticamente en ese momento."
+  },
+  "economy.policy.aria": {
+    "pl": "Aktualny podział przychodu",
+    "en": "Current revenue split",
+    "de": "Aktuelle Erlösaufteilung",
+    "fr": "Répartition actuelle du revenu",
+    "it": "Ripartizione attuale del ricavo",
+    "es": "Reparto actual del ingreso"
+  },
+  "economy.policy.author": {
+    "pl": "Autor",
+    "en": "Author",
+    "de": "Autor",
+    "fr": "Auteur",
+    "it": "Autore",
+    "es": "Autor"
+  },
+  "economy.policy.platform": {
+    "pl": "Serwis i redakcja",
+    "en": "Service and newsroom",
+    "de": "Dienst und Redaktion",
+    "fr": "Service et rédaction",
+    "it": "Servizio e redazione",
+    "es": "Servicio y redacción"
+  },
+  "economy.policy.fund": {
+    "pl": "Safety Fund — ochrona autorów",
+    "en": "Safety Fund — author protection",
+    "de": "Safety Fund — Autorenschutz",
+    "fr": "Safety Fund — protection des auteurs",
+    "it": "Safety Fund — protezione degli autori",
+    "es": "Safety Fund — protección de autores"
+  },
+  "economy.policy.note": {
+    "pl": "Podział obowiązuje nowe zakupy od chwili aktywacji. Wcześniejsze rozliczenia zachowują dawną zasadę.",
+    "en": "The split applies to new purchases from activation. Earlier settlements keep the rule that applied at the time.",
+    "de": "Die Aufteilung gilt ab ihrer Aktivierung für neue Käufe. Frühere Abrechnungen behalten die damals gültige Regel.",
+    "fr": "La répartition s’applique aux nouveaux achats dès son activation. Les règlements antérieurs conservent la règle alors en vigueur.",
+    "it": "La ripartizione si applica ai nuovi acquisti dal momento dell’attivazione. I conteggi precedenti mantengono la regola allora vigente.",
+    "es": "El reparto se aplica a las nuevas compras desde su activación. Las liquidaciones anteriores conservan la regla vigente entonces."
+  },
+  "economy.policy.version": {
+    "pl": "Wersja zasady",
+    "en": "Rule version",
+    "de": "Regelversion",
+    "fr": "Version de la règle",
+    "it": "Versione della regola",
+    "es": "Versión de la norma"
+  },
+  "economy.principle.value.title": {
+    "pl": "Tekst tworzy wartość",
+    "en": "An article creates value",
+    "de": "Ein Artikel schafft Wert",
+    "fr": "Un article crée de la valeur",
+    "it": "Un articolo crea valore",
+    "es": "Un artículo crea valor"
+  },
+  "economy.principle.value.body": {
+    "pl": "Redakcja ustala cenę płatnego tekstu. Czytelnik płaci za dostęp do konkretnej pracy autora.",
+    "en": "The newsroom sets the price of a paid article. The reader pays for access to the author’s specific work.",
+    "de": "Die Redaktion legt den Preis eines kostenpflichtigen Artikels fest. Der Leser bezahlt den Zugang zur konkreten Arbeit des Autors.",
+    "fr": "La rédaction fixe le prix d’un article payant. Le lecteur paie l’accès au travail précis de l’auteur.",
+    "it": "La redazione stabilisce il prezzo di un articolo a pagamento. Il lettore paga l’accesso al lavoro specifico dell’autore.",
+    "es": "La redacción fija el precio de un artículo de pago. El lector paga por acceder al trabajo concreto del autor."
+  },
+  "economy.principle.split.title": {
+    "pl": "Podział odbywa się automatycznie",
+    "en": "The split is automatic",
+    "de": "Die Aufteilung erfolgt automatisch",
+    "fr": "La répartition est automatique",
+    "it": "La ripartizione è automatica",
+    "es": "El reparto es automático"
+  },
+  "economy.principle.split.body": {
+    "pl": "Jedna operacja rozdziela wpływ pomiędzy autora, serwis i Safety Fund. Suma zawsze wynosi 100%.",
+    "en": "One operation divides the inflow between the author, the service and the Safety Fund. The total is always 100%.",
+    "de": "Eine Operation teilt den Erlös zwischen Autor, Dienst und Safety Fund auf. Die Summe beträgt immer 100 %.",
+    "fr": "Une seule opération répartit le revenu entre l’auteur, le service et le Safety Fund. Le total est toujours de 100 %.",
+    "it": "Un’unica operazione divide il ricavo tra autore, servizio e Safety Fund. Il totale è sempre pari al 100%.",
+    "es": "Una sola operación reparte el ingreso entre el autor, el servicio y el Safety Fund. El total siempre es del 100%."
+  },
+  "economy.principle.protection.title": {
+    "pl": "Część przychodu buduje ochronę",
+    "en": "Part of the revenue builds protection",
+    "de": "Ein Teil des Erlöses schafft Schutz",
+    "fr": "Une partie du revenu construit la protection",
+    "it": "Una parte del ricavo costruisce protezione",
+    "es": "Parte del ingreso construye protección"
+  },
+  "economy.principle.protection.body": {
+    "pl": "Safety Fund wydziela środki na sytuacje, w których praca autora może wymagać pomocy prawnej, ekspertyzy lub ochrony materiałów.",
+    "en": "The Safety Fund sets aside resources for situations in which an author’s work may require legal help, expert opinions or protection of materials.",
+    "de": "Der Safety Fund stellt Mittel für Situationen bereit, in denen die Arbeit eines Autors rechtliche Hilfe, Gutachten oder den Schutz von Materialien erfordern kann.",
+    "fr": "Le Safety Fund réserve des moyens aux situations où le travail d’un auteur peut nécessiter une aide juridique, une expertise ou la protection de documents.",
+    "it": "Il Safety Fund accantona risorse per le situazioni in cui il lavoro di un autore può richiedere assistenza legale, perizie o protezione dei materiali.",
+    "es": "El Safety Fund reserva recursos para situaciones en las que el trabajo de un autor pueda requerir ayuda jurídica, peritajes o protección de materiales."
+  },
+  "economy.protection.kicker": {
+    "pl": "Safety Fund",
+    "en": "Safety Fund",
+    "de": "Safety Fund",
+    "fr": "Safety Fund",
+    "it": "Safety Fund",
+    "es": "Safety Fund"
+  },
+  "economy.protection.title": {
+    "pl": "Gdy publikacja ma konsekwencje, autor nie zostaje sam",
+    "en": "When a publication has consequences, the author is not left alone",
+    "de": "Wenn eine Veröffentlichung Folgen hat, bleibt der Autor nicht allein",
+    "fr": "Quand une publication a des conséquences, l’auteur n’est pas laissé seul",
+    "it": "Quando una pubblicazione ha conseguenze, l’autore non resta solo",
+    "es": "Cuando una publicación tiene consecuencias, el autor no queda solo"
+  },
+  "economy.protection.lead": {
+    "pl": "To wewnętrzny fundusz redakcji tworzony z ustalonej części przychodów z płatnych tekstów. Nie jest osobnym systemem płatności — jest naszą zasadą odpowiedzialności za ludzi i ich pracę.",
+    "en": "This is an internal newsroom fund built from an agreed share of paid-article revenue. It is not a separate payment system — it is our rule of responsibility for people and their work.",
+    "de": "Dies ist ein interner Redaktionsfonds, der aus einem festgelegten Anteil der Erlöse aus kostenpflichtigen Artikeln entsteht. Er ist kein separates Zahlungssystem, sondern unsere Regel der Verantwortung für Menschen und ihre Arbeit.",
+    "fr": "Il s’agit d’un fonds interne à la rédaction, constitué à partir d’une part définie des revenus des articles payants. Ce n’est pas un système de paiement distinct, mais notre principe de responsabilité envers les personnes et leur travail.",
+    "it": "È un fondo interno della redazione, formato da una quota stabilita dei ricavi degli articoli a pagamento. Non è un sistema di pagamento separato, ma la nostra regola di responsabilità verso le persone e il loro lavoro.",
+    "es": "Es un fondo interno de la redacción, formado con una parte acordada de los ingresos de artículos de pago. No es un sistema de pago independiente, sino nuestra norma de responsabilidad hacia las personas y su trabajo."
+  },
+  "economy.protection.credo": {
+    "pl": "Nikt, kto mówi prawdę, nie powinien nigdy samotnie ponosić jej konsekwencji.",
+    "en": "No one who speaks the truth should ever face its consequences alone.",
+    "de": "Niemand, der die Wahrheit sagt, sollte ihre Folgen jemals allein tragen müssen.",
+    "fr": "Personne ne devrait jamais affronter seul les conséquences d’avoir dit la vérité.",
+    "it": "Nessuno che dica la verità dovrebbe mai affrontarne da solo le conseguenze.",
+    "es": "Nadie que diga la verdad debería afrontar solo sus consecuencias."
+  },
+  "economy.protection.image_alt": {
+    "pl": "Plansza przedstawiająca zasadę ochrony autora: pomoc prawna, koszty postępowań, ekspertyzy i ochrona materiałów",
+    "en": "Board presenting the author-protection rule: legal assistance, proceedings costs, expert opinions and protection of materials",
+    "de": "Darstellung der Autorenschutzregel: Rechtshilfe, Verfahrenskosten, Gutachten und Schutz von Materialien",
+    "fr": "Planche présentant le principe de protection des auteurs : aide juridique, frais de procédure, expertises et protection des documents",
+    "it": "Tavola che presenta la regola di protezione degli autori: assistenza legale, costi dei procedimenti, perizie e protezione dei materiali",
+    "es": "Lámina que presenta la norma de protección de autores: ayuda jurídica, costes de procedimientos, peritajes y protección de materiales"
+  },
+  "economy.protection.legal_title": {
+    "pl": "Pomoc prawna",
+    "en": "Legal assistance",
+    "de": "Rechtshilfe",
+    "fr": "Aide juridique",
+    "it": "Assistenza legale",
+    "es": "Ayuda jurídica"
+  },
+  "economy.protection.legal_body": {
+    "pl": "Wsparcie w ocenie sytuacji i obronie praw autora.",
+    "en": "Support in assessing a situation and defending an author’s rights.",
+    "de": "Unterstützung bei der Bewertung einer Situation und der Verteidigung der Rechte des Autors.",
+    "fr": "Soutien pour évaluer une situation et défendre les droits de l’auteur.",
+    "it": "Supporto nella valutazione della situazione e nella difesa dei diritti dell’autore.",
+    "es": "Apoyo para evaluar una situación y defender los derechos del autor."
+  },
+  "economy.protection.proceedings_title": {
+    "pl": "Koszty postępowań",
+    "en": "Proceedings costs",
+    "de": "Verfahrenskosten",
+    "fr": "Frais de procédure",
+    "it": "Costi dei procedimenti",
+    "es": "Costes de procedimientos"
+  },
+  "economy.protection.proceedings_body": {
+    "pl": "Środki na uzasadnione koszty związane z konsekwencjami publikacji.",
+    "en": "Resources for justified costs related to the consequences of a publication.",
+    "de": "Mittel für begründete Kosten im Zusammenhang mit den Folgen einer Veröffentlichung.",
+    "fr": "Des moyens pour les coûts justifiés liés aux conséquences d’une publication.",
+    "it": "Risorse per costi giustificati legati alle conseguenze di una pubblicazione.",
+    "es": "Recursos para costes justificados relacionados con las consecuencias de una publicación."
+  },
+  "economy.protection.expertise_title": {
+    "pl": "Ekspertyzy",
+    "en": "Expert opinions",
+    "de": "Gutachten",
+    "fr": "Expertises",
+    "it": "Perizie",
+    "es": "Peritajes"
+  },
+  "economy.protection.expertise_body": {
+    "pl": "Dostęp do wiedzy specjalistycznej potrzebnej do wyjaśnienia sprawy.",
+    "en": "Access to specialist knowledge needed to clarify a case.",
+    "de": "Zugang zu Fachwissen, das zur Klärung eines Falls erforderlich ist.",
+    "fr": "Accès aux connaissances spécialisées nécessaires pour éclairer une affaire.",
+    "it": "Accesso alle competenze specialistiche necessarie per chiarire un caso.",
+    "es": "Acceso a conocimientos especializados necesarios para aclarar un caso."
+  },
+  "economy.protection.materials_title": {
+    "pl": "Ochrona materiałów",
+    "en": "Protection of materials",
+    "de": "Schutz von Materialien",
+    "fr": "Protection des documents",
+    "it": "Protezione dei materiali",
+    "es": "Protección de materiales"
+  },
+  "economy.protection.materials_body": {
+    "pl": "Zabezpieczenie materiałów i źródeł związanych z pracą autora.",
+    "en": "Safeguarding materials and sources related to an author’s work.",
+    "de": "Sicherung von Materialien und Quellen im Zusammenhang mit der Arbeit eines Autors.",
+    "fr": "Sécurisation des documents et des sources liés au travail de l’auteur.",
+    "it": "Protezione dei materiali e delle fonti legati al lavoro dell’autore.",
+    "es": "Protección de materiales y fuentes relacionados con el trabajo del autor."
+  },
+  "economy.transparency.kicker": {
+    "pl": "Przejrzystość",
+    "en": "Transparency",
+    "de": "Transparenz",
+    "fr": "Transparence",
+    "it": "Trasparenza",
+    "es": "Transparencia"
+  },
+  "economy.transparency.title": {
+    "pl": "Zasada działa w chwili zakupu",
+    "en": "The rule applies at the moment of purchase",
+    "de": "Die Regel gilt im Moment des Kaufs",
+    "fr": "La règle s’applique au moment de l’achat",
+    "it": "La regola si applica al momento dell’acquisto",
+    "es": "La norma se aplica en el momento de la compra"
+  },
+  "economy.transparency.body": {
+    "pl": "Czytelnik wykonuje jeden zakup. System zapisuje jednocześnie udział autora, serwisu i Safety Fund. Każda późniejsza zmiana proporcji dotyczy wyłącznie nowych wpływów.",
+    "en": "The reader makes one purchase. The system records the author, service and Safety Fund shares at the same time. Any later change in proportions applies only to new inflows.",
+    "de": "Der Leser tätigt einen Kauf. Das System verbucht gleichzeitig die Anteile für Autor, Dienst und Safety Fund. Spätere Änderungen der Anteile gelten nur für neue Erlöse.",
+    "fr": "Le lecteur effectue un seul achat. Le système enregistre en même temps les parts de l’auteur, du service et du Safety Fund. Toute modification ultérieure ne s’applique qu’aux nouveaux revenus.",
+    "it": "Il lettore effettua un unico acquisto. Il sistema registra nello stesso momento le quote dell’autore, del servizio e del Safety Fund. Ogni modifica successiva vale solo per i nuovi ricavi.",
+    "es": "El lector realiza una sola compra. El sistema registra al mismo tiempo las partes del autor, del servicio y del Safety Fund. Cualquier cambio posterior se aplica solo a nuevos ingresos."
+  },
+  "economy.transparency.one_ledger": {
+    "pl": "Jedna wspólna księga",
+    "en": "One shared ledger",
+    "de": "Ein gemeinsames Buch",
+    "fr": "Un registre commun",
+    "it": "Un unico registro",
+    "es": "Un registro común"
+  },
+  "economy.transparency.automatic": {
+    "pl": "Automatyczny podział",
+    "en": "Automatic split",
+    "de": "Automatische Aufteilung",
+    "fr": "Répartition automatique",
+    "it": "Ripartizione automatica",
+    "es": "Reparto automático"
+  },
+  "economy.transparency.history": {
+    "pl": "Historia bez przeliczania wstecz",
+    "en": "History is never recalculated",
+    "de": "Keine rückwirkende Neuberechnung",
+    "fr": "Aucun recalcul rétroactif",
+    "it": "Nessun ricalcolo retroattivo",
+    "es": "Sin recálculo retroactivo"
+  },
+  "economy.transparency.dors3": {
+    "pl": "Zmiany zatwierdzane przez 3DORS Admin",
+    "en": "Changes approved through 3DORS Admin",
+    "de": "Änderungen über 3DORS Admin bestätigt",
+    "fr": "Modifications approuvées via 3DORS Admin",
+    "it": "Modifiche approvate tramite 3DORS Admin",
+    "es": "Cambios aprobados mediante 3DORS Admin"
+  },
+  "economy.map.kicker": {
+    "pl": "Pozostałe źródła wartości",
+    "en": "Other sources of value",
+    "de": "Weitere Wertquellen",
+    "fr": "Autres sources de valeur",
+    "it": "Altre fonti di valore",
+    "es": "Otras fuentes de valor"
+  },
+  "economy.map.title": {
+    "pl": "Jak przepływa wartość w serwisie",
+    "en": "How value flows through the service",
+    "de": "Wie Werte durch den Dienst fließen",
+    "fr": "Comment la valeur circule dans le service",
+    "it": "Come circola il valore nel servizio",
+    "es": "Cómo circula el valor en el servicio"
+  },
+  "economy.map.note": {
+    "pl": "Każda operacja pozostawia historię",
+    "en": "Every operation leaves a history",
+    "de": "Jede Operation hinterlässt eine Historie",
+    "fr": "Chaque opération laisse une trace",
+    "it": "Ogni operazione lascia una cronologia",
+    "es": "Cada operación deja un historial"
+  },
+  "economy.map.payer": {
+    "pl": "Kto finansuje",
+    "en": "Who funds it",
+    "de": "Wer finanziert",
+    "fr": "Qui finance",
+    "it": "Chi finanzia",
+    "es": "Quién financia"
+  },
+  "economy.map.action": {
+    "pl": "Za co",
+    "en": "For what",
+    "de": "Wofür",
+    "fr": "Pour quoi",
+    "it": "Per cosa",
+    "es": "Por qué"
+  },
+  "economy.map.receiver": {
+    "pl": "Dokąd trafia wartość",
+    "en": "Where the value goes",
+    "de": "Wohin der Wert fließt",
+    "fr": "Où va la valeur",
+    "it": "Dove va il valore",
+    "es": "Adónde va el valor"
+  },
+  "economy.map.record": {
+    "pl": "Historia",
+    "en": "History",
+    "de": "Historie",
+    "fr": "Historique",
+    "it": "Cronologia",
+    "es": "Historial"
+  },
+  "economy.schema.label": {
+    "pl": "Najkrótszy schemat",
+    "en": "The shortest version",
+    "de": "Kurzfassung",
+    "fr": "Le schéma le plus simple",
+    "it": "Lo schema più semplice",
+    "es": "El esquema más breve"
+  },
+  "economy.schema.text": {
+    "pl": "Czytelnik kupuje tekst → {author} Autor → {platform} Serwis → {fund} Safety Fund.",
+    "en": "Reader buys an article → {author} Author → {platform} Service → {fund} Safety Fund.",
+    "de": "Leser kauft einen Artikel → {author} Autor → {platform} Dienst → {fund} Safety Fund.",
+    "fr": "Le lecteur achète un article → {author} Auteur → {platform} Service → {fund} Safety Fund.",
+    "it": "Il lettore acquista un articolo → {author} Autore → {platform} Servizio → {fund} Safety Fund.",
+    "es": "El lector compra un artículo → {author} Autor → {platform} Servicio → {fund} Safety Fund."
+  },
+  "economy.cta": {
+    "pl": "Dołącz",
+    "en": "Join",
+    "de": "Mitmachen",
+    "fr": "Rejoindre",
+    "it": "Partecipa",
+    "es": "Únete"
+  },
+  "economy.actor.reader": {
+    "pl": "Czytelnik",
+    "en": "Reader",
+    "de": "Leser",
+    "fr": "Lecteur",
+    "it": "Lettore",
+    "es": "Lector"
+  },
+  "economy.actor.activity_budget": {
+    "pl": "Budżet aktywności serwisu",
+    "en": "Service activity budget",
+    "de": "Aktivitätsbudget des Dienstes",
+    "fr": "Budget d’activité du service",
+    "it": "Budget attività del servizio",
+    "es": "Presupuesto de actividad del servicio"
+  },
+  "economy.actor.user": {
+    "pl": "Użytkownik",
+    "en": "User",
+    "de": "Nutzer",
+    "fr": "Utilisateur",
+    "it": "Utente",
+    "es": "Usuario"
+  },
+  "economy.actor.client_newsroom": {
+    "pl": "Zleceniodawca lub redakcja",
+    "en": "Client or newsroom",
+    "de": "Auftraggeber oder Redaktion",
+    "fr": "Commanditaire ou rédaction",
+    "it": "Committente o redazione",
+    "es": "Cliente o redacción"
+  },
+  "economy.actor.user_platform": {
+    "pl": "Użytkownik i serwis",
+    "en": "User and service",
+    "de": "Nutzer und Dienst",
+    "fr": "Utilisateur et service",
+    "it": "Utente e servizio",
+    "es": "Usuario y servicio"
+  },
+  "economy.actor.advertiser": {
+    "pl": "Reklamodawca",
+    "en": "Advertiser",
+    "de": "Werbetreibender",
+    "fr": "Annonceur",
+    "it": "Inserzionista",
+    "es": "Anunciante"
+  },
+  "economy.actor.participant": {
+    "pl": "Uczestnik",
+    "en": "Participant",
+    "de": "Teilnehmer",
+    "fr": "Participant",
+    "it": "Partecipante",
+    "es": "Participante"
+  },
+  "economy.actor.author_platform": {
+    "pl": "Autor i serwis",
+    "en": "Author and service",
+    "de": "Autor und Dienst",
+    "fr": "Auteur et service",
+    "it": "Autore e servizio",
+    "es": "Autor y servicio"
+  },
+  "economy.actor.system_wallet": {
+    "pl": "Portfel systemu",
+    "en": "System wallet",
+    "de": "System-Wallet",
+    "fr": "Portefeuille du système",
+    "it": "Portafoglio di sistema",
+    "es": "Cartera del sistema"
+  },
+  "economy.actor.author_user": {
+    "pl": "Autor lub uprawniony użytkownik",
+    "en": "Author or eligible user",
+    "de": "Autor oder berechtigter Nutzer",
+    "fr": "Auteur ou utilisateur autorisé",
+    "it": "Autore o utente autorizzato",
+    "es": "Autor o usuario autorizado"
+  },
+  "economy.flow.article.label": {
+    "pl": "Płatny tekst",
+    "en": "Paid article",
+    "de": "Kostenpflichtiger Artikel",
+    "fr": "Article payant",
+    "it": "Articolo a pagamento",
+    "es": "Artículo de pago"
+  },
+  "economy.flow.article.action": {
+    "pl": "Kupuje dostęp do pracy autora",
+    "en": "Buys access to the author’s work",
+    "de": "Kauft Zugang zur Arbeit des Autors",
+    "fr": "Achète l’accès au travail de l’auteur",
+    "it": "Acquista l’accesso al lavoro dell’autore",
+    "es": "Compra acceso al trabajo del autor"
+  },
+  "economy.flow.article.receiver": {
+    "pl": "{author} Autor / {platform} Serwis / {fund} Safety Fund",
+    "en": "{author} Author / {platform} Service / {fund} Safety Fund",
+    "de": "{author} Autor / {platform} Dienst / {fund} Safety Fund",
+    "fr": "{author} Auteur / {platform} Service / {fund} Safety Fund",
+    "it": "{author} Autore / {platform} Servizio / {fund} Safety Fund",
+    "es": "{author} Autor / {platform} Servicio / {fund} Safety Fund"
+  },
+  "economy.flow.article.note": {
+    "pl": "Cena jest ustalana przez redakcję, a podział następuje automatycznie przy zakupie.",
+    "en": "The newsroom sets the price and the split is recorded automatically at purchase.",
+    "de": "Die Redaktion legt den Preis fest, und die Aufteilung wird beim Kauf automatisch verbucht.",
+    "fr": "La rédaction fixe le prix et la répartition est enregistrée automatiquement lors de l’achat.",
+    "it": "La redazione stabilisce il prezzo e la ripartizione viene registrata automaticamente all’acquisto.",
+    "es": "La redacción fija el precio y el reparto se registra automáticamente al comprar."
+  },
+  "economy.flow.activity.label": {
+    "pl": "Aktywność użytkownika",
+    "en": "User activity",
+    "de": "Nutzeraktivität",
+    "fr": "Activité de l’utilisateur",
+    "it": "Attività dell’utente",
+    "es": "Actividad del usuario"
+  },
+  "economy.flow.activity.action": {
+    "pl": "Nagradza wybrane działania i zaangażowanie",
+    "en": "Rewards selected actions and engagement",
+    "de": "Belohnt ausgewählte Aktionen und Engagement",
+    "fr": "Récompense certaines actions et l’engagement",
+    "it": "Premia azioni selezionate e partecipazione",
+    "es": "Premia acciones seleccionadas y la participación"
+  },
+  "economy.flow.activity.note": {
+    "pl": "Każdy przyznany bonus pojawia się w historii portfela.",
+    "en": "Every awarded bonus appears in the wallet history.",
+    "de": "Jeder gewährte Bonus erscheint in der Wallet-Historie.",
+    "fr": "Chaque bonus accordé apparaît dans l’historique du portefeuille.",
+    "it": "Ogni bonus assegnato compare nella cronologia del portafoglio.",
+    "es": "Cada bonificación concedida aparece en el historial de la cartera."
+  },
+  "economy.flow.survey.label": {
+    "pl": "Ankieta lub sondaż",
+    "en": "Survey or poll",
+    "de": "Umfrage oder Abstimmung",
+    "fr": "Enquête ou sondage",
+    "it": "Sondaggio o indagine",
+    "es": "Encuesta o sondeo"
+  },
+  "economy.flow.survey.action": {
+    "pl": "Finansuje udział i opinię",
+    "en": "Funds participation and opinions",
+    "de": "Finanziert Teilnahme und Meinungen",
+    "fr": "Finance la participation et les opinions",
+    "it": "Finanzia partecipazione e opinioni",
+    "es": "Financia la participación y las opiniones"
+  },
+  "economy.flow.survey.note": {
+    "pl": "Warunki i wartość nagrody są pokazane przed udziałem.",
+    "en": "Terms and reward value are shown before participation.",
+    "de": "Bedingungen und Prämienwert werden vor der Teilnahme angezeigt.",
+    "fr": "Les conditions et la valeur de la récompense sont affichées avant la participation.",
+    "it": "Condizioni e valore della ricompensa sono mostrati prima della partecipazione.",
+    "es": "Las condiciones y el valor de la recompensa se muestran antes de participar."
+  },
+  "economy.flow.campaign.label": {
+    "pl": "Reklama i kampanie",
+    "en": "Advertising and campaigns",
+    "de": "Werbung und Kampagnen",
+    "fr": "Publicité et campagnes",
+    "it": "Pubblicità e campagne",
+    "es": "Publicidad y campañas"
+  },
+  "economy.flow.campaign.action": {
+    "pl": "Finansuje uzgodniony zasięg lub działanie",
+    "en": "Funds an agreed reach or action",
+    "de": "Finanziert vereinbarte Reichweite oder Aktion",
+    "fr": "Finance une portée ou une action convenue",
+    "it": "Finanzia una portata o un’azione concordata",
+    "es": "Financia un alcance o una acción acordados"
+  },
+  "economy.flow.campaign.note": {
+    "pl": "Każde nagradzane działanie jest zapisane jako osobne zdarzenie.",
+    "en": "Every rewarded action is recorded as a separate event.",
+    "de": "Jede vergütete Aktion wird als separates Ereignis erfasst.",
+    "fr": "Chaque action récompensée est enregistrée comme un événement distinct.",
+    "it": "Ogni azione premiata è registrata come evento separato.",
+    "es": "Cada acción premiada se registra como un evento separado."
+  },
+  "economy.flow.live.label": {
+    "pl": "PPV i wydarzenia live",
+    "en": "PPV and live events",
+    "de": "PPV und Live-Veranstaltungen",
+    "fr": "PPV et événements en direct",
+    "it": "PPV ed eventi live",
+    "es": "PPV y eventos en directo"
+  },
+  "economy.flow.live.action": {
+    "pl": "Opłaca dostęp do konkretnego wydarzenia",
+    "en": "Pays for access to a specific event",
+    "de": "Bezahlt den Zugang zu einer bestimmten Veranstaltung",
+    "fr": "Paie l’accès à un événement précis",
+    "it": "Paga l’accesso a un evento specifico",
+    "es": "Paga el acceso a un evento concreto"
+  },
+  "economy.flow.live.note": {
+    "pl": "Cena i zakres dostępu są widoczne przed zakupem.",
+    "en": "The price and scope of access are visible before purchase.",
+    "de": "Preis und Umfang des Zugangs sind vor dem Kauf sichtbar.",
+    "fr": "Le prix et l’étendue de l’accès sont visibles avant l’achat.",
+    "it": "Prezzo e ambito dell’accesso sono visibili prima dell’acquisto.",
+    "es": "El precio y el alcance del acceso son visibles antes de comprar."
+  },
+  "economy.flow.payout.label": {
+    "pl": "Wypłata uprawnionych środków",
+    "en": "Payout of eligible funds",
+    "de": "Auszahlung berechtigter Mittel",
+    "fr": "Versement des fonds admissibles",
+    "it": "Pagamento dei fondi idonei",
+    "es": "Pago de fondos habilitados"
+  },
+  "economy.flow.payout.action": {
+    "pl": "Realizuje zatwierdzoną wypłatę",
+    "en": "Carries out an approved payout",
+    "de": "Führt eine genehmigte Auszahlung aus",
+    "fr": "Effectue un versement approuvé",
+    "it": "Esegue un pagamento approvato",
+    "es": "Realiza un pago aprobado"
+  },
+  "economy.flow.payout.note": {
+    "pl": "Wypłata wymaga uprawnienia, dostępnego salda i zatwierdzenia redakcji.",
+    "en": "A payout requires eligibility, an available balance and newsroom approval.",
+    "de": "Eine Auszahlung erfordert Berechtigung, verfügbares Guthaben und Zustimmung der Redaktion.",
+    "fr": "Un versement exige l’éligibilité, un solde disponible et l’approbation de la rédaction.",
+    "it": "Un pagamento richiede idoneità, saldo disponibile e approvazione della redazione.",
+    "es": "Un pago requiere habilitación, saldo disponible y aprobación de la redacción."
+  },
+  "article.purchase.success_split": {
+    "pl": "Dostęp został wykupiony. Wpływ podzielono zgodnie z aktualną zasadą: Autor, Serwis i Safety Fund.",
+    "en": "Access has been purchased. The inflow was divided under the current rule between the Author, the Service and the Safety Fund.",
+    "de": "Der Zugang wurde gekauft. Der Erlös wurde nach der aktuellen Regel zwischen Autor, Dienst und Safety Fund aufgeteilt.",
+    "fr": "L’accès a été acheté. Le revenu a été réparti selon la règle actuelle entre l’Auteur, le Service et le Safety Fund.",
+    "it": "L’accesso è stato acquistato. Il ricavo è stato ripartito secondo la regola vigente tra Autore, Servizio e Safety Fund.",
+    "es": "Se ha comprado el acceso. El ingreso se repartió según la norma vigente entre el Autor, el Servicio y el Safety Fund."
+  },
+  "bonus.type.article_charge": {
+    "pl": "Zakup dostępu do tekstu",
+    "en": "Article access purchase",
+    "de": "Kauf des Artikelzugangs",
+    "fr": "Achat de l’accès à l’article",
+    "it": "Acquisto dell’accesso all’articolo",
+    "es": "Compra de acceso al artículo"
+  },
+  "bonus.message.article_charge": {
+    "pl": "Zakup tekstu został zapisany",
+    "en": "The article purchase has been recorded",
+    "de": "Der Artikelkauf wurde erfasst",
+    "fr": "L’achat de l’article a été enregistré",
+    "it": "L’acquisto dell’articolo è stato registrato",
+    "es": "La compra del artículo se ha registrado"
+  },
+  "bonus.description.article_charge": {
+    "pl": "Koszt dostępu do płatnego tekstu.",
+    "en": "Cost of access to a paid article.",
+    "de": "Kosten für den Zugang zu einem kostenpflichtigen Artikel.",
+    "fr": "Coût de l’accès à un article payant.",
+    "it": "Costo dell’accesso a un articolo a pagamento.",
+    "es": "Coste del acceso a un artículo de pago."
+  },
+  "bonus.type.article_sale_author_share": {
+    "pl": "Udział autora",
+    "en": "Author share",
+    "de": "Autorenanteil",
+    "fr": "Part de l’auteur",
+    "it": "Quota dell’autore",
+    "es": "Parte del autor"
+  },
+  "bonus.message.article_sale_author_share": {
+    "pl": "Udział autora został zaksięgowany",
+    "en": "The author share has been credited",
+    "de": "Der Autorenanteil wurde gutgeschrieben",
+    "fr": "La part de l’auteur a été créditée",
+    "it": "La quota dell’autore è stata accreditata",
+    "es": "La parte del autor se ha abonado"
+  },
+  "bonus.description.article_sale_author_share": {
+    "pl": "Udział autora w zakupie płatnego tekstu.",
+    "en": "The author’s share of a paid article purchase.",
+    "de": "Anteil des Autors am Kauf eines kostenpflichtigen Artikels.",
+    "fr": "Part de l’auteur dans l’achat d’un article payant.",
+    "it": "Quota dell’autore nell’acquisto di un articolo a pagamento.",
+    "es": "Parte del autor en la compra de un artículo de pago."
+  },
+  "bonus.type.article_sale_platform_share": {
+    "pl": "Udział serwisu",
+    "en": "Service share",
+    "de": "Dienstanteil",
+    "fr": "Part du service",
+    "it": "Quota del servizio",
+    "es": "Parte del servicio"
+  },
+  "bonus.message.article_sale_platform_share": {
+    "pl": "Udział serwisu został zaksięgowany",
+    "en": "The service share has been credited",
+    "de": "Der Dienstanteil wurde gutgeschrieben",
+    "fr": "La part du service a été créditée",
+    "it": "La quota del servizio è stata accreditata",
+    "es": "La parte del servicio se ha abonado"
+  },
+  "bonus.description.article_sale_platform_share": {
+    "pl": "Udział serwisu i redakcji w zakupie płatnego tekstu.",
+    "en": "The service and newsroom share of a paid article purchase.",
+    "de": "Anteil von Dienst und Redaktion am Kauf eines kostenpflichtigen Artikels.",
+    "fr": "Part du service et de la rédaction dans l’achat d’un article payant.",
+    "it": "Quota del servizio e della redazione nell’acquisto di un articolo a pagamento.",
+    "es": "Parte del servicio y la redacción en la compra de un artículo de pago."
+  },
+  "bonus.type.article_sale_safety_fund_share": {
+    "pl": "Udział Safety Fund",
+    "en": "Safety Fund share",
+    "de": "Safety-Fund-Anteil",
+    "fr": "Part du Safety Fund",
+    "it": "Quota Safety Fund",
+    "es": "Parte del Safety Fund"
+  },
+  "bonus.message.article_sale_safety_fund_share": {
+    "pl": "Udział Safety Fund został wydzielony",
+    "en": "The Safety Fund share has been set aside",
+    "de": "Der Safety-Fund-Anteil wurde zurückgelegt",
+    "fr": "La part du Safety Fund a été mise de côté",
+    "it": "La quota Safety Fund è stata accantonata",
+    "es": "La parte del Safety Fund se ha reservado"
+  },
+  "bonus.description.article_sale_safety_fund_share": {
+    "pl": "Część zakupu przeznaczona na ochronę autorów.",
+    "en": "The part of the purchase set aside for author protection.",
+    "de": "Der für den Autorenschutz vorgesehene Anteil des Kaufs.",
+    "fr": "La part de l’achat réservée à la protection des auteurs.",
+    "it": "La parte dell’acquisto destinata alla protezione degli autori.",
+    "es": "La parte de la compra destinada a la protección de autores."
+  },
+  "bonus.type.safety_fund_disbursement": {
+    "pl": "Wydatek Safety Fund",
+    "en": "Safety Fund expense",
+    "de": "Safety-Fund-Ausgabe",
+    "fr": "Dépense du Safety Fund",
+    "it": "Spesa Safety Fund",
+    "es": "Gasto del Safety Fund"
+  },
+  "bonus.message.safety_fund_disbursement": {
+    "pl": "Zatwierdzony wydatek Safety Fund został zaksięgowany",
+    "en": "The approved Safety Fund expense has been recorded",
+    "de": "Die genehmigte Safety-Fund-Ausgabe wurde verbucht",
+    "fr": "La dépense approuvée du Safety Fund a été enregistrée",
+    "it": "La spesa approvata del Safety Fund è stata registrata",
+    "es": "El gasto aprobado del Safety Fund se ha registrado"
+  },
+  "bonus.description.safety_fund_disbursement": {
+    "pl": "Zatwierdzone wykorzystanie środków przeznaczonych na ochronę autorów.",
+    "en": "Approved use of resources set aside for author protection.",
+    "de": "Genehmigte Verwendung der für den Autorenschutz vorgesehenen Mittel.",
+    "fr": "Utilisation approuvée des moyens réservés à la protection des auteurs.",
+    "it": "Uso approvato delle risorse destinate alla protezione degli autori.",
+    "es": "Uso aprobado de recursos reservados para la protección de autores."
+  },
+  "safety_fund.admin.page_title": {
+    "pl": "Safety Fund — panel redakcji",
+    "en": "Safety Fund — newsroom panel"
+  },
+  "safety_fund.admin.dashboard_title": {
+    "pl": "SAFETY FUND",
+    "en": "SAFETY FUND"
+  },
+  "safety_fund.admin.dashboard_description": {
+    "pl": "Podział 40/40/20, saldo ochrony autorów i pełny audyt",
+    "en": "40/40/20 split, author-protection balance and full audit"
+  },
+  "safety_fund.admin.kicker": {
+    "pl": "Zasada finansowania redakcji",
+    "en": "Newsroom funding rule"
+  },
+  "safety_fund.admin.title": {
+    "pl": "Safety Fund — ochrona autorów",
+    "en": "Safety Fund — author protection"
+  },
+  "safety_fund.admin.description": {
+    "pl": "Wewnętrzny fundusz redakcji tworzony automatycznie przy podziale wpływów z płatnych tekstów.",
+    "en": "Internal newsroom fund created automatically when paid-article revenue is split."
+  },
+  "safety_fund.admin.balance": {
+    "pl": "Saldo Safety Fund",
+    "en": "Safety Fund balance"
+  },
+  "safety_fund.admin.balance_note": {
+    "pl": "Środki wydzielone w istniejącej księdze",
+    "en": "Resources separated in the existing ledger"
+  },
+  "safety_fund.admin.total_inflow": {
+    "pl": "Łączne wpływy",
+    "en": "Total inflows"
+  },
+  "safety_fund.admin.total_outflow": {
+    "pl": "Łączne wydatki",
+    "en": "Total expenses"
+  },
+  "safety_fund.admin.operations": {
+    "pl": "operacji",
+    "en": "operations"
+  },
+  "safety_fund.admin.current_policy": {
+    "pl": "Aktualny podział",
+    "en": "Current split"
+  },
+  "safety_fund.admin.policy_version": {
+    "pl": "Wersja zasady",
+    "en": "Rule version"
+  },
+  "safety_fund.admin.policy_kicker": {
+    "pl": "Ustawienia podziału",
+    "en": "Split settings"
+  },
+  "safety_fund.admin.policy_title": {
+    "pl": "Zmień proporcje dla nowych wpływów",
+    "en": "Change proportions for new inflows"
+  },
+  "safety_fund.admin.dors3_required": {
+    "pl": "Wymaga 3DORS Admin",
+    "en": "Requires 3DORS Admin"
+  },
+  "safety_fund.admin.policy_explanation": {
+    "pl": "Zmiana tworzy nową wersję zasady. Historia nie jest przeliczana, a aktywacja następuje dopiero po zatwierdzeniu na telefonie.",
+    "en": "A change creates a new rule version. History is not recalculated and activation occurs only after phone approval."
+  },
+  "safety_fund.admin.author_percent": {
+    "pl": "Autor %",
+    "en": "Author %"
+  },
+  "safety_fund.admin.platform_percent": {
+    "pl": "Serwis %",
+    "en": "Service %"
+  },
+  "safety_fund.admin.fund_percent": {
+    "pl": "Safety Fund %",
+    "en": "Safety Fund %"
+  },
+  "safety_fund.admin.request_policy_change": {
+    "pl": "PRZEKAŻ DO 3DORS ADMIN",
+    "en": "SEND TO 3DORS ADMIN"
+  },
+  "safety_fund.admin.disbursement_kicker": {
+    "pl": "Wykorzystanie środków",
+    "en": "Use of resources"
+  },
+  "safety_fund.admin.disbursement_title": {
+    "pl": "Zleć wydatek Safety Fund",
+    "en": "Request a Safety Fund expense"
+  },
+  "safety_fund.admin.disbursement_explanation": {
+    "pl": "Podaj kwotę, cel, uzasadnienie i referencję dowodową. Saldo jest sprawdzane ponownie podczas wykonania podpisanej decyzji.",
+    "en": "Provide the amount, purpose, reason and evidence reference. The balance is checked again when the signed decision is executed."
+  },
+  "safety_fund.admin.amount": {
+    "pl": "Kwota",
+    "en": "Amount"
+  },
+  "safety_fund.admin.category": {
+    "pl": "Cel wydatku",
+    "en": "Expense purpose"
+  },
+  "safety_fund.admin.expense_description": {
+    "pl": "Uzasadnienie",
+    "en": "Reason"
+  },
+  "safety_fund.admin.evidence_reference": {
+    "pl": "Referencja dowodowa",
+    "en": "Evidence reference"
+  },
+  "safety_fund.admin.evidence_placeholder": {
+    "pl": "Numer sprawy, dokumentu lub wewnętrzna referencja",
+    "en": "Case, document or internal reference"
+  },
+  "safety_fund.admin.request_disbursement": {
+    "pl": "PRZEKAŻ DO 3DORS ADMIN",
+    "en": "SEND TO 3DORS ADMIN"
+  },
+  "safety_fund.admin.inflow_kicker": {
+    "pl": "Wpływy",
+    "en": "Inflows"
+  },
+  "safety_fund.admin.inflow_history": {
+    "pl": "Historia udziałów Safety Fund",
+    "en": "Safety Fund allocation history"
+  },
+  "safety_fund.admin.no_inflows": {
+    "pl": "Nie zaksięgowano jeszcze wpływów Safety Fund.",
+    "en": "No Safety Fund inflows have been recorded yet."
+  },
+  "safety_fund.admin.outflow_kicker": {
+    "pl": "Wydatki",
+    "en": "Expenses"
+  },
+  "safety_fund.admin.outflow_history": {
+    "pl": "Historia zatwierdzonych wydatków",
+    "en": "Approved expense history"
+  },
+  "safety_fund.admin.no_outflows": {
+    "pl": "Nie zaksięgowano jeszcze wydatków Safety Fund.",
+    "en": "No Safety Fund expenses have been recorded yet."
+  },
+  "safety_fund.admin.date": {
+    "pl": "Data",
+    "en": "Date"
+  },
+  "safety_fund.admin.article": {
+    "pl": "Tekst",
+    "en": "Article"
+  },
+  "safety_fund.admin.base_amount": {
+    "pl": "Kwota zakupu",
+    "en": "Purchase amount"
+  },
+  "safety_fund.admin.fund_share": {
+    "pl": "Udział Safety Fund",
+    "en": "Safety Fund share"
+  },
+  "safety_fund.admin.ledger_reference": {
+    "pl": "Referencja księgi",
+    "en": "Ledger reference"
+  },
+  "safety_fund.admin.administrator": {
+    "pl": "Administrator",
+    "en": "Administrator"
+  },
+  "safety_fund.admin.policy_history_kicker": {
+    "pl": "Historia zasad",
+    "en": "Rule history"
+  },
+  "safety_fund.admin.policy_history": {
+    "pl": "Wersje podziału przychodu",
+    "en": "Revenue split versions"
+  },
+  "safety_fund.admin.split": {
+    "pl": "Autor / Serwis / Safety Fund",
+    "en": "Author / Service / Safety Fund"
+  },
+  "safety_fund.admin.status": {
+    "pl": "Status",
+    "en": "Status"
+  },
+  "safety_fund.admin.effective_from": {
+    "pl": "Obowiązuje od",
+    "en": "Effective from"
+  },
+  "safety_fund.admin.audit_kicker": {
+    "pl": "Audyt",
+    "en": "Audit"
+  },
+  "safety_fund.admin.audit_title": {
+    "pl": "Decyzje 3DORS i zdarzenia księgowe",
+    "en": "3DORS decisions and ledger events"
+  },
+  "safety_fund.admin.operation": {
+    "pl": "Operacja",
+    "en": "Operation"
+  },
+  "safety_fund.admin.resource": {
+    "pl": "Zakres",
+    "en": "Scope"
+  },
+  "safety_fund.admin.correlation": {
+    "pl": "Identyfikator audytu",
+    "en": "Audit identifier"
+  },
+  "safety_fund.admin.policy_waiting": {
+    "pl": "Zmiana podziału oczekuje na decyzję w 3DORS Admin ({id}).",
+    "en": "The split change is waiting for a decision in 3DORS Admin ({id})."
+  },
+  "safety_fund.admin.disbursement_waiting": {
+    "pl": "Wydatek Safety Fund oczekuje na decyzję w 3DORS Admin ({id}).",
+    "en": "The Safety Fund expense is waiting for a decision in 3DORS Admin ({id})."
+  },
+  "safety_fund.category.legal_help": {
+    "pl": "Pomoc prawna",
+    "en": "Legal assistance"
+  },
+  "safety_fund.category.proceedings": {
+    "pl": "Koszty postępowań",
+    "en": "Proceedings costs"
+  },
+  "safety_fund.category.expertise": {
+    "pl": "Ekspertyzy",
+    "en": "Expert opinions"
+  },
+  "safety_fund.category.materials_protection": {
+    "pl": "Ochrona materiałów",
+    "en": "Protection of materials"
+  },
+  "safety_fund.category.other": {
+    "pl": "Inny cel ochrony autora",
+    "en": "Other author-protection purpose"
+  },
+  "safety_fund.status.active": {
+    "pl": "Aktywna",
+    "en": "Active"
+  },
+  "safety_fund.status.retired": {
+    "pl": "Historyczna",
+    "en": "Historical"
+  },
+  "safety_fund.status.pending": {
+    "pl": "Oczekuje",
+    "en": "Pending"
+  },
+  "safety_fund.status.approved": {
+    "pl": "Zatwierdzona",
+    "en": "Approved"
+  },
+  "safety_fund.status.rejected": {
+    "pl": "Odrzucona",
+    "en": "Rejected"
+  },
+  "safety_fund.status.expired": {
+    "pl": "Wygasła",
+    "en": "Expired"
+  },
+  "safety_fund.resource.revenue_split_policy": {
+    "pl": "Zasada podziału przychodu",
+    "en": "Revenue split rule"
+  },
+  "safety_fund.resource.safety_fund_disbursement": {
+    "pl": "Wydatek Safety Fund",
+    "en": "Safety Fund expense"
+  },
+  "safety_fund.result.success": {
+    "pl": "Wykonano",
+    "en": "Completed"
+  },
+  "safety_fund.result.blocked": {
+    "pl": "Zablokowano",
+    "en": "Blocked"
+  },
+  "safety_fund.result.rejected": {
+    "pl": "Odrzucono",
+    "en": "Rejected"
+  },
+  "safety_fund.result.failure": {
+    "pl": "Niepowodzenie",
+    "en": "Failed"
+  },
+  "safety_fund.operation.financial_settings.change": {
+    "pl": "Zmiana podziału przychodu",
+    "en": "Change revenue split"
+  },
+  "safety_fund.operation.safety_fund.disbursement": {
+    "pl": "Wydatek Safety Fund",
+    "en": "Safety Fund expense"
+  },
+  "safety_fund.event.safety_fund.policy.activated": {
+    "pl": "Aktywowano nową zasadę podziału",
+    "en": "New revenue split activated"
+  },
+  "safety_fund.event.safety_fund.disbursement.executed": {
+    "pl": "Zaksięgowano wydatek Safety Fund",
+    "en": "Safety Fund expense recorded"
+  },
+  "safety_fund.event.safety_fund.disbursement.blocked": {
+    "pl": "Zablokowano wydatek ponad saldo",
+    "en": "Expense exceeding the balance blocked"
+  },
+  "safety_fund.error.active_policy_missing": {
+    "pl": "Brak aktywnej zasady podziału. Uruchom migracje bazy.",
+    "en": "No active revenue split rule. Run database migrations."
+  },
+  "safety_fund.error.amount_positive": {
+    "pl": "Kwota musi być większa od zera.",
+    "en": "The amount must be greater than zero."
+  },
+  "safety_fund.error.invalid_split_value": {
+    "pl": "Każda proporcja musi być liczbą od 0 do 100 z maksymalnie dwoma miejscami po przecinku.",
+    "en": "Each proportion must be between 0 and 100 with at most two decimal places."
+  },
+  "safety_fund.error.invalid_split_total": {
+    "pl": "Suma udziałów Autora, Serwisu i Safety Fund musi wynosić dokładnie 100%.",
+    "en": "Author, Service and Safety Fund shares must total exactly 100%."
+  },
+  "safety_fund.error.policy_unchanged": {
+    "pl": "Podano takie same proporcje jak w aktywnej zasadzie.",
+    "en": "The submitted proportions match the active rule."
+  },
+  "safety_fund.error.invalid_category": {
+    "pl": "Wybierz prawidłowy cel wydatku Safety Fund.",
+    "en": "Select a valid Safety Fund expense purpose."
+  },
+  "safety_fund.error.description_required": {
+    "pl": "Uzasadnienie jest wymagane i może mieć maksymalnie 500 znaków.",
+    "en": "A reason is required and may contain up to 500 characters."
+  },
+  "safety_fund.error.reference_required": {
+    "pl": "Referencja dowodowa jest wymagana i może mieć maksymalnie 255 znaków.",
+    "en": "An evidence reference is required and may contain up to 255 characters."
+  },
+  "safety_fund.error.invalid_amount": {
+    "pl": "Podaj prawidłową kwotę z maksymalnie dwoma miejscami po przecinku.",
+    "en": "Enter a valid amount with at most two decimal places."
+  },
+  "safety_fund.error.insufficient_balance": {
+    "pl": "Saldo Safety Fund jest zbyt niskie dla tego wydatku.",
+    "en": "The Safety Fund balance is too low for this expense."
+  },
+  "safety_fund.error.account_missing": {
+    "pl": "Nie udało się odczytać wydzielonego salda Safety Fund.",
+    "en": "The separated Safety Fund balance could not be read."
+  },
+  "safety_fund.error.invalid_disbursement": {
+    "pl": "Dane wydatku Safety Fund są nieprawidłowe.",
+    "en": "The Safety Fund expense data is invalid."
+  },
+  "safety_fund.error.actor_mismatch": {
+    "pl": "Administrator nie odpowiada aktorowi podpisanej operacji.",
+    "en": "The administrator does not match the actor of the signed operation."
+  },
+  "economy.response.badge": {"pl":"ZASADA ŹRÓDŁA SŁOWA","en":"THE SOURCE OF WORDS RULE","de":"REGEL DER QUELLE DER WORTE","fr":"RÈGLE DE LA SOURCE DES MOTS","it":"REGOLA DELLA FONTE DELLE PAROLE","es":"REGLA DE LA FUENTE DE LAS PALABRAS"},
+  "economy.response.kicker": {"pl":"Opinie zamiast komentarzy","en":"Opinions instead of comments","de":"Meinungen statt Kommentare","fr":"Des opinions plutôt que des commentaires","it":"Opinioni invece di commenti","es":"Opiniones en vez de comentarios"},
+  "economy.response.title": {"pl":"Odpowiedź jest publikacją","en":"A response is a publication","de":"Eine Erwiderung ist eine Publikation","fr":"Une réponse est une publication","it":"Una replica è una pubblicazione","es":"Una réplica es una publicación"},
+  "economy.response.description": {"pl":"Czytelna, podpisana opinia lub polemika przechodzi przez redakcję i staje się osobną publikacją. Po publikacji Talent przyznaje TT.","en":"A clear, signed opinion or response goes through editorial review and becomes a separate publication. Talent awards TT after publication.","de":"Eine klare, signierte Meinung oder Erwiderung durchläuft die Redaktion und wird zu einer eigenen Publikation. Talent vergibt TT nach der Veröffentlichung.","fr":"Une opinion ou réponse claire et signée passe par la rédaction et devient une publication distincte. Talent attribue les TT après publication.","it":"Un’opinione o replica chiara e firmata passa dalla redazione e diventa una pubblicazione autonoma. Talent assegna i TT dopo la pubblicazione.","es":"Una opinión o réplica clara y firmada pasa por la redacción y se convierte en una publicación independiente. Talent concede TT tras la publicación."},
+  "economy.response.draft": {"pl":"szkic, wysłanie i odrzucenie","en":"draft, submission and rejection","de":"Entwurf, Einreichung und Ablehnung","fr":"brouillon, envoi et rejet","it":"bozza, invio e rifiuto","es":"borrador, envío y rechazo"},
+  "economy.response.published": {"pl":"dopiero po publikacji redakcyjnej","en":"only after editorial publication","de":"erst nach redaktioneller Veröffentlichung","fr":"seulement après publication éditoriale","it":"solo dopo la pubblicazione redazionale","es":"solo tras la publicación editorial"},
+  "economy.response.once": {"pl":"jedna publikacja, jedna nagroda","en":"one publication, one reward","de":"eine Veröffentlichung, eine Belohnung","fr":"une publication, une récompense","it":"una pubblicazione, un premio","es":"una publicación, una recompensa"},
+  "economy.response.snapshot": {"pl":"Aktywność reguły i liczba TT są zapisywane w chwili pierwszej publikacji. Późniejsza zmiana ustawień nie zmienia już tej należności.","en":"Rule eligibility and the TT amount are stored at first publication. Later settings changes do not alter that entitlement.","de":"Regelberechtigung und TT-Wert werden bei der ersten Veröffentlichung gespeichert. Spätere Änderungen wirken nicht rückwirkend.","fr":"L’éligibilité et le montant TT sont enregistrés lors de la première publication. Les changements ultérieurs ne sont pas rétroactifs.","it":"Idoneità e valore TT vengono salvati alla prima pubblicazione. Le modifiche successive non sono retroattive.","es":"La elegibilidad y el valor TT se guardan en la primera publicación. Los cambios posteriores no son retroactivos."},
+  "safety_fund.error.operation_failed": {
+    "pl": "Nie udało się wykonać operacji Safety Fund.",
+    "en": "The Safety Fund operation could not be completed."
+  }
+}

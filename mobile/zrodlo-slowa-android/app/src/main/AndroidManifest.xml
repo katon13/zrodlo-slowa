@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+        Android 11+ package visibility: Source of Word verifies the exact
+        companion package with resolveActivity() and getPackageInfo() before
+        forwarding an author approval. Keep this query limited to Author;
+        this application must never discover or launch 3DORS Admin.
+    -->
+    <queries>
+        <package android:name="pl.zrodloslowa.dors3.author" />
+    </queries>
+
+    <application
+        android:name=".ZrodloSlowaApp"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ZrodloSlowa">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.ZrodloSlowa.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="zrodlo-slowa.pl" android:pathPrefix="/app/referral/" />
+                <data android:scheme="https" android:host="sourceofword.co.uk" android:pathPrefix="/app/referral/" />
+                <data android:scheme="https" android:host="de-wortquelle.de" android:pathPrefix="/app/referral/" />
+                <data android:scheme="https" android:host="source-des-mots.fr" android:pathPrefix="/app/referral/" />
+                <data android:scheme="https" android:host="fonte-di-parole.it" android:pathPrefix="/app/referral/" />
+                <data android:scheme="https" android:host="fuente-de-palabras.es" android:pathPrefix="/app/referral/" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="zrodloslowa" android:host="referral" android:pathPrefix="/" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

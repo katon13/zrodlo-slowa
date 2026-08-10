@@ -28,10 +28,11 @@ final class UserDeletionService
                 ['key' => 'article_access_grants', 'label' => 'Dostęp do treści', 'table' => 'article_access_grants', 'column' => 'user_id', 'action' => 'nie usuwać przy historii finansowej'],
             ],
             'Aktywność i bonusy' => [
+                ['key' => 'app_referral_invitations_inviter', 'label' => 'Zaproszenia aplikacji wysłane', 'table' => 'app_referral_invitations', 'column' => 'inviter_user_id', 'action' => 'zachować jako historię promocji Talent'],
+                ['key' => 'app_referral_invitations_invitee', 'label' => 'Zrealizowane zaproszenia aplikacji', 'table' => 'app_referral_invitations', 'column' => 'invitee_user_id', 'action' => 'zachować jako historię nagrody Talent i zanonimizować e-mail'],
                 ['key' => 'activity_reward_logs', 'label' => 'Logi bonusów', 'table' => 'activity_reward_logs', 'column' => 'user_id', 'action' => 'czyszczenie techniczne albo anonimizacja'],
                 ['key' => 'activity_bonus_notifications', 'label' => 'Komunikaty live zarobków', 'table' => 'activity_bonus_notifications', 'column' => 'user_id', 'action' => 'czyszczenie techniczne'],
                 ['key' => 'user_activity_events', 'label' => 'Zdarzenia aktywności', 'table' => 'user_activity_events', 'column' => 'user_id', 'action' => 'czyszczenie techniczne'],
-                ['key' => 'comments', 'label' => 'Komentarze', 'table' => 'comments', 'column' => 'user_id', 'action' => 'kasowanie lub SET NULL zależnie od decyzji redakcji'],
                 ['key' => 'likes', 'label' => 'Polubienia', 'table' => 'likes', 'column' => 'user_id', 'action' => 'czyszczenie techniczne'],
                 ['key' => 'shares', 'label' => 'Udostępnienia', 'table' => 'shares', 'column' => 'user_id', 'action' => 'czyszczenie techniczne'],
             ],
@@ -124,6 +125,12 @@ final class UserDeletionService
                 'hash' => password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT),
                 'admin' => $adminId,
             ]);
+            if ($this->tableHasColumn('app_referral_invitations', 'invitee_user_id')) {
+                $db->query(
+                    'UPDATE app_referral_invitations SET invited_email=:email,updated_at=NOW() WHERE invitee_user_id=:id',
+                    ['email' => $deletedEmail, 'id' => $userId]
+                );
+            }
 
             $this->writeReport($db, $userId, $adminId, 'anonymize', $summary);
         });
@@ -176,7 +183,6 @@ final class UserDeletionService
                 ['sponsored_article_reads', 'user_id'],
                 ['article_events', 'user_id'],
                 ['article_reads', 'user_id'],
-                ['comments', 'user_id'],
                 ['likes', 'user_id'],
                 ['shares', 'user_id'],
                 ['user_roles', 'user_id'],
@@ -223,6 +229,8 @@ final class UserDeletionService
             ['article_access_grants', 'user_id'],
             ['article_supports', 'reader_id'],
             ['article_supports', 'author_id'],
+            ['app_referral_invitations', 'inviter_user_id'],
+            ['app_referral_invitations', 'invitee_user_id'],
         ];
         foreach ($checks as [$table, $column]) {
             if ($this->countByColumn($table, $column, $userId) > 0) {

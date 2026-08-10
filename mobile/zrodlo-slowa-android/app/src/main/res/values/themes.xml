@@ -1,0 +1,26 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.ZrodloSlowa" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@color/zs_black</item>
+        <item name="android:navigationBarColor">@color/zs_black</item>
+        <item name="android:windowBackground">@color/zs_black</item>
+    </style>
+
+    <!--
+        Motyw startowy uruchamiany przez system PRZED onCreate() (Splash
+        Screen API, androidx.core:core-splashscreen). Tło jest kremowe
+        (zs_intro_cream), a nie czarne — takie samo jak tło programowej
+        czołówki ([pl.zrodloslowa.app.ui.intro.SourceLogoAnimation]) — dzięki
+        temu przejście system splash → czołówka jest jednym płynnym wejściem,
+        bez czarnego mignięcia zgłoszonego w audycie. Statyczna ikona
+        (windowSplashScreenAnimatedIcon) to ten sam wektorowy znak co
+        czołówka i ikona launchera.
+    -->
+    <style name="Theme.ZrodloSlowa.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/zs_intro_cream</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_source_mark_red</item>
+        <item name="android:statusBarColor">@color/zs_intro_cream</item>
+        <item name="android:navigationBarColor">@color/zs_intro_cream</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="postSplashScreenTheme">@style/Theme.ZrodloSlowa</item>
+    </style>
+</resources>

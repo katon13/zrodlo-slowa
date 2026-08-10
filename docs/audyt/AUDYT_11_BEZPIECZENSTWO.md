@@ -12,7 +12,7 @@
 ## 3. Bezpieczeństwo finansowe
 - **Idempotencja**: Transakcje portfela w `LedgerService` obsługują klucze idempotencji, co zapobiega podwójnemu księgowaniu tych samych operacji.
 - **Webhooki**: Webhooki Stripe są weryfikowane kryptograficznie (podpis HMAC-SHA256) przed przetworzeniem, co uniemożliwia sfałszowanie wpłat.
-- **Prowizje**: Podział 70/30 dla artykułów premium jest realizowany w ramach jednej transakcji bazodanowej w `ArticleEconomyService`.
+- **Podział wpływu**: Wersjonowany podział 40/40/20 dla artykułów premium jest realizowany w ramach jednej transakcji bazodanowej w `ArticleEconomyService`.
 
 ## 4. Zarządzanie plikami (Upload)
 - **Walidacja**: `UploadService` sprawdza typ MIME pliku za pomocą `finfo`, a nie tylko rozszerzenie.

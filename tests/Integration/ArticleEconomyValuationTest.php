@@ -43,8 +43,8 @@ final class ArticleEconomyValuationTest extends DatabaseTestCase
         self::assertSame('free', $updated['access_mode']);
         self::assertSame(0, (int)$updated['price_minor']);
         self::assertSame('Important', $updated['article_label']);
-        self::assertSame(65.0, (float)$updated['author_share_percent']);
-        self::assertSame(35.0, (float)$updated['platform_share_percent']);
+        self::assertSame(40.0, (float)$updated['author_share_percent']);
+        self::assertSame(40.0, (float)$updated['platform_share_percent']);
 
         $publicArticle = array_values(array_filter(
             (new ArticleService($this->database))->published(100),
@@ -66,5 +66,10 @@ final class ArticleEconomyValuationTest extends DatabaseTestCase
             'Important',
             json_decode($eventPayload, true, 512, JSON_THROW_ON_ERROR)['article_label'] ?? null
         );
+        $payload = json_decode($eventPayload, true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame(40, (int)($payload['author_share_percent'] ?? -1));
+        self::assertSame(40, (int)($payload['platform_share_percent'] ?? -1));
+        self::assertSame(20, (int)($payload['safety_fund_share_percent'] ?? -1));
+        self::assertGreaterThan(0, (int)($payload['split_policy_id'] ?? 0));
     }
 }

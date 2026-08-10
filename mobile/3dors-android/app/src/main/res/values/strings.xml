@@ -1,0 +1,105 @@
+<resources>
+    <string name="brand_name">ŹRÓDŁO SŁOWA</string>
+    <string name="dors3_logo_description">Logo 3DORS</string>
+    <string name="home_device_not_registered">Urządzenie nie jest jeszcze zarejestrowane.</string>
+    <string name="home_register_device">Zarejestruj urządzenie</string>
+    <string name="home_connection_problem">Chwilowy problem z połączeniem…</string>
+    <string name="home_waiting_for_request">Oczekiwanie na żądanie…</string>
+    <string name="home_scan_qr">Skanuj QR</string>
+    <string name="home_demo_mode">Tryb demo (tylko debug)</string>
+    <string name="qr_scanner_hint">Skieruj aparat na kod QR</string>
+    <string name="qr_camera_permission_required">Aby zeskanować kod QR, zezwól aplikacji 3DORS na dostęp do aparatu.</string>
+    <string name="qr_camera_permission_action">ZEZWÓL NA APARAT</string>
+
+    <string name="enrollment_title">Rejestracja urządzenia</string>
+    <string name="label_service">Serwis</string>
+    <string name="label_environment">Środowisko</string>
+    <string name="label_organization">Organizacja</string>
+    <string name="label_person">Osoba</string>
+    <string name="label_account">Konto</string>
+    <string name="label_role">Rola</string>
+    <string name="label_purpose">Cel</string>
+    <string name="purpose_enrollment">Rejestracja urządzenia</string>
+    <string name="enrollment_create_key">UTWÓRZ KLUCZ I ZAREJESTRUJ</string>
+    <string name="enrollment_creating_key">Tworzenie klucza w Android Keystore…</string>
+    <string name="enrollment_panel_approval_title">Zatwierdzenie w panelu</string>
+    <string name="enrollment_panel_approval_description">Porównaj kod z panelem administratora. Administrator wpisuje go wraz ze swoim hasłem w tej samej sesji panelu. Telefon nie może sam się aktywować.</string>
+    <string name="enrollment_server_status">Stan serwera: %1$s</string>
+    <string name="enrollment_check_activation">SPRAWDŹ AKTYWACJĘ</string>
+    <string name="enrollment_code_mismatch">KOD SIĘ NIE ZGADZA</string>
+    <string name="enrollment_completed">Urządzenie aktywne. Zatwierdzenie wykonał administrator w powiązanej sesji panelu.</string>
+    <string name="environment_value">Środowisko: %1$s</string>
+    <string name="status_pending">Oczekuje</string>
+    <string name="status_completed">Ukończono na telefonie</string>
+    <string name="status_confirmed">Aktywne</string>
+    <string name="status_active">Aktywne</string>
+    <string name="status_suspended">Zawieszone</string>
+    <string name="status_lost">Utracone</string>
+    <string name="status_revoked">Unieważnione</string>
+    <string name="status_expired">Wygasłe</string>
+    <string name="status_unknown">Nieznany stan</string>
+
+    <string name="approval_loading">Pobieranie operacji…</string>
+    <string name="approval_signing">Weryfikacja biometryczna i podpisywanie…</string>
+    <string name="approval_device_suspended">Urządzenie jest zawieszone przez administratora. Skontaktuj się z organizacją, aby je odblokować.</string>
+    <string name="approval_device_revoked">Urządzenie zostało unieważnione. Zarejestruj telefon ponownie, aby dalej z niego korzystać.</string>
+    <string name="approval_already_processed">To żądanie zostało już przetworzone na tym telefonie.</string>
+    <string name="approval_generic_error">Nie udało się pobrać lub zatwierdzić operacji. Spróbuj ponownie.</string>
+    <string name="approval_service">Serwis</string>
+    <string name="approval_account_and_role">Konto i rola</string>
+    <string name="approval_operation_type">Rodzaj operacji</string>
+    <string name="approval_valid_until">Ważne do</string>
+    <string name="approval_approve">ZATWIERDŹ</string>
+    <string name="approval_reject">ODRZUĆ</string>
+    <string name="approval_approved">Zatwierdzono. Możesz wrócić do przeglądarki lub komputera.</string>
+    <string name="approval_rejected_title">Operacja odrzucona</string>
+    <string name="approval_rejected_description">Decyzja została podpisana i przekazana do systemu.</string>
+    <string name="approval_expired_title">Żądanie wygasło</string>
+    <string name="approval_expired_description">Czas na podjęcie decyzji minął. Rozpocznij operację ponownie na komputerze.</string>
+    <string name="action_back">Wróć</string>
+    <string name="biometric_approve_subtitle">Potwierdź biometrią zatwierdzenie tej operacji</string>
+    <string name="biometric_reject_subtitle">Potwierdź biometrią odrzucenie tej operacji</string>
+
+    <string name="operation_auth_login">Logowanie</string>
+    <string name="operation_article_submit">Wysłanie artykułu do redakcji</string>
+    <string name="operation_article_send_to_editor">Przekazanie artykułu redaktorowi</string>
+    <string name="operation_article_approve_version">Zatwierdzenie wersji artykułu</string>
+    <string name="operation_article_publish">Publikacja artykułu</string>
+    <string name="operation_article_unpublish">Wycofanie publikacji artykułu</string>
+    <string name="operation_article_export_sources">Eksport materiałów źródłowych</string>
+    <string name="operation_confidential_material_access">Dostęp do materiału poufnego</string>
+    <string name="operation_payout_approve">Zatwierdzenie wypłaty</string>
+    <string name="operation_payout_reject">Odrzucenie wypłaty</string>
+    <string name="operation_wallet_adjust">Korekta portfela</string>
+    <string name="operation_payout_details_admin_change">Zmiana danych wypłaty przez administratora</string>
+    <string name="operation_ledger_manual_correction">Ręczna korekta księgi</string>
+    <string name="operation_role_change">Zmiana roli użytkownika</string>
+    <string name="operation_security_settings_change">Zmiana ustawień bezpieczeństwa</string>
+    <string name="operation_device_register">Rejestracja urządzenia</string>
+    <string name="operation_device_revoke">Unieważnienie urządzenia</string>
+    <string name="operation_admin_approve">Zatwierdzenie administratora</string>
+    <string name="operation_dors3_policy_change">Zmiana polityki 3DORS</string>
+    <string name="operation_backup_restore">Przywrócenie kopii zapasowej</string>
+    <string name="operation_sensitive_data_export">Eksport danych wrażliwych</string>
+    <string name="operation_financial_settings_change">Zmiana podziału przychodu redakcji</string>
+    <string name="operation_safety_fund_disbursement">Wydanie środków Safety Fund</string>
+    <string name="operation_payout_details_change">Zmiana własnych danych wypłaty</string>
+    <string name="operation_wallet_own_operation">Operacja we własnym portfelu</string>
+    <string name="operation_agreement_action">Operacja dotycząca umowy autora</string>
+    <string name="operation_unknown">Operacja 3DORS</string>
+
+    <string name="demo_gallery_title">Galeria ekranów (tylko debug)</string>
+    <string name="demo_gallery_description">Tryb demo — nie łączy się z prawdziwym backendem.</string>
+    <string name="demo_approved">Zatwierdzono (demo). Ekran rzeczywisty wygląda tak samo.</string>
+    <string name="demo_scenario_login">Logowanie administratora</string>
+    <string name="demo_scenario_withdrawal">Wypłata środków</string>
+    <string name="demo_scenario_publication">Publikacja materiału</string>
+    <string name="demo_scenario_confidential">Materiał poufny</string>
+    <string name="demo_scenario_rejected">Odrzucenie operacji</string>
+    <string name="demo_scenario_expired">Wygaśnięcie żądania</string>
+    <!--
+        Domena Android App Link dla środowiska produkcyjnego. Pozostaje pusta
+        (placeholder) do czasu jawnej decyzji użytkownika i przygotowania
+        assetlinks.json. Puste/placeholder wartości nie przechodzą weryfikacji App Link.
+    -->
+</resources>

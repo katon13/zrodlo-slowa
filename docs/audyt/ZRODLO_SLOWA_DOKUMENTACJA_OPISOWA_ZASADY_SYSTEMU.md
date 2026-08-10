@@ -5,6 +5,7 @@
 
 ## 2. Role i Panele Użytkowników
 - **Czytelnik**: Może przeglądać publiczne treści, brać udział w ankietach i zdobywać punkty Talent.
+- **Komentator**: Może przygotowywać podpisane opinie i polemiki do oceny Redakcji. Ma Talent i Portfel TT, ale nie może publikować zwykłych artykułów ani otrzymywać wypłat pieniężnych.
 - **Autor**: Posiada własny warsztat pracy do tworzenia tekstów, wgrywania obrazów i śledzenia swoich zarobków.
 - **Redaktor Główny**: Pierwsza linia weryfikacji. Decyduje o dopuszczeniu tekstu autora do dalszych prac.
 - **Korektor**: Odpowiada za czystość językową, poprawiając wyłącznie treść bez ingerencji w parametry biznesowe.
@@ -23,8 +24,8 @@ System wymusza rygorystyczny proces redakcyjny:
 
 ## 4. Ekonomia i Portfel
 System opiera się na trzech filarach finansowych:
-- **Sprzedaż Treści**: Podział przychodu 70% dla autora i 30% dla platformy przy zakupie artykułów premium.
-- **Punkty Talent (TT)**: Nagrody za czytanie, komentowanie i aktywność reklamową. TT stanowią "kapitał społeczny", który można wymienić na PLN.
+- **Sprzedaż Treści**: Wersjonowany podział wpływu 40% dla autora, 40% dla serwisu i 20% dla Safety Fund przy zakupie artykułów premium.
+- **Punkty Talent (TT)**: Nagrody za zweryfikowane działania, w tym czytanie i faktycznie opublikowane opinie lub polemiki. TT stanowią "kapitał społeczny", który można wymienić na PLN zgodnie z aktywnymi zasadami.
 - **Darowizny**: Możliwość bezpośredniego wsparcia autora przez czytelników.
 
 ## 5. Wsparcie AI

@@ -40,6 +40,7 @@ final class Dors3SettingsService
             'required_gate' => $this->decodeJson($row['required_gate'] ?? null),
             'updated_at' => (string)$row['updated_at'],
             'reason' => $row['reason'] !== null ? (string)$row['reason'] : null,
+            'mobile' => is_array($this->config['mobile'] ?? null) ? $this->config['mobile'] : [],
         ];
 
         $this->assertSafeCombination($settings);
@@ -108,6 +109,20 @@ final class Dors3SettingsService
         }
         if ($settings['physical_approval'] !== 'disabled') {
             throw new \RuntimeException('Fizyczna Brama Zgody nie ma aktywnego dostawcy.');
+        }
+        $mobile = is_array($settings['mobile'] ?? null) ? $settings['mobile'] : [];
+        if ((string)($mobile['mode'] ?? 'disabled') === 'required') {
+            if (!(bool)($mobile['enabled'] ?? false) || (!(bool)($mobile['admin_app_enabled'] ?? false) && !(bool)($mobile['author_app_enabled'] ?? false))) {
+                throw new \RuntimeException('Tryb required 3DORS Mobile bez aktywnego wariantu aplikacji jest zabroniony.');
+            }
+            if ((bool)($mobile['admin_app_enabled'] ?? false)) {
+                \App\Security\Dors3\MobileApprovalConfiguration::isEnabled($mobile, 'admin', 'payout_approval');
+                \App\Security\Dors3\MobileApprovalConfiguration::isEnabled($mobile, 'admin', 'admin_critical_approval');
+            }
+            if ((bool)($mobile['author_app_enabled'] ?? false)) {
+                \App\Security\Dors3\MobileApprovalConfiguration::isEnabled($mobile, 'author', 'article_submit_approval');
+                \App\Security\Dors3\MobileApprovalConfiguration::isEnabled($mobile, 'author', 'article_publish_approval');
+            }
         }
     }
 

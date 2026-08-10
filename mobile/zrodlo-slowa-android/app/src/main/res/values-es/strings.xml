@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Fuente de Palabras</string>
+
+    <string name="nav_home">Inicio</string>
+    <string name="nav_articles">Artículos</string>
+    <string name="nav_wallet">Cartera</string>
+    <string name="nav_notifications">Notificaciones</string>
+    <string name="nav_account">Cuenta</string>
+
+    <string name="placeholder_coming_soon">Esta pantalla se completará en la próxima etapa.</string>
+
+    <string name="login_title">Iniciar sesión — %1$s</string>
+
+    <string name="notifications_empty">No hay notificaciones nuevas.</string>
+    <string name="notifications_error">No se pudieron cargar las notificaciones. Comprueba tu conexión.</string>
+    <string name="notifications_mark_all_read">Marcar todas como leídas</string>
+
+    <string name="action_change_language">Cambiar idioma</string>
+    <string name="action_language_automatic">Automático</string>
+
+    <string name="offline_title">Sin conexión</string>
+    <string name="offline_message">No se pudo conectar con Fuente de Palabras. Comprueba tu conexión a internet e inténtalo de nuevo.</string>
+    <string name="offline_retry">Reintentar</string>
+    <string name="offline_go_back">Volver</string>
+
+    <string name="action_search">Buscar</string>
+    <string name="action_menu">Menú</string>
+    <string name="menu_latest">Lo más reciente</string>
+    <string name="menu_topics">Temas</string>
+    <string name="menu_polls">Encuestas</string>
+    <string name="menu_ads">Anuncios</string>
+    <string name="menu_how_to_earn">Cómo ganar</string>
+    <string name="menu_authors">Autores</string>
+    <string name="menu_tt_rate">TASA DE PALABRA</string>
+    <string name="menu_login_account">Iniciar sesión / Cuenta</string>
+    <string name="menu_join_author">Únete como autor</string>
+
+    <string name="onboarding_title">Bienvenido a Fuente de Palabras</string>
+    <string name="onboarding_browse_guest">Explorar sin cuenta</string>
+    <string name="onboarding_have_account">Tengo una cuenta — iniciar sesión</string>
+    <string name="onboarding_join_author">Únete como autor</string>
+
+    <string name="intro_motto">Dale tu propia fuente.</string>
+
+    <string name="dors3_author_not_installed">La aplicación 3DORS Author no está instalada en este dispositivo.</string>
+    <string name="dors3_admin_blocked">Este enlace lleva al panel 3DORS Admin — Fuente de Palabras no lo abre.</string>
+    <string name="file_operation_web_only">Esta operación está disponible en el servicio web completo.</string>
+</resources>

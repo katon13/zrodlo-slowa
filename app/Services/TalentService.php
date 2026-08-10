@@ -60,16 +60,30 @@ final class TalentService
                 return $this->decision($userId, $activityType, 'user_inactive');
             }
 
+            $isResponsePublication = $activityType === 'response_publication_bonus';
             $rule = $db->one('SELECT * FROM activity_reward_rules WHERE activity_type=:type', ['type' => $activityType]);
-            if (!$rule) {
+            if (!$rule && !$isResponsePublication) {
                 return $this->decision($userId, $activityType, 'missing_rule');
             }
-            if ((int)($rule['is_active'] ?? 0) !== 1) {
+            if (!$isResponsePublication && (int)($rule['is_active'] ?? 0) !== 1) {
                 return $this->decision($userId, $activityType, 'inactive_rule');
             }
 
-            $points = (int)($rule['points_amount'] ?? 0);
-            $amountMinor = (int)($rule['amount_minor'] ?? 0);
+            if ($isResponsePublication) {
+                $responseSnapshot = $this->responsePublicationSnapshot($userId, $referenceType, $referenceId, $context);
+                if (!$responseSnapshot['qualified']) {
+                    return $this->decision($userId, $activityType, 'snapshot_ineligible');
+                }
+                $points = $responseSnapshot['points'];
+                $amountMinor = 0;
+            } else {
+                $points = $activityType === AppReferralService::ACTIVITY_TYPE
+                    ? $this->appReferralSnapshotPoints($userId, $referenceType, $referenceId, $context)
+                    : (int)($rule['points_amount'] ?? 0);
+                $amountMinor = in_array($activityType, [AppReferralService::ACTIVITY_TYPE, 'survey_reward'], true)
+                    ? 0
+                    : (int)($rule['amount_minor'] ?? 0);
+            }
             if ($points <= 0 && $amountMinor <= 0) {
                 return $this->decision($userId, $activityType, 'zero_value');
             }
@@ -95,7 +109,10 @@ final class TalentService
             $this->ledger->walletForUser($userId);
             $this->ledger->lockWalletsForUsers([$userId]);
 
-            if ((int)($rule['daily_limit'] ?? 0) > 0) {
+            $dailyLimit = ($isResponsePublication || $activityType === 'survey_reward')
+                ? 0
+                : (int)($rule['daily_limit'] ?? 0);
+            if ($dailyLimit > 0) {
                 $day = $this->businessClock->dayBoundsUtc();
                 $count = (int)$db->cell('SELECT COUNT(*) FROM activity_reward_logs
                     WHERE user_id=:user AND activity_type=:type
@@ -105,7 +122,7 @@ final class TalentService
                     'day_start' => $day['start'],
                     'day_end' => $day['end'],
                 ]);
-                if ($count >= (int)$rule['daily_limit']) {
+                if ($count >= $dailyLimit) {
                     return $this->decision($userId, $activityType, 'daily_limit');
                 }
             }
@@ -187,6 +204,29 @@ final class TalentService
                 'ri' => $referenceId,
             ]);
 
+            if ($activityType === AppReferralService::ACTIVITY_TYPE
+                && $referenceType === AppReferralService::REFERENCE_TYPE
+                && $referenceId !== null
+            ) {
+                $awardedParties = (int)$db->cell(
+                    'SELECT COUNT(DISTINCT user_id) FROM activity_reward_logs
+                     WHERE activity_type=:type AND reference_type=:reference_type AND reference_id=:reference_id',
+                    [
+                        'type' => AppReferralService::ACTIVITY_TYPE,
+                        'reference_type' => AppReferralService::REFERENCE_TYPE,
+                        'reference_id' => $referenceId,
+                    ]
+                );
+                if ($awardedParties >= 2) {
+                    $db->query(
+                        "UPDATE app_referral_invitations
+                         SET status='rewarded',rewarded_at=COALESCE(rewarded_at,NOW()),updated_at=NOW()
+                         WHERE id=:id AND status='reward_queued'",
+                        ['id' => $referenceId]
+                    );
+                }
+            }
+
             if ($referenceType === 'campaign_event' && $referenceId !== null && $referenceId > 0) {
                 $db->query(
                     'UPDATE campaign_events SET is_rewarded=1,reward_minor=:amount WHERE id=:id',
@@ -253,6 +293,103 @@ final class TalentService
         return null;
     }
 
+    /** @param array<string,mixed> $context */
+    private function appReferralSnapshotPoints(
+        int $userId,
+        ?string $referenceType,
+        ?int $referenceId,
+        array $context,
+    ): int {
+        if ($referenceType !== AppReferralService::REFERENCE_TYPE || $referenceId === null || $referenceId <= 0) {
+            throw new \RuntimeException('Bonus polecenia wymaga referencji do zaproszenia.');
+        }
+        $invitation = $this->db->one(
+            'SELECT inviter_user_id,invitee_user_id,reward_points,status,
+                    inviter_reward_job_public_id,invitee_reward_job_public_id
+             FROM app_referral_invitations WHERE id=:id FOR UPDATE',
+            ['id' => $referenceId]
+        );
+        if ($invitation === null || !in_array((string)$invitation['status'], ['reward_queued', 'rewarded'], true)) {
+            throw new \RuntimeException('Zaproszenie nie jest gotowe do naliczenia nagrody.');
+        }
+        $expectedJobId = null;
+        if ((int)$invitation['inviter_user_id'] === $userId) {
+            $expectedJobId = (string)$invitation['inviter_reward_job_public_id'];
+        } elseif ((int)$invitation['invitee_user_id'] === $userId) {
+            $expectedJobId = (string)$invitation['invitee_reward_job_public_id'];
+        }
+        $jobId = (string)($context['job_public_id'] ?? '');
+        if ($expectedJobId === null || $expectedJobId === '' || $jobId === '' || !hash_equals($expectedJobId, $jobId)) {
+            throw new \RuntimeException('Zadanie nagrody nie odpowiada stronie zapisanej w zaproszeniu.');
+        }
+        $points = (int)$invitation['reward_points'];
+        if ($points <= 0 || $points > 1_000_000) {
+            throw new \RuntimeException('Zaproszenie zawiera nieprawidłową wartość nagrody.');
+        }
+        return $points;
+    }
+
+    /**
+     * Wartość i kwalifikacja tej nagrody pochodzą wyłącznie ze snapshotu utworzonego
+     * atomowo przy pierwszej publikacji. Bieżąca konfiguracja administratora nie jest
+     * źródłem prawdy dla już opublikowanej polemiki.
+     *
+     * @param array<string,mixed> $context
+     * @return array{qualified:bool,points:int}
+     */
+    private function responsePublicationSnapshot(
+        int $userId,
+        ?string $referenceType,
+        ?int $referenceId,
+        array $context,
+    ): array {
+        if ($referenceType !== 'response_publication' || $referenceId === null || $referenceId <= 0) {
+            throw new \RuntimeException('Nagroda za polemikę wymaga referencji do opublikowanej odpowiedzi.');
+        }
+        if (!array_key_exists('response_rule_qualified', $context) || !array_key_exists('response_points_amount', $context)) {
+            throw new \RuntimeException('Zadanie polemiki nie zawiera snapshotu kwalifikacji i TT.');
+        }
+
+        $article = $this->db->one(
+            'SELECT id,author_id,status,response_to_article_id,response_reward_qualified,
+                    response_reward_points,response_reward_job_public_id
+             FROM articles WHERE id=:id FOR UPDATE',
+            ['id' => $referenceId]
+        );
+        if (
+            $article === null
+            || (int)$article['author_id'] !== $userId
+            || (string)$article['status'] !== 'published'
+            || empty($article['response_to_article_id'])
+        ) {
+            throw new \RuntimeException('Odpowiedź nie spełnia zapisanego kontraktu publikacji.');
+        }
+
+        $qualified = ($context['response_rule_qualified'] ?? null) === true;
+        $points = (int)($context['response_points_amount'] ?? -1);
+        $jobPublicId = trim((string)($context['job_public_id'] ?? ''));
+        $storedJobPublicId = trim((string)($article['response_reward_job_public_id'] ?? ''));
+        $storedQualified = (bool)($article['response_reward_qualified'] ?? false);
+        $storedPoints = (int)($article['response_reward_points'] ?? -1);
+
+        if (
+            $jobPublicId === ''
+            || $storedJobPublicId === ''
+            || !hash_equals($storedJobPublicId, $jobPublicId)
+            || $storedQualified !== $qualified
+            || $storedPoints !== $points
+            || $points < 0
+            || $points > 1_000_000
+        ) {
+            throw new \RuntimeException('Snapshot zadania polemiki nie odpowiada snapshotowi publikacji.');
+        }
+        if (($qualified && $points <= 0) || (!$qualified && $points !== 0)) {
+            throw new \RuntimeException('Snapshot nagrody za polemikę ma nieprawidłową wartość.');
+        }
+
+        return ['qualified' => $qualified, 'points' => $points];
+    }
+
     public function recentNotifications(int $userId, int $limit = 10): array
     {
         return $this->db->all('SELECT * FROM activity_bonus_notifications WHERE user_id=:user ORDER BY created_at DESC, id DESC LIMIT ' . (int)$limit, ['user' => $userId]);
@@ -273,10 +410,23 @@ final class TalentService
         return $this->db->all('SELECT * FROM activity_reward_rules ORDER BY id ASC');
     }
 
-    public function updateRule(string $type, int $pointsAmount, int $amountMinor, int $limit, bool $active): void
+    public function updateRule(string $type, int $pointsAmount, int $amountMinor, int $limit, bool $active, int $submissionDepositPoints = 0): void
     {
         if (!preg_match('/^[a-z0-9_]{1,80}$/', $type)) {
             throw new \InvalidArgumentException('Nieprawidłowy typ reguły Talentu.');
+        }
+        if ($type === AppReferralService::ACTIVITY_TYPE) {
+            throw new \RuntimeException('Bonus polecenia jest kontrolowany wyłącznie przez ustawienia promocji.');
+        }
+        $verifiedActivationTypes = [
+            'registration_bonus',
+            'day_visit_bonus',
+            'article_read_bonus',
+            'response_publication_bonus',
+            'survey_reward',
+        ];
+        if ($active && !in_array($type, $verifiedActivationTypes, true)) {
+            throw new \RuntimeException('Ta reguła nie ma jeszcze wiarygodnego punktu wyzwolenia i nie może zostać aktywowana.');
         }
         if (!$this->db->one('SELECT id FROM activity_reward_rules WHERE activity_type=:type LIMIT 1', ['type' => $type])) {
             throw new \RuntimeException('Nie znaleziono reguły Talentu: ' . $type);
@@ -290,9 +440,29 @@ final class TalentService
         if ($limit < 0 || $limit > 100000) {
             throw new \InvalidArgumentException('Limit dzienny reguły jest poza zakresem.');
         }
+        if ($submissionDepositPoints < 0 || $submissionDepositPoints > 1000000) {
+            throw new \InvalidArgumentException('Kaucja za wysłanie polemiki jest poza zakresem.');
+        }
+        if ($type === 'response_publication_bonus') {
+            if ($amountMinor !== 0 || $limit !== 0) {
+                throw new \InvalidArgumentException('Opublikowana odpowiedź może przyznawać wyłącznie TT i nie ma limitu dziennego.');
+            }
+            $amountMinor = 0;
+            $limit = 0;
+        } else {
+            $submissionDepositPoints = 0;
+        }
+        if ($type === 'survey_reward') {
+            if ($amountMinor !== 0 || $limit !== 0) {
+                throw new \InvalidArgumentException('Reguła ankiety może określać wyłącznie TT. Kwotę PLN i limit odpowiedzi kontroluje konkretna ankieta.');
+            }
+            $amountMinor = 0;
+            $limit = 0;
+        }
 
-        $statement = $this->db->query('UPDATE activity_reward_rules SET points_amount=:points, amount_minor=:amount, daily_limit=:l, is_active=:s, updated_at=NOW() WHERE activity_type=:t', [
+        $statement = $this->db->query('UPDATE activity_reward_rules SET points_amount=:points, submission_deposit_points=:deposit, amount_minor=:amount, daily_limit=:l, is_active=:s, updated_at=NOW() WHERE activity_type=:t', [
             'points' => $pointsAmount,
+            'deposit' => $submissionDepositPoints,
             'amount' => $amountMinor,
             'l' => $limit,
             's' => $active ? 1 : 0,
@@ -310,7 +480,7 @@ final class TalentService
             'login_bonus' => 'login_bonus',
             'day_visit_bonus' => 'day_visit_bonus',
             'article_read_bonus' => 'article_read_bonus',
-            'comment_bonus' => 'comment_bonus',
+            'response_publication_bonus' => 'response_publication_bonus',
             'poll_bonus' => 'survey_reward',
             'survey_reward' => 'survey_reward',
             'link_click_bonus' => 'link_click_bonus',
@@ -323,6 +493,7 @@ final class TalentService
             'newsletter_open_reward' => 'newsletter_open_reward',
             'ppv_reward' => 'ppv_reward',
             'live_event_reward' => 'live_event_reward',
+            'app_referral_bonus' => 'app_referral_bonus',
         ];
         return $map[$activityType] ?? 'activity_bonus';
     }

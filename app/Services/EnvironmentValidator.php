@@ -238,12 +238,30 @@ final class EnvironmentValidator
         $webauthnEnabled = env_bool('WEBAUTHN_ENABLED', false);
         $stepUp = strtolower(trim((string)env('DORS3_CRITICAL_STEP_UP', 'password')));
         $physical = strtolower(trim((string)env('DORS3_PHYSICAL_APPROVAL', 'disabled')));
+        $mobileMode = strtolower(trim((string)env('DORS3_MOBILE_MODE', 'disabled')));
+        $mobileEnabled = env_bool('DORS3_MOBILE_ENABLED', false);
+        $adminMobileEnabled = env_bool('DORS3_ADMIN_APP_ENABLED', false);
+        $authorMobileEnabled = env_bool('DORS3_AUTHOR_APP_ENABLED', false);
 
         if (!in_array($mode, ['prepare', 'test', 'required'], true)) {
             $errors[] = 'DORS3_MODE must be prepare, test or required.';
         }
         if (!in_array($stepUp, ['password', 'fido2'], true)) {
             $errors[] = 'DORS3_CRITICAL_STEP_UP must be password or fido2.';
+        }
+        if (!in_array($mobileMode, ['disabled', 'test', 'required'], true)) {
+            $errors[] = 'DORS3_MOBILE_MODE must be disabled, test or required.';
+        }
+        if ($mobileMode === 'required') {
+            if (!$mobileEnabled || (!$adminMobileEnabled && !$authorMobileEnabled)) {
+                $errors[] = 'Required 3DORS Mobile needs an enabled Admin or Author application variant.';
+            }
+            if ($adminMobileEnabled && (!env_bool('DORS3_PAYOUT_APPROVAL', false) || !env_bool('DORS3_ADMIN_CRITICAL_APPROVAL', false))) {
+                $errors[] = 'Required 3DORS Admin must protect payouts and critical administrative operations.';
+            }
+            if ($authorMobileEnabled && (!env_bool('DORS3_ARTICLE_SUBMIT_APPROVAL', false) || !env_bool('DORS3_ARTICLE_PUBLISH_APPROVAL', false))) {
+                $errors[] = 'Required 3DORS Author must protect article submission and publication.';
+            }
         }
         if ($physical !== 'disabled') {
             $errors[] = 'DORS3_PHYSICAL_APPROVAL must stay disabled until a real provider is implemented.';

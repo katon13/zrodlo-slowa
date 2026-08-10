@@ -57,4 +57,26 @@ final class SharedSessionFallbackTest extends DatabaseTestCase
             $primary->destroy($sessionId);
         }
     }
+
+    public function testReadOnlyHandlerDoesNotWarmValkeyOrUpdatePostgresqlTimestamp(): void
+    {
+        $sessionId = 'phpunit_' . bin2hex(random_bytes(16));
+        $payload = 'user_id|i:42;';
+        $lastActivity = time() - 60;
+        $this->database->query(
+            'INSERT INTO sessions(id,user_id,payload,last_activity)
+             VALUES(:id,NULL,:payload,:activity)',
+            ['id' => $sessionId, 'payload' => $payload, 'activity' => $lastActivity]
+        );
+        $valkey = new InMemoryValkeyClient();
+        $handler = new SharedSessionHandler($valkey, $this->database, 300, true);
+
+        self::assertSame($payload, $handler->read($sessionId));
+        self::assertTrue($handler->updateTimestamp($sessionId, $payload));
+        self::assertNull($valkey->get('session:v1:' . hash('sha256', $sessionId)));
+        self::assertSame(
+            $lastActivity,
+            (int)$this->database->cell('SELECT last_activity FROM sessions WHERE id=:id', ['id' => $sessionId])
+        );
+    }
 }

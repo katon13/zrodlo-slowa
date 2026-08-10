@@ -50,7 +50,7 @@ Celem etapu naprawczego było wyeliminowanie ryzyk krytycznych i wysokich zident
 - Uploady zabezpieczone ✓
 - Reset bazy wymaga jawnego podwójnego potwierdzenia ✓
 - Workflow redakcyjny zachowany ✓
-- Ekonomia 70/30 zachowana ✓
+- Ekonomia została następnie zaktualizowana do wersjonowanego modelu 40/40/20 z Safety Fund ✓
 
 ## 6. DO DECYZJI WŁAŚCICIELA
 1. **Domeny w sites.json**: Obecna konfiguracja zakłada różne domeny dla każdego języka (np. `de-wortquelle.de`). Na środowisku lokalnym/localhost może to utrudniać testy międzyjęzykowe, chyba że zostaną dodane wpisy do pliku `hosts`. Zaleca się rozważenie przejścia na model subdomenowy lub wyłącznie prefiksowy na jednej domenie głównej.

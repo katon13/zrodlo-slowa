@@ -27,6 +27,7 @@
 
 ## 2. Role i Panele Użytkowników
 - **Czytelnik**: Może przeglądać publiczne treści, brać udział w ankietach i zdobywać punkty Talent.
+- **Komentator**: Może przygotowywać podpisane opinie i polemiki do oceny Redakcji. Ma Talent i Portfel TT, ale nie może publikować zwykłych artykułów ani otrzymywać wypłat pieniężnych.
 - **Autor**: Posiada własny warsztat pracy do tworzenia tekstów, wgrywania obrazów i śledzenia swoich zarobków.
 - **Redaktor Główny**: Pierwsza linia weryfikacji. Decyduje o dopuszczeniu tekstu autora do dalszych prac.
 - **Korektor**: Odpowiada za czystość językową, poprawiając wyłącznie treść bez ingerencji w parametry biznesowe.
@@ -45,8 +46,8 @@ System wymusza rygorystyczny proces redakcyjny:
 
 ## 4. Ekonomia i Portfel
 System opiera się na trzech filarach finansowych:
-- **Sprzedaż Treści**: Podział przychodu 70% dla autora i 30% dla platformy przy zakupie artykułów premium.
-- **Punkty Talent (TT)**: Nagrody za czytanie, komentowanie i aktywność reklamową. TT stanowią "kapitał społeczny", który można wymienić na PLN.
+- **Sprzedaż Treści**: Podział kwalifikowanego wpływu 40% dla autora, 40% dla serwisu i 20% dla Safety Fund przy zakupie artykułów premium.
+- **Punkty Talent (TT)**: Nagrody za zweryfikowane działania, w tym czytanie i faktycznie opublikowane opinie lub polemiki. TT stanowią "kapitał społeczny", który można wymienić na PLN zgodnie z aktywnymi zasadami.
 - **Darowizny**: Możliwość bezpośredniego wsparcia autora przez czytelników.
 
 ## 5. Wsparcie AI
@@ -315,9 +316,9 @@ System opiera się na architekturze Service Layer, gdzie kontrolery delegują z�
 ### Finanse i Ekonomia
 - **LedgerService.php**: "Księga główna" systemu. Każda operacja finansowa (PLN, Talent) musi przejść przez metodę `post()`. Obsługuje sub-konta `main` (środki wpłacone) i `slowo` (środki zarobione).
 - **WalletService.php**: Podstawowe operacje na portfelach.
-- **TalentService.php**: Przyznawanie punktów Talent i bonusów za aktywność (logowanie, czytanie, komentarze).
+- **TalentService.php**: Przyznawanie punktów Talent za zweryfikowaną aktywność (aktywna obecność, czytanie, polecenie aplikacji i opublikowane opinie lub polemiki).
 - **WalletTopupService.php**: Procesowanie doładowań (m.in. ze Stripe).
-- **ArticleEconomyService.php**: Obsługa zakupu artykułów premium (podział 70/30).
+- **ArticleEconomyService.php**: Obsługa zakupu artykułów premium (wersjonowany podział 40/40/20 w jednej transakcji).
 
 ### AI (OpenAI)
 - **AiFoundationService.php**: Centralne zarządzanie ustawieniami AI, planowaniem zadań i logowaniem zdarzeń AI.
@@ -415,7 +416,7 @@ System przeszedł niedawno konsolidację bazy danych. Historyczny mechanizm 57 m
 - `payments`: Rejestr wpłat zewnętrznych.
 - `payment_orders`: Zamówienia płatności (np. Stripe Checkout).
 - `payouts`: Zlecenia wypłat dla autorów.
-- `platform_revenues`: Rejestr przychodów platformy (prowizje 30%).
+- `platform_revenues`: Rejestr udziału serwisu i Safety Fund wraz z wersją polityki podziału.
 
 ### Użytkownicy i Uprawnienia
 - `users`: Dane podstawowe użytkowników, statusy kont, uprawnienia operacyjne (`can_write`, `wallet_enabled`).
@@ -623,7 +624,7 @@ Baner Główny na stronie głównej nie jest statycznym elementem kodu, lecz dyn
 ## 3. Bezpieczeństwo finansowe
 - **Idempotencja**: Transakcje portfela w `LedgerService` obsługują klucze idempotencji, co zapobiega podwójnemu księgowaniu tych samych operacji.
 - **Webhooki**: Webhooki Stripe są weryfikowane kryptograficznie (podpis HMAC-SHA256) przed przetworzeniem, co uniemożliwia sfałszowanie wpłat.
-- **Prowizje**: Podział 70/30 dla artykułów premium jest realizowany w ramach jednej transakcji bazodanowej w `ArticleEconomyService`.
+- **Podział wpływu**: Podział 40/40/20 dla artykułów premium jest realizowany w ramach jednej transakcji bazodanowej w `ArticleEconomyService`.
 
 ## 4. Zarządzanie plikami (Upload)
 - **Walidacja**: `UploadService` sprawdza typ MIME pliku za pomocą `finfo`, a nie tylko rozszerzenie.
@@ -656,18 +657,19 @@ System portfela w ŹRÓDLE SŁOWA jest podzielony na trzy główne obszary logic
 - **Konto Zarobkowe (`slowo_available_minor`)**: Środki zarobione przez autora ze sprzedaży tekstów, darowizn oraz bonusów wymienionych na PLN.
 - **Punkty Talent (`points_balance`)**: Kapitał społeczny użytkownika, zdobywany za aktywność. Możliwy do wymiany na PLN według zmiennego kursu.
 
-## 2. Mechanizm monetyzacji (70/30)
+## 2. Mechanizm monetyzacji (40/40/20)
 Przy zakupie artykułu premium (`ArticleEconomyService`):
 1. Od kupującego pobierana jest kwota z Konta Głównego.
-2. 70% kwoty trafia na Konto Zarobkowe autora.
-3. 30% kwoty trafia do Serwisu (rejestrowane w `platform_revenues`).
+2. 40% kwoty trafia na Konto Zarobkowe autora.
+3. 40% kwoty trafia do Serwisu, a 20% na wydzielone saldo Safety Fund w tej samej księdze.
 4. Całość operacji odbywa się w ramach jednej transakcji bazy danych.
 
 ## 3. Punkty Talent i Bonusy
 System nagradza użytkowników za aktywność (`TalentService`):
-- **Bonusy stałe**: Rejestracja, logowanie, dzienna wizyta.
-- **Bonusy za treść**: Przeczytanie artykułu, napisanie komentarza.
-- **Bonusy reklamowe**: Obejrzenie reklamy, udział w ankiecie, PPV.
+- **Bonusy gotowe**: Rejestracja z trwałym jobem, potwierdzona aktywna wizyta i zweryfikowane przeczytanie.
+- **Bonusy za treść**: Zweryfikowane przeczytanie artykułu oraz pierwsza faktyczna publikacja podpisanej opinii lub polemiki przez Redakcję.
+- **Ankiety**: PLN jest snapshotowane w konkretnej odpowiedzi, a TT pochodzi z osobnej aktywnej reguły `survey_reward`; brak TT nie blokuje należnych PLN.
+- **Reguły wstrzymane**: Samo logowanie oraz niepotwierdzone zdarzenia reklamowe i społecznościowe nie są aktywnymi źródłami nagród.
 Punkty Talent mogą być wymieniane na PLN (`WalletTransferService`). Proces ten podlega kontroli limitów dziennych i może wymagać akceptacji administratora.
 
 ## 4. Wypłaty
@@ -685,7 +687,7 @@ Autorzy mogą zlecać wypłatę środków z Konta Zarobkowego:
 | Operacja | Źródło | Cel | Prowizja | Walidacja |
 | --- | --- | --- | --- | --- |
 | Doładowanie | Stripe | Konto Główne | 0%* | Podpis Stripe |
-| Zakup tekstu | Konto Główne (Kupujący) | Konto Zarobkowe (Autor) | 30% | Stan konta |
+| Zakup tekstu | Konto Główne (Kupujący) | Konto Zarobkowe (Autor) | 40% Serwis / 20% Safety Fund | Stan konta |
 | Bonus aktywności | System | Punkty Talent | 0% | Limity dzienne |
 | Transfer TT -> PLN | Punkty Talent | Konto Zarobkowe | Zależna | Zgoda admina |
 | Wypłata | Konto Zarobkowe | Konto Bankowe | 0% | Minimalna kwota |
@@ -798,7 +800,7 @@ System posiada rozbudowany zestaw skryptów CLI (Command Line Interface) ułatwi
 
 ## 5. Scenariusze Finansowe
 - [ ] **Doładowanie Portfela**: Czy symulacja opłaconej sesji Stripe (test) dodaje środki do Konta Głównego?
-- [ ] **Zakup Artykułu**: Czy zakup tekstu premium odejmuje środki kupującemu i dodaje 70% autorowi (Konto Zarobkowe)?
+- [ ] **Zakup Artykułu**: Czy zakup tekstu premium odejmuje środki kupującemu i atomowo księguje 40% autorowi, 40% serwisowi i 20% Safety Fund?
 - [ ] **Wypłata**: Czy zlecenie wypłaty rezerwuje środki w portfelu autora?
 - [ ] **Bonusy**: Czy przeczytanie artykułu przez zalogowanego użytkownika nalicza punkty Talent?
 

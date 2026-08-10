@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Source des Mots</string>
+
+    <string name="nav_home">Accueil</string>
+    <string name="nav_articles">Articles</string>
+    <string name="nav_wallet">Portefeuille</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_account">Compte</string>
+
+    <string name="placeholder_coming_soon">Cet écran sera complété lors de la prochaine étape.</string>
+
+    <string name="login_title">Se connecter — %1$s</string>
+
+    <string name="notifications_empty">Aucune nouvelle notification.</string>
+    <string name="notifications_error">Impossible de charger les notifications. Vérifiez votre connexion.</string>
+    <string name="notifications_mark_all_read">Tout marquer comme lu</string>
+
+    <string name="action_change_language">Changer de langue</string>
+    <string name="action_language_automatic">Automatique</string>
+
+    <string name="offline_title">Pas de connexion</string>
+    <string name="offline_message">Impossible de se connecter à Source des Mots. Vérifiez votre connexion internet et réessayez.</string>
+    <string name="offline_retry">Réessayer</string>
+    <string name="offline_go_back">Retour</string>
+
+    <string name="action_search">Rechercher</string>
+    <string name="action_menu">Menu</string>
+    <string name="menu_latest">Dernières</string>
+    <string name="menu_topics">Thèmes</string>
+    <string name="menu_polls">Sondages</string>
+    <string name="menu_ads">Publicités</string>
+    <string name="menu_how_to_earn">Comment gagner</string>
+    <string name="menu_authors">Auteurs</string>
+    <string name="menu_tt_rate">TAUX DU MOT</string>
+    <string name="menu_login_account">Se connecter / Compte</string>
+    <string name="menu_join_author">Devenir auteur</string>
+
+    <string name="onboarding_title">Bienvenue sur Source des Mots</string>
+    <string name="onboarding_browse_guest">Parcourir sans compte</string>
+    <string name="onboarding_have_account">J’ai un compte — se connecter</string>
+    <string name="onboarding_join_author">Devenir auteur</string>
+
+    <string name="intro_motto">Donnez-lui votre propre source.</string>
+
+    <string name="dors3_author_not_installed">L’application 3DORS Author n’est pas installée sur cet appareil.</string>
+    <string name="dors3_admin_blocked">Ce lien mène au panneau 3DORS Admin — Source des Mots ne l’ouvre pas.</string>
+    <string name="file_operation_web_only">Cette opération est disponible dans le service web complet.</string>
+</resources>

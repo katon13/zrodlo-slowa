@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Wortquelle</string>
+
+    <string name="nav_home">Start</string>
+    <string name="nav_articles">Artikel</string>
+    <string name="nav_wallet">Portemonnaie</string>
+    <string name="nav_notifications">Benachrichtigungen</string>
+    <string name="nav_account">Konto</string>
+
+    <string name="placeholder_coming_soon">Dieser Bildschirm wird in der nächsten Etappe fertiggestellt.</string>
+
+    <string name="login_title">Anmelden — %1$s</string>
+
+    <string name="notifications_empty">Keine neuen Benachrichtigungen.</string>
+    <string name="notifications_error">Benachrichtigungen konnten nicht geladen werden. Bitte Verbindung prüfen.</string>
+    <string name="notifications_mark_all_read">Alle als gelesen markieren</string>
+
+    <string name="action_change_language">Sprache ändern</string>
+    <string name="action_language_automatic">Automatisch</string>
+
+    <string name="offline_title">Keine Verbindung</string>
+    <string name="offline_message">Verbindung zu Wortquelle fehlgeschlagen. Bitte Internetverbindung prüfen und erneut versuchen.</string>
+    <string name="offline_retry">Erneut versuchen</string>
+    <string name="offline_go_back">Zurück</string>
+
+    <string name="action_search">Suchen</string>
+    <string name="action_menu">Menü</string>
+    <string name="menu_latest">Neueste</string>
+    <string name="menu_topics">Themen</string>
+    <string name="menu_polls">Umfragen</string>
+    <string name="menu_ads">Werbung</string>
+    <string name="menu_how_to_earn">Wie man verdient</string>
+    <string name="menu_authors">Autoren</string>
+    <string name="menu_tt_rate">WORT-KURS</string>
+    <string name="menu_login_account">Anmelden / Konto</string>
+    <string name="menu_join_author">Als Autor beitreten</string>
+
+    <string name="onboarding_title">Willkommen bei Wortquelle</string>
+    <string name="onboarding_browse_guest">Ohne Konto durchsuchen</string>
+    <string name="onboarding_have_account">Ich habe ein Konto — anmelden</string>
+    <string name="onboarding_join_author">Als Autor beitreten</string>
+
+    <string name="intro_motto">Gib dem deine eigene Quelle.</string>
+
+    <string name="dors3_author_not_installed">Die App 3DORS Author ist auf diesem Gerät nicht installiert.</string>
+    <string name="dors3_admin_blocked">Dieser Link führt zum 3DORS-Admin-Panel — Wortquelle öffnet ihn nicht.</string>
+    <string name="file_operation_web_only">Dieser Vorgang ist im vollständigen Webdienst verfügbar.</string>
+</resources>

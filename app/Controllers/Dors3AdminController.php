@@ -3,9 +3,16 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Security\Dors3\MobileEnrollmentQrCode;
 use App\Services\RecoveryCodeService;
 use App\Services\Dors3OperatorPresenter;
 use App\Services\WebAuthnFoundationService;
+use App\Services\Dors3MobileService;
+use App\Services\Dors3UiText;
+use App\Services\AuthorAgreementService;
+use App\Services\SecretCipher;
+use App\Services\AdminSecurityPanelService;
+use App\Services\AuthSecurityService;
 
 final class Dors3AdminController extends BaseController
 {
@@ -13,34 +20,7 @@ final class Dors3AdminController extends BaseController
     {
         $adminId = $this->requireAdmin();
         $settings = $this->dors3Settings()->current();
-        $credentials = $this->app->db->all(
-            'SELECT public_id,display_name,credential_role,status,tested_at,last_used_at,created_at
-             FROM webauthn_credentials WHERE user_id=:user ORDER BY created_at,id',
-            ['user' => $adminId]
-        );
-        $sessions = $this->app->db->all(
-            'SELECT id,last_activity FROM sessions
-             WHERE user_id=:user AND last_activity>=:minimum
-             ORDER BY last_activity DESC LIMIT 50',
-            ['user' => $adminId, 'minimum' => time() - (int)$settings['admin_session_max_seconds']]
-        );
-        foreach ($sessions as &$session) {
-            $session['public_id'] = substr(hash('sha256', (string)$session['id']), 0, 16);
-            unset($session['id']);
-        }
-        unset($session);
-        $events = $this->app->db->all(
-            'SELECT event_id,occurred_at,action,resource_type,resource_id,result,reason,risk_level,authentication_level
-             FROM security_events WHERE actor_id=:user ORDER BY occurred_at DESC,id DESC LIMIT 50',
-            ['user' => $adminId]
-        );
-        $lastAlarm = $this->app->db->one(
-            'SELECT occurred_at,action,reason,risk_level FROM security_events
-             WHERE actor_id=:user AND risk_level IN (\'high\',\'critical\')
-               AND result IN (\'failure\',\'blocked\',\'rejected\',\'warning\')
-             ORDER BY occurred_at DESC,id DESC LIMIT 1',
-            ['user' => $adminId]
-        );
+        $panelData = (new AdminSecurityPanelService($this->app->db))->configurationSnapshot($adminId);
         $recovery = $this->recoveryCodes()->status($adminId);
         $gate = $this->dors3Settings()->requiredGate($adminId);
         $operatorCredentials = array_map(
@@ -48,20 +28,51 @@ final class Dors3AdminController extends BaseController
                 'role_label' => Dors3OperatorPresenter::credentialRoleLabel((string)($credential['credential_role'] ?? '')),
                 'status_label' => Dors3OperatorPresenter::credentialStatusLabel((string)($credential['status'] ?? '')),
             ],
-            $credentials
+            $panelData['credentials']
         );
+        $mobileDevices = [];
+        $mobilePending = [];
+        $mobileEnrollments = [];
+        $mobileAdminCandidates = [];
+        $mobileAuthorCandidates = [];
+        $mobileUserQuery = mb_substr(trim((string)($_GET['mobile_user_query'] ?? '')), 0, 120);
+        if ($this->app->db->tableExists('security_mobile_devices')) {
+            $mobile = new Dors3MobileService(
+                $this->app->db,
+                SecretCipher::fromEnvironment(),
+                $this->securityEvents(),
+                is_array($this->app->config['dors3'] ?? null) ? $this->app->config['dors3'] : [],
+            );
+            $mobileDevices = $mobile->devices();
+            $mobilePending = $mobile->pendingApprovals();
+            $mobileEnrollments = $mobile->pendingEnrollments();
+            if ($this->app->db->tableExists('author_agreements')) {
+                $agreements = new AuthorAgreementService($this->app->db);
+                $mobileAdminCandidates = $agreements->searchEligible('admin', $mobileUserQuery);
+                $mobileAuthorCandidates = $agreements->searchEligible('author', $mobileUserQuery);
+            }
+        }
+        $newMobileEnrollment = $this->app->session->pullFlash('dors3_mobile_enrollment');
+        if (is_array($newMobileEnrollment) && is_array($newMobileEnrollment['qr_payload'] ?? null)) {
+            try {
+                $newMobileEnrollment['qr_data_uri'] = MobileEnrollmentQrCode::dataUri($newMobileEnrollment['qr_payload']);
+            } catch (\Throwable $error) {
+                error_log('[dors3_mobile_enrollment_qr] generation failed: ' . $error::class);
+            }
+        }
+        $authSecurity = $this->authSecurity();
+        $accountSecurity = $authSecurity->userSecurityStatus($adminId);
+        $accountSecuritySecret = $authSecurity->currentTwoFactorSecret($adminId);
 
         return $this->view('admin/dors3', [
-            'title' => 'Bezpieczeństwo — 3DORS',
+            'title' => Dors3UiText::get('admin_messages.panel_title'),
             'dors3' => $settings,
             'webauthn' => (new WebAuthnFoundationService(
                 $this->app->db,
                 is_array($this->app->config['dors3'] ?? null) ? $this->app->config['dors3'] : [],
             ))->status(),
             'credentials' => $operatorCredentials,
-            'sessions' => $sessions,
-            'events' => array_map([Dors3OperatorPresenter::class, 'event'], $events),
-            'last_alarm' => $lastAlarm !== null ? Dors3OperatorPresenter::event($lastAlarm) : null,
+            'role_summary' => $panelData['role_summary'],
             'recovery' => $recovery,
             'required_gate' => $gate,
             'operator_readiness' => Dors3OperatorPresenter::readiness($gate),
@@ -69,6 +80,19 @@ final class Dors3AdminController extends BaseController
             'operator_confirmation_label' => Dors3OperatorPresenter::confirmationLabel((string)($settings['critical_step_up'] ?? 'password')),
             'new_recovery_codes' => $this->app->session->pullFlash('dors3_recovery_codes'),
             'new_recovery_batch' => $this->app->session->pullFlash('dors3_recovery_batch'),
+            'mobile_devices' => $mobileDevices,
+            'mobile_pending' => $mobilePending,
+            'mobile_enrollments' => $mobileEnrollments,
+            'mobile_admin_candidates' => $mobileAdminCandidates,
+            'mobile_author_candidates' => $mobileAuthorCandidates,
+            'mobile_user_query' => $mobileUserQuery,
+            'mobile_config' => is_array($this->app->config['dors3']['mobile'] ?? null)
+                ? $this->app->config['dors3']['mobile']
+                : [],
+            'new_mobile_enrollment' => $newMobileEnrollment,
+            'account_security' => $accountSecurity,
+            'account_security_secret' => $accountSecuritySecret,
+            'account_security_otpauth_uri' => $authSecurity->otpauthUri($adminId),
         ]);
     }
 
@@ -76,7 +100,7 @@ final class Dors3AdminController extends BaseController
     {
         $this->assertRawAdmin();
         return $this->view('admin/dors3_unlock', [
-            'title' => 'Odblokowanie panelu 3DORS',
+            'title' => Dors3UiText::get('admin_messages.unlock_page_title'),
             'return_path' => $this->safeReturnPath((string)($_GET['return'] ?? '/admin')),
         ]);
     }
@@ -87,12 +111,12 @@ final class Dors3AdminController extends BaseController
         $returnPath = $this->safeReturnPath((string)($_POST['return_path'] ?? '/admin'));
         try {
             $this->adminSessionPolicy()->unlock($adminId, (string)($_POST['password'] ?? ''));
-            $this->app->session->flash('success', 'Sesja administracyjna została ponownie potwierdzona.');
+            $this->app->session->flash('success', Dors3UiText::get('admin_messages.unlock_success'));
             redirect($returnPath);
         } catch (\Throwable $error) {
             $this->app->session->flash('error', $this->safeError(
                 $error,
-                'Nie udało się odblokować sesji administracyjnej.',
+                Dors3UiText::get('admin_messages.unlock_failed'),
                 'dors3_session_unlock'
             ));
             redirect('/admin/security/unlock?return=' . urlencode($returnPath));
@@ -116,11 +140,11 @@ final class Dors3AdminController extends BaseController
             $generated = $this->recoveryCodes()->generate($adminId);
             $this->app->session->flash('dors3_recovery_codes', $generated['codes']);
             $this->app->session->flash('dors3_recovery_batch', $generated['batch_public_id']);
-            $this->app->session->flash('success', 'Wygenerowano nowy zestaw 10 kodów. Zapisz je teraz — nie zostaną pokazane ponownie.');
+            $this->app->session->flash('success', Dors3UiText::get('admin_messages.recovery_generated'));
         } catch (\Throwable $error) {
             $this->app->session->flash('error', $this->safeError(
                 $error,
-                'Nie udało się wygenerować kodów odzyskiwania.',
+                Dors3UiText::get('admin_messages.recovery_generate_failed'),
                 'dors3_recovery_generate'
             ));
         }
@@ -133,7 +157,7 @@ final class Dors3AdminController extends BaseController
         $batch = trim((string)($_POST['batch_public_id'] ?? ''));
         try {
             if (($_POST['saved_confirmation'] ?? '') !== 'yes') {
-                throw new \RuntimeException('Potwierdź, że kody zostały zapisane offline.');
+                throw new \RuntimeException(Dors3UiText::get('admin_messages.recovery_saved_required'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -145,11 +169,11 @@ final class Dors3AdminController extends BaseController
                 ['confirmed' => true],
             );
             $this->recoveryCodes()->confirmSaved($adminId, $batch);
-            $this->app->session->flash('success', 'Zapisanie kodów odzyskiwania zostało potwierdzone.');
+            $this->app->session->flash('success', Dors3UiText::get('admin_messages.recovery_confirmed'));
         } catch (\Throwable $error) {
             $this->app->session->flash('error', $this->safeError(
                 $error,
-                'Nie udało się potwierdzić kodów odzyskiwania.',
+                Dors3UiText::get('admin_messages.recovery_confirm_failed'),
                 'dors3_recovery_confirm'
             ));
         }
@@ -161,14 +185,24 @@ final class Dors3AdminController extends BaseController
         return new RecoveryCodeService($this->app->db, $this->securityEvents());
     }
 
+    private function authSecurity(): AuthSecurityService
+    {
+        return new AuthSecurityService(
+            $this->app->db,
+            $this->slowoSnajperConfig(),
+            $this->app->rateLimiter,
+            $this->app->queueSignals,
+        );
+    }
+
     private function assertRawAdmin(): int
     {
         $adminId = $this->requireAuth();
         if ($this->app->session->role() !== 'admin') {
             http_response_code(403);
             echo $this->view('layouts/error', [
-                'title' => 'Brak uprawnień',
-                'message' => 'Odblokowanie 3DORS jest dostępne wyłącznie dla administratora.',
+                'title' => Dors3UiText::get('admin_messages.forbidden_title'),
+                'message' => Dors3UiText::get('admin_messages.forbidden_message'),
             ]);
             exit;
         }

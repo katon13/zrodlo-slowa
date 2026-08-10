@@ -7,6 +7,7 @@
 
   <form class="form-card" method="post" action="<?= e(public_language_url($current_language, '/register')) ?>">
     <?= csrf_field() ?>
+    <?php if (!empty($registration_nonce)): ?><input type="hidden" name="registration_nonce" value="<?= e((string)$registration_nonce) ?>"><?php endif; ?>
 
     <div class="form-grid two">
       <label class="field">
@@ -16,7 +17,7 @@
 
       <label class="field">
         <span><?= t('auth.login.email') ?></span>
-        <input type="email" name="email" required autocomplete="email">
+        <input type="email" name="email" required autocomplete="email" value="<?= e((string)($referral_email ?? '')) ?>">
       </label>
 
       <label class="field">
@@ -37,7 +38,7 @@
 
     <?php 
     $oauthConfig = require dirname(__DIR__, 2) . '/config/oauth.php';
-    if (($oauthConfig['google']['enabled'] ?? false) || ($oauthConfig['apple']['enabled'] ?? false)): 
+    if (empty($registration_nonce) && (($oauthConfig['google']['enabled'] ?? false) || ($oauthConfig['apple']['enabled'] ?? false))):
     ?>
       <div class="auth-divider"><span><?= t('auth.register.oauth_divider') ?></span></div>
       <div class="oauth-buttons">

@@ -121,7 +121,11 @@ final class AuthenticationFlowService
         $this->security->markLoginSuccess($userId);
 
         $missing = [];
-        $destination = $role === 'admin' ? '/admin' : '/author';
+        $destination = match ($role) {
+            'admin' => '/admin',
+            'commentator' => '/opinie',
+            default => '/author',
+        };
         if ($this->security->userHasHighRole($userId)) {
             $status = $this->security->userSecurityStatus($userId);
             if (($status['ready_for_high_roles'] ?? false) !== true) {

@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Fonte di Parole</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_articles">Articoli</string>
+    <string name="nav_wallet">Portafoglio</string>
+    <string name="nav_notifications">Notifiche</string>
+    <string name="nav_account">Account</string>
+
+    <string name="placeholder_coming_soon">Questa schermata verrà completata nella prossima fase.</string>
+
+    <string name="login_title">Accedi — %1$s</string>
+
+    <string name="notifications_empty">Nessuna nuova notifica.</string>
+    <string name="notifications_error">Impossibile caricare le notifiche. Controlla la connessione.</string>
+    <string name="notifications_mark_all_read">Segna tutte come lette</string>
+
+    <string name="action_change_language">Cambia lingua</string>
+    <string name="action_language_automatic">Automatico</string>
+
+    <string name="offline_title">Nessuna connessione</string>
+    <string name="offline_message">Impossibile connettersi a Fonte di Parole. Controlla la connessione internet e riprova.</string>
+    <string name="offline_retry">Riprova</string>
+    <string name="offline_go_back">Indietro</string>
+
+    <string name="action_search">Cerca</string>
+    <string name="action_menu">Menu</string>
+    <string name="menu_latest">Ultimi</string>
+    <string name="menu_topics">Argomenti</string>
+    <string name="menu_polls">Sondaggi</string>
+    <string name="menu_ads">Annunci</string>
+    <string name="menu_how_to_earn">Come guadagnare</string>
+    <string name="menu_authors">Autori</string>
+    <string name="menu_tt_rate">TASSO PAROLA</string>
+    <string name="menu_login_account">Accedi / Account</string>
+    <string name="menu_join_author">Unisciti come autore</string>
+
+    <string name="onboarding_title">Benvenuto su Fonte di Parole</string>
+    <string name="onboarding_browse_guest">Naviga senza account</string>
+    <string name="onboarding_have_account">Ho un account — accedi</string>
+    <string name="onboarding_join_author">Unisciti come autore</string>
+
+    <string name="intro_motto">Dagli la tua fonte.</string>
+
+    <string name="dors3_author_not_installed">L’app 3DORS Author non è installata su questo dispositivo.</string>
+    <string name="dors3_admin_blocked">Questo link porta al pannello 3DORS Admin — Fonte di Parole non lo apre.</string>
+    <string name="file_operation_web_only">Questa operazione è disponibile nel servizio web completo.</string>
+</resources>

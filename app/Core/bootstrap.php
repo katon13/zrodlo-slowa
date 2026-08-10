@@ -254,6 +254,11 @@ function t(string $translationKey, ?string $language = null): string {
     return $res;
 }
 
+/** @param array<string,string|int|float> $parameters */
+function dors3_t(string $translationKey, array $parameters = [], ?string $language = null): string {
+    return \App\Services\Dors3UiText::get($translationKey, $parameters, $language);
+}
+
 
 function public_language_url(string $language, ?string $currentUri = null): string {
     $rootPath = dirname(__DIR__, 2);
@@ -336,7 +341,7 @@ function seo_reserved_slug(string $slug): bool {
         'admin', 'author', 'authors', 'reader', 'wallet', 'login', 'register', 'logout', 'password',
         'account', 'articles', 'article', 'surveys', 'survey', 'campaigns', 'campaign',
         'activity', 'donations', 'stripe', 'assets', 'uploads', 'storage', 'api',
-        'jak-zarabiac', 'how-to-earn',
+        'jak-zarabiac', 'how-to-earn', 'opinie',
         'sitemap', 'sitemap.xml', 'favicon.ico', 'robots.txt', 'clockwork'
     ];
     return in_array($slug, $reserved, true);
@@ -543,7 +548,7 @@ function zs_type_icon(string $type): string {
         'registration_bonus' => 'registration',
         'login_bonus' => 'login',
         'day_visit_bonus' => 'sun',
-        'comment_bonus' => 'comment',
+        'response_publication_bonus' => 'article',
         'link_click_bonus' => 'cursor',
         'like_bonus' => 'like',
         'share_bonus' => 'share',
