@@ -219,6 +219,54 @@ final class ResponsePublicationTalentIntegrationTest extends DatabaseTestCase
         ));
     }
 
+    public function testEditorialStatusChangesCannotChargeResponseOwnerDeposit(): void
+    {
+        $authorId = $this->user('response-deposit-editorial-guard');
+        $adminId = $this->user('response-deposit-editorial-actor');
+        $this->database->query('UPDATE wallets SET points_balance=200 WHERE user_id=:id', ['id' => $authorId]);
+        $this->database->query(
+            "UPDATE activity_reward_rules SET submission_deposit_points=80
+             WHERE activity_type='response_publication_bonus'"
+        );
+        $sourceId = $this->publishedSource($authorId);
+        $articles = new ArticleService($this->database);
+
+        $statusChangedId = $articles->createResponseDraft(
+            $authorId,
+            $sourceId,
+            $this->content('Polemika przesunięta administracyjnie')
+        );
+        $articles->setStatus($statusChangedId, 'submitted', $adminId);
+
+        $proofreadingId = $articles->createResponseDraft(
+            $authorId,
+            $sourceId,
+            $this->content('Polemika skierowana administracyjnie do korekty')
+        );
+        $articles->sendToProofreading($proofreadingId, $adminId);
+
+        self::assertSame(200, (int)$this->database->cell(
+            'SELECT points_balance FROM wallets WHERE user_id=:id',
+            ['id' => $authorId]
+        ));
+        foreach ([$statusChangedId, $proofreadingId] as $responseId) {
+            $response = $this->database->one(
+                'SELECT status,response_deposit_points,response_deposit_status,response_deposit_debit_transaction_id
+                 FROM articles WHERE id=:id',
+                ['id' => $responseId]
+            );
+            self::assertSame('submitted', (string)$response['status']);
+            self::assertNull($response['response_deposit_points']);
+            self::assertNull($response['response_deposit_status']);
+            self::assertNull($response['response_deposit_debit_transaction_id']);
+            self::assertSame(0, (int)$this->database->cell(
+                "SELECT COUNT(*) FROM wallet_transactions
+                 WHERE type='response_submission_deposit_hold' AND ref_id=:id",
+                ['id' => $responseId]
+            ));
+        }
+    }
+
     public function testPaidSourceMustBeAccessibleBeforeResponseDraftCanBeCreated(): void
     {
         $sourceAuthorId = $this->user('paid-source-author');

@@ -460,7 +460,6 @@ final class ArticleService
                 throw new \RuntimeException('Tekstu w tym statusie nie można przekazać do korekty.');
             }
             if ((string)$article['status'] !== 'submitted') {
-                $this->holdResponseSubmissionDeposit($db, $article, $adminId);
                 $db->query('UPDATE articles SET status=\'submitted\', updated_at=NOW() WHERE id=:id', ['id'=>$id]);
             }
             $this->event($id, $adminId, 'sent_to_proofreading', []);
@@ -483,9 +482,6 @@ final class ArticleService
                 return $this->publishRevision($db, $article, $adminId);
             }
 
-            if ($status === 'submitted' && (string)$article['status'] !== 'submitted') {
-                $this->holdResponseSubmissionDeposit($db, $article, $adminId);
-            }
             if (in_array($status, ['rejected', 'archived'], true) && (string)$article['status'] !== $status) {
                 $this->forfeitResponseSubmissionDeposit($db, $article, $adminId);
             }
@@ -856,6 +852,11 @@ final class ArticleService
             return;
         }
 
+        $authorId = (int)$article['author_id'];
+        if ($actorId === null || $actorId !== $authorId) {
+            throw new \LogicException('Kaucję może zainicjować wyłącznie właściciel polemiki podczas jej wysłania.');
+        }
+
         $articleId = (int)$article['id'];
         if (!empty($article['revision_of_article_id'])) {
             $db->query(
@@ -891,7 +892,6 @@ final class ArticleService
             return;
         }
 
-        $authorId = (int)$article['author_id'];
         $ledger = new LedgerService($db, new FinancialService($db));
         $wallet = $ledger->walletForUser($authorId, true);
         if ((int)($wallet['is_locked'] ?? 0) === 1) {
