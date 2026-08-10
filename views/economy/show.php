@@ -4,11 +4,11 @@ $policy = is_array($split_policy ?? null) ? $split_policy : [];
 $lang = (string)($current_language ?? 'pl');
 $tr = static fn(string $key): string => t($key, $lang);
 $percent = static fn($basisPoints): string => number_format(((int)$basisPoints) / 100, ((int)$basisPoints) % 100 === 0 ? 0 : 2, ',', ' ') . '%';
-$schema = strtr($tr('economy.schema.text'), [
-    '{author}' => $percent($policy['author_basis_points'] ?? 4000),
-    '{platform}' => $percent($policy['platform_basis_points'] ?? 4000),
-    '{fund}' => $percent($policy['safety_fund_basis_points'] ?? 2000),
-]);
+$quickSplit = [
+    ['basis_points' => (int)($policy['author_basis_points'] ?? 4000), 'label' => $tr('economy.policy.author')],
+    ['basis_points' => (int)($policy['platform_basis_points'] ?? 4000), 'label' => $tr('economy.policy.platform')],
+    ['basis_points' => (int)($policy['safety_fund_basis_points'] ?? 2000), 'label' => $tr('economy.policy.fund')],
+];
 ?>
 <section class="economy-hero economy-hero-editorial">
   <p class="kicker"><?= e($tr('economy.hero.kicker')) ?></p>
@@ -134,7 +134,25 @@ $schema = strtr($tr('economy.schema.text'), [
   </div>
 </section>
 
-<section class="premium-strip premium-strip-wide">
-  <div><strong><?= e($tr('economy.schema.label')) ?></strong><br><?= e($schema) ?></div>
-  <a class="read-more" href="<?= e(public_language_url($lang, '/register')) ?>"><?= e($tr('economy.cta')) ?> <span>→</span></a>
+<section class="premium-strip premium-strip-wide zs-economy-quick-scheme">
+  <div class="zs-economy-quick-intro">
+    <strong><?= e($tr('economy.schema.label')) ?></strong>
+    <span><?= e($tr('economy.schema.reader_purchase')) ?></span>
+  </div>
+  <div class="zs-economy-quick-split">
+    <div class="zs-economy-quick-bar" role="img" aria-label="<?= e($tr('economy.policy.aria')) ?>">
+      <?php foreach ($quickSplit as $index => $segment): ?>
+        <?php $share = max(0, min(100, ((int)$segment['basis_points']) / 100)); ?>
+        <span class="is-segment-<?= (int)$index + 1 ?>" style="width: <?= e((string)$share) ?>%">
+          <?= e($percent($segment['basis_points'])) ?>
+        </span>
+      <?php endforeach; ?>
+    </div>
+    <div class="zs-economy-quick-legend">
+      <?php foreach ($quickSplit as $index => $segment): ?>
+        <span><i class="is-segment-<?= (int)$index + 1 ?>" aria-hidden="true"></i><?= e((string)$segment['label']) ?></span>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <a class="read-more" href="<?= e(public_language_url($lang, '/register')) ?>"><?= e($tr('economy.cta')) ?> <span aria-hidden="true">&rarr;</span></a>
 </section>

@@ -375,13 +375,13 @@
     "it": "Lo schema più semplice",
     "es": "El esquema más breve"
   },
-  "economy.schema.text": {
-    "pl": "Czytelnik kupuje tekst → {author} Autor → {platform} Serwis → {fund} Safety Fund.",
-    "en": "Reader buys an article → {author} Author → {platform} Service → {fund} Safety Fund.",
-    "de": "Leser kauft einen Artikel → {author} Autor → {platform} Dienst → {fund} Safety Fund.",
-    "fr": "Le lecteur achète un article → {author} Auteur → {platform} Service → {fund} Safety Fund.",
-    "it": "Il lettore acquista un articolo → {author} Autore → {platform} Servizio → {fund} Safety Fund.",
-    "es": "El lector compra un artículo → {author} Autor → {platform} Servicio → {fund} Safety Fund."
+  "economy.schema.reader_purchase": {
+    "pl": "Czytelnik kupuje tekst",
+    "en": "The reader buys an article",
+    "de": "Der Leser kauft einen Artikel",
+    "fr": "Le lecteur achète un article",
+    "it": "Il lettore acquista un articolo",
+    "es": "El lector compra un artículo"
   },
   "economy.cta": {
     "pl": "Dołącz",

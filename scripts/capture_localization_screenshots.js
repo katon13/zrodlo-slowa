@@ -45,6 +45,12 @@ async function main() {
   const publicResponse = await page.goto('http://localhost:8080/pl/jak-zarabiac', { waitUntil: 'networkidle' });
   if (!publicResponse || !publicResponse.ok()) throw new Error('Public earning page did not return HTTP 200.');
   await page.screenshot({ path: path.join(outputDirectory, 'publiczne-www-jak-zarabiac.png'), fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://localhost:8080/pl/jak-zarabiac', { waitUntil: 'networkidle' });
+  const mobileEarningHasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  if (mobileEarningHasHorizontalOverflow) throw new Error('Mobile earning page has horizontal overflow.');
+  await page.screenshot({ path: path.join(outputDirectory, 'publiczne-www-jak-zarabiac-mobile.png'), fullPage: true });
+  await page.setViewportSize({ width: 1600, height: 1000 });
 
   await page.goto('http://localhost:8080/pl/login', { waitUntil: 'domcontentloaded' });
   await page.locator('input[name="login"]').fill('katon');
@@ -109,6 +115,7 @@ async function main() {
     homepageFlowBeforeFooter,
     homepageHasHorizontalOverflow,
     mobileHomepageHasHorizontalOverflow,
+    mobileEarningHasHorizontalOverflow,
     publicStatus: publicResponse.status(),
     adminStatus: adminResponse.status(),
     adminEnglishStatus: adminEnglishResponse.status(),
