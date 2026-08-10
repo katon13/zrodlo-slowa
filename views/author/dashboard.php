@@ -1,12 +1,12 @@
 <?php
 $authorArticleStatusLabels = [
-    'draft' => 'Szkic',
-    'submitted' => 'Tekst przyszedł do redakcji',
-    'review' => 'Redaktor pracuje nad tekstem',
-    'approved' => 'Redakcja zaakceptowała tekst i przekazała dalej',
-    'rejected' => 'Redakcja odrzuciła lub cofnęła tekst',
-    'published' => 'Opublikowany',
-    'archived' => 'Archiwum',
+    'draft' => t('article.status.draft'),
+    'submitted' => t('article.status.submitted'),
+    'review' => t('article.status.review'),
+    'approved' => t('article.status.approved'),
+    'rejected' => t('article.status.rejected'),
+    'published' => t('article.status.published'),
+    'archived' => t('article.status.archived'),
 ];
 ?>
 
@@ -43,9 +43,9 @@ $authorArticleStatusLabels = [
 
 <?php if (!empty($author_state['is_article_submit_blocked'])): ?>
 <section class="pending-author-notice">
-  <p class="kicker">Blokada redakcyjna</p>
-  <h2>Wysyłanie tekstów do redakcji jest czasowo zablokowane</h2>
-  <p>Blokada obowiązuje do: <strong><?= e((string)($author_state['article_submit_blocked_until'] ?? '')) ?></strong>.</p>
+  <p class="kicker"><?= e(t('ui.author.dashboard.blokada_redakcyjna')) ?></p>
+  <h2><?= e(t('ui.author.dashboard.wysyanie_tekstow_do_redakcji_jest_czasowo_zablokowane')) ?></h2>
+  <p><?= e(t('ui.author.dashboard.blokada_obowiazuje_do')) ?> <strong><?= e((string)($author_state['article_submit_blocked_until'] ?? '')) ?></strong>.</p>
 </section>
 <?php endif; ?>
 
@@ -75,7 +75,7 @@ $authorArticleStatusLabels = [
 
 <section class="author-section-head">
   <h2><?= t('author.dashboard.my_articles') ?></h2>
-  <span><?= count($articles) ?> pozycji</span>
+  <span><?= e(str_replace('{count}', (string)count($articles), t('author.dashboard.items_count'))) ?></span>
 </section>
 
 <?php if (empty($articles)): ?>
@@ -99,14 +99,14 @@ $authorArticleStatusLabels = [
         <?php if (!empty($a['main_image'])): ?>
           <img src="<?= e($a['main_image']) ?>" alt="" class="author-article-thumb" style="object-position: center <?= (int)($a['main_image_position'] ?? 50) ?>%">
         <?php else: ?>
-          <div class="author-article-thumb placeholder">Tekst</div>
+          <div class="author-article-thumb placeholder"><?= e(t('article.type.text')) ?></div>
         <?php endif; ?>
 
         <div class="author-article-main">
           <div class="author-article-topline">
             <span class="status-pill status-<?= e($a['status']) ?>"><?= e($authorArticleStatusLabels[(string)$a['status']] ?? (string)$a['status']) ?></span>
             <?php if (!empty($a['proofread_at'])): ?>
-              <span class="status-pill status-proofread">KOREKTA</span>
+              <span class="status-pill status-proofread"><?= e(t('admin.dashboard.korekta')) ?></span>
             <?php endif; ?>
           </div>
           <h3><?= e($a['title']) ?></h3>
@@ -127,7 +127,7 @@ $authorArticleStatusLabels = [
                 <button class="btn-red" type="submit"><?= t('author.dashboard.submit_to_moderation') ?></button>
               </form>
             <?php else: ?>
-              <span class="status-pill status-rejected">Wysyłanie zablokowane</span>
+              <span class="status-pill status-rejected"><?= e(t('ui.author.dashboard.wysyanie_zablokowane')) ?></span>
             <?php endif; ?>
           <?php endif; ?>
           <?php if ((string)$a['status'] === 'approved' && !empty($author_state['can_publish'])): ?>
@@ -135,7 +135,7 @@ $authorArticleStatusLabels = [
               <?= csrf_field() ?>
               <input type="hidden" name="_lang" value="<?= e($current_language) ?>">
               <input type="hidden" name="id" value="<?= (int)$a['id'] ?>">
-              <button class="btn-red" type="submit">Publikuj przez 3DORS Author</button>
+              <button class="btn-red" type="submit"><?= e(t('ui.author.dashboard.publikuj_przez_3dors_author')) ?></button>
             </form>
           <?php endif; ?>
           <?php endif; ?>
@@ -156,6 +156,15 @@ $authorArticleStatusLabels = [
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  const uiText = <?= json_encode([
+      'send' => t('author.dashboard.ajax.send'),
+      'sending' => t('author.dashboard.ajax.sending'),
+      'sent' => t('author.dashboard.ajax.sent'),
+      'approval_required' => t('author.dashboard.ajax.approval_required'),
+      'submitted' => t('article.status.submitted'),
+      'save_error' => t('author.dashboard.ajax.save_error'),
+      'connection_error' => t('author.article.connection_error'),
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
   function showLocalMessage(element, text, type) {
     let container = element.parentNode;
     let msg = container.querySelector('.zs-local-msg');
@@ -177,11 +186,11 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const button = form.querySelector('button[type="submit"]');
-      const originalText = button ? button.textContent : 'Wyślij';
+      const originalText = button ? button.textContent : uiText.send;
       
       if (button) {
         button.disabled = true;
-        button.textContent = 'Wysyłanie...';
+        button.textContent = uiText.sending;
       }
 
       try {
@@ -203,29 +212,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (data.success) {
-          showLocalMessage(button, data.message || 'Wysłano', 'success');
+          showLocalMessage(button, data.message || uiText.sent, 'success');
           const card = form.closest('.author-article-card');
           if (card) {
             const pill = card.querySelector('.status-pill');
             if (pill) {
               if (data.approval_required) {
-                pill.textContent = 'Czeka na 3DORS';
+                pill.textContent = uiText.approval_required;
                 pill.className = 'status-pill status-draft';
               } else {
-                pill.textContent = 'Tekst przyszedł do redakcji';
+                pill.textContent = uiText.submitted;
                 pill.className = 'status-pill status-submitted';
               }
             }
             form.remove();
           }
         } else {
-          showLocalMessage(button, data.message || 'Błąd zapisu', 'error');
+          showLocalMessage(button, data.message || uiText.save_error, 'error');
         }
       } catch (error) {
         if (button) {
           button.disabled = false;
           button.textContent = originalText;
-          showLocalMessage(button, 'Błąd połączenia', 'error');
+          showLocalMessage(button, uiText.connection_error, 'error');
         }
       }
     });

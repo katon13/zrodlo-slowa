@@ -33,7 +33,7 @@ final class HomeController extends BaseController
             return (new MainBannerService($this->app->db))->activeForPublic($currentLanguage);
         });
         return $this->view('articles/index', [
-            'title' => (function_exists('t') ? t('brand.name') : 'ŹRÓDŁO SŁOWA'),
+            'title' => (function_exists('t') ? t('brand.name') : t('brand.name')),
             'articles' => $articles,
             'is_homepage' => true,
             'money_flows' => $flows,

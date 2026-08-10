@@ -20,10 +20,10 @@ final class AuthController extends BaseController
             } catch (\Throwable $error) {
                 http_response_code(410);
                 return $this->view('layouts/error', [
-                    'title' => 'Rejestracja z aplikacji wygasła',
+                    'title' => t('controller.auth.rejestracja_z_aplikacji_wygasa'),
                     'message' => $this->safeError(
                         $error,
-                        'Ta sesja rejestracji jest nieprawidłowa albo wygasła. Otwórz ponownie zaproszenie w aplikacji.',
+                        t('controller.auth.ta_sesja_rejestracji_jest_nieprawidowa_albo_wygasa_otwo_cd331297'),
                         'referral_registration_context',
                     ),
                 ]);
@@ -44,12 +44,12 @@ final class AuthController extends BaseController
         $pending = $_SESSION['_pending_2fa_login'] ?? null;
         if (!$this->authenticationFlow()->validPendingChallenge($pending)) {
             unset($_SESSION['_pending_2fa_login']);
-            $this->app->session->flash('error', 'Sesja 2FA wygasła. Zaloguj się ponownie.');
+            $this->app->session->flash('error', t('controller.auth.sesja_2fa_wygasa_zaloguj_sie_ponownie'));
             redirect(public_language_url(public_language(), '/login'));
         }
 
         return $this->view('auth/two_factor_challenge', [
-            'title' => 'Kod 2FA',
+            'title' => t('ui.auth.two_factor_challenge.kod_2fa'),
             'email' => (string)($pending['email'] ?? ''),
             'issued_at' => (int)($pending['issued_at'] ?? time()),
         ]);
@@ -65,7 +65,7 @@ final class AuthController extends BaseController
             redirect(public_language_url(public_language(), '/login'));
         }
         return $this->view('auth/dors3_mobile_challenge', [
-            'title' => 'Potwierdzenie 3DORS Mobile',
+            'title' => t('controller.auth.potwierdzenie_3dors_mobile'),
             'approval_request_id' => (string)$pending['public_id'],
             'expires_at' => (int)$pending['expires_at'],
             'application_variant' => (string)$pending['application_variant'],
@@ -83,7 +83,7 @@ final class AuthController extends BaseController
         try {
             $status = $this->dors3Mobile()->approvalStatus((string)$pending['public_id']);
             if ((string)$status['status'] !== 'approved') {
-                throw new \RuntimeException('Decyzja mobilna nie została zatwierdzona.');
+                throw new \RuntimeException(t('controller.auth.decyzja_mobilna_nie_zostaa_zatwierdzona'));
             }
             $context = $this->app->session->authenticationContext();
             $now = time();
@@ -142,7 +142,7 @@ final class AuthController extends BaseController
                         strtolower((string)$context['invited_email']),
                         strtolower((string)$registrationData['email'])
                     )) {
-                        throw new \RuntimeException('Adres e-mail rejestracji nie zgadza się z zaproszeniem.');
+                        throw new \RuntimeException(t('controller.auth.adres_e_mail_rejestracji_nie_zgadza_sie_z_zaproszeniem'));
                     }
                 }
                 $registeredUser = $service->registerWithTalentEntitlement($registrationData, $talent);
@@ -158,10 +158,10 @@ final class AuthController extends BaseController
             
             $this->app->session->login($user['id'], $user['role']);
 
-            $this->app->session->flash('success', 'Konto autora zostało utworzone i czeka na akceptację redakcji. Po zatwierdzeniu uzyskasz dostęp do dodawania tekstów.');
+            $this->app->session->flash('success', t('controller.auth.konto_autora_zostao_utworzone_i_czeka_na_akceptacje_red_d6ec98f4'));
             redirect(public_language_url(public_language(), '/author'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się utworzyć konta.', 'auth_register'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.auth.nie_udao_sie_utworzyc_konta'), 'auth_register'));
             $path = '/register' . ($registrationNonce !== '' ? '?refn=' . rawurlencode($registrationNonce) : '');
             redirect(public_language_url(public_language(), $path));
         }
@@ -185,7 +185,7 @@ final class AuthController extends BaseController
         } catch (\Throwable $error) {
             $this->app->session->flash(
                 'error',
-                $this->safeError($error, 'Zbyt wiele prób lub logowanie jest chwilowo niedostępne. Spróbuj później.', 'auth_login_guard')
+                $this->safeError($error, t('controller.auth.zbyt_wiele_prob_lub_logowanie_jest_chwilowo_niedostepne_4da14f2e'), 'auth_login_guard')
             );
             redirect(public_language_url(public_language(), '/login'));
         }
@@ -194,7 +194,7 @@ final class AuthController extends BaseController
         if (!$user) {
             $security->recordLoginEvent(null, $identifier, 'password_failed');
             $this->dors3LoginSecurity()->recordFailure($identifier);
-            $this->app->session->flash('error', 'Nieprawidłowy login lub hasło.');
+            $this->app->session->flash('error', t('controller.auth.nieprawidowy_login_lub_haso'));
             redirect(public_language_url(public_language(), '/login'));
         }
 
@@ -210,7 +210,7 @@ final class AuthController extends BaseController
             $this->app->session->flash('error', $error->getMessage());
             redirect(public_language_url(public_language(), '/login/2fa'));
         } catch (\Throwable $error) {
-            $this->app->session->flash('error', $this->safeError($error, 'Nie udało się zakończyć logowania 2FA.', 'auth_2fa'));
+            $this->app->session->flash('error', $this->safeError($error, t('controller.auth.nie_udao_sie_zakonczyc_logowania_2fa'), 'auth_2fa'));
             redirect(public_language_url(public_language(), '/login'));
         }
     }
@@ -233,9 +233,9 @@ final class AuthController extends BaseController
             error_log('Password reset request rejected: ' . $error->getMessage());
         }
         if ($token && env('APP_ENV', 'local') !== 'production') {
-            $this->app->session->flash('success', 'Token resetu wygenerowany: ' . $token);
+            $this->app->session->flash('success', t('controller.auth.token_resetu_wygenerowany') . $token);
         } else {
-            $this->app->session->flash('success', 'Jeżeli konto istnieje, wiadomość resetująca została zapisana do kolejki maili.');
+            $this->app->session->flash('success', t('controller.auth.jezeli_konto_istnieje_wiadomosc_resetujaca_zostaa_zapis_16312b4b'));
         }
         redirect(public_language_url(public_language(), '/password/forgot'));
     }
@@ -244,10 +244,10 @@ final class AuthController extends BaseController
     {
         try {
             (new UserService($this->app->db))->resetPassword((string)($_POST['token'] ?? ''), (string)($_POST['password'] ?? ''));
-            $this->app->session->flash('success', 'Hasło zostało zmienione.');
+            $this->app->session->flash('success', t('controller.auth.haso_zostao_zmienione'));
             redirect(public_language_url(public_language(), '/login'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zmienić hasła. Link mógł wygasnąć.', 'password_reset'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.auth.nie_udao_sie_zmienic_hasa_link_mog_wygasnac'), 'password_reset'));
             redirect(public_language_url(public_language(), '/password/reset?token=' . urlencode((string)($_POST['token'] ?? ''))));
         }
     }
@@ -283,7 +283,7 @@ final class AuthController extends BaseController
     private function applyAuthenticationResult(array $result): never
     {
         if (($result['status'] ?? '') === 'challenge') {
-            $this->app->session->flash('success', 'To konto wymaga kodu 2FA.');
+            $this->app->session->flash('success', t('controller.auth.to_konto_wymaga_kodu_2fa'));
             redirect(public_language_url(public_language(), '/login/2fa'));
         }
         $userId = $this->app->session->userId();
@@ -295,7 +295,7 @@ final class AuthController extends BaseController
         if ($missing !== []) {
             $this->app->session->flash(
                 'error',
-                'Uzupełnij zabezpieczenia konta wymagane dla wysokiej roli: ' . implode(', ', $missing) . '.'
+                t('controller.auth.uzupenij_zabezpieczenia_konta_wymagane_dla_wysokiej_roli') . implode(', ', $missing) . '.'
             );
         }
         if ($userId !== null && $this->beginMobileLoginIfConfigured($userId, (string)($result['destination'] ?? '/'))) {
@@ -325,7 +325,7 @@ final class AuthController extends BaseController
             ) > 0;
             if (!$hasDevice) {
                 if ((string)$mobile['mode'] === 'required') {
-                    throw new \RuntimeException('Tryb required wymaga aktywnego urządzenia 3DORS Mobile.');
+                    throw new \RuntimeException(t('controller.auth.tryb_required_wymaga_aktywnego_urzadzenia_3dors_mobile'));
                 }
                 return false;
             }
@@ -345,7 +345,7 @@ final class AuthController extends BaseController
         } catch (\Throwable $error) {
             if ((string)$mobile['mode'] === 'required') {
                 $this->app->session->logout();
-                throw new \RuntimeException('Wymagane potwierdzenie 3DORS Mobile jest obecnie niedostępne.', 0, $error);
+                throw new \RuntimeException(t('controller.auth.wymagane_potwierdzenie_3dors_mobile_jest_obecnie_niedostepne'), 0, $error);
             }
             error_log('[dors3_mobile_login] test mode unavailable: ' . $error::class);
             return false;

@@ -29,17 +29,17 @@
           <?php else: ?>
             <img src="" alt="" class="zs-current-article-image" id="current-image" style="display:none">
           <?php endif; ?>
-          <canvas id="article-image-canvas" width="1600" height="900" aria-label="Edytor zdjęcia artykułu"></canvas>
+          <canvas id="article-image-canvas" width="1600" height="900" aria-label="<?= e(t('ui.author.create_article.edytor_zdjecia_artykuu')) ?>"></canvas>
         </div>
 
         <div class="zs-image-adjuster zs-image-editor-controls" id="image-adjuster" style="<?= empty($media) ? 'display:none' : '' ?>">
-          <label>POWIĘKSZENIE / ZOOM</label>
+          <label><?= e(t('admin.editorial_edit.powiekszenie_zoom')) ?></label>
           <input type="range" min="1" max="5" step="0.01" value="1" class="zs-range" id="image-zoom">
           <div class="zs-image-editor-actions">
             <span class="file-name" id="image-file-name"><?= !empty($media) ? e($media[0]['title']) : '' ?></span>
             <button type="button" class="zs-btn-mini" id="change-image-btn"><?= t('author.article.change_image') ?></button>
             <button type="button" class="zs-btn-mini btn-outline" id="clear-image-btn"><?= t('author.article.remove_image') ?></button>
-            <button type="button" class="zs-btn-mini zs-btn-save-image" id="save-image-btn" style="display:none">ZAPISZ ZDJĘCIE</button>
+            <button type="button" class="zs-btn-mini zs-btn-save-image" id="save-image-btn" style="display:none"><?= e(t('ui.author.edit_article.zapisz_zdjecie')) ?></button>
           </div>
         </div>
 
@@ -68,7 +68,7 @@
 
       <?php if (!empty($article['proofread_at'])): ?>
         <div class="admin-note editorial-note author-proofread-note">
-          <strong>KOREKTA</strong> — tekst po korekcie redakcyjnej: <?= e(date('d.m.Y H:i', strtotime((string)$article['proofread_at']))) ?>
+          <strong><?= e(t('admin.dashboard.korekta')) ?></strong> — <?= e(str_replace('{date}', date('d.m.Y H:i', strtotime((string)$article['proofread_at'])), t('author.article.proofread_at'))) ?>
         </div>
       <?php endif; ?>
 
@@ -105,6 +105,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const clearImageBtn = document.getElementById('clear-image-btn');
     const currentImage = document.getElementById('current-image');
     const dropzone = document.getElementById('dropzone');
+    const uiText = <?= json_encode([
+        'confirm_remove' => t('author.article.confirm_remove'),
+        'remove' => t('author.article.remove_image'),
+        'removing' => t('author.article.removing'),
+        'remove_error' => t('author.article.remove_error'),
+        'removed' => t('author.article.removed'),
+        'connection_error' => t('author.article.connection_error'),
+        'saving' => t('author.article.saving'),
+        'saved_changes' => t('author.article.saved_changes'),
+        'save_error' => t('author.dashboard.ajax.save_error'),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
     const editor = new SlowoImageEditor({
         input: imageInput,
@@ -148,10 +159,10 @@ document.addEventListener('DOMContentLoaded', function () {
     clearImageBtn.addEventListener('click', function () {
         if (currentMediaId > 0 && !clearImageBtn.classList.contains('confirm-delete')) {
             clearImageBtn.dataset.originalText = clearImageBtn.textContent;
-            clearImageBtn.textContent = 'Na pewno?';
+            clearImageBtn.textContent = uiText.confirm_remove;
             clearImageBtn.classList.add('confirm-delete');
             setTimeout(function () {
-                clearImageBtn.textContent = clearImageBtn.dataset.originalText || 'Usuń';
+                clearImageBtn.textContent = clearImageBtn.dataset.originalText || uiText.remove;
                 clearImageBtn.classList.remove('confirm-delete');
             }, 3000);
             return;
@@ -219,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('media_id', mediaId);
         formData.append('_csrf', csrf);
 
-        uploadStatus.textContent = 'Usuwanie...';
+        uploadStatus.textContent = uiText.removing;
         uploadStatus.className = 'zs-upload-status processing';
 
         fetch('/author/articles/delete-image', {
@@ -229,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(function (res) { return res.json(); })
         .then(function (data) {
             if (!data.success) {
-                throw new Error(data.message || 'Błąd podczas usuwania');
+                throw new Error(data.message || uiText.remove_error);
             }
             currentMediaId = 0;
             module.dataset.currentMediaId = '0';
@@ -237,13 +248,13 @@ document.addEventListener('DOMContentLoaded', function () {
             editor.clear();
             dropzone.classList.remove('has-image', 'has-current-image');
             adjuster.style.display = 'none';
-            uploadStatus.textContent = 'Zdjęcie usunięte';
+            uploadStatus.textContent = uiText.removed;
             uploadStatus.className = 'zs-upload-status success';
             clearImageBtn.textContent = clearImageBtn.dataset.originalText || "<?= t('author.article.remove_image') ?>";
             clearImageBtn.classList.remove('confirm-delete');
         })
         .catch(function (error) {
-            uploadStatus.textContent = error.message || 'Błąd połączenia z serwerem';
+            uploadStatus.textContent = error.message || uiText.connection_error;
             uploadStatus.className = 'zs-upload-status error';
         });
     }
@@ -274,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const originalText = btn.textContent;
             
             btn.disabled = true;
-            btn.textContent = 'Zapisywanie...';
+            btn.textContent = uiText.saving;
             
             try {
                 const formData = new FormData(articleForm);
@@ -289,12 +300,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 const data = await response.json();
                 if (data.success) {
-                    showLocalMessage(btn, data.message || 'Zapisano', 'success');
+                    showLocalMessage(btn, data.message || uiText.saved_changes, 'success');
                 } else {
-                    showLocalMessage(btn, data.message || 'Błąd zapisu', 'error');
+                    showLocalMessage(btn, data.message || uiText.save_error, 'error');
                 }
             } catch (err) {
-                showLocalMessage(btn, 'Błąd połączenia', 'error');
+                showLocalMessage(btn, uiText.connection_error, 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = originalText;

@@ -11,7 +11,7 @@ final class DonationController extends BaseController
         $campaign = (new \App\Services\DonationService($this->app->db))->getCampaign($slug);
         
         return $this->view('donations/campaign', [
-            'title' => $campaign ? $campaign['name'] : 'Wesprzyj nas',
+            'title' => $campaign ? $campaign['name'] : t('controller.donation.wesprzyj_nas'),
             'campaign' => $campaign
         ]);
     }

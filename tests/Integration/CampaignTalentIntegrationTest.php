@@ -32,7 +32,6 @@ final class CampaignTalentIntegrationTest extends DatabaseTestCase
             'minimum_view_seconds' => 30,
             'budget_confirmed' => '1',
         ]);
-
         try {
             $this->campaigns()->recordView($this->ordinaryUserId(), $campaignId, 29, 'too-short');
             self::fail('Zbyt krótkie obejrzenie nie może zużyć budżetu.');
@@ -75,6 +74,10 @@ final class CampaignTalentIntegrationTest extends DatabaseTestCase
             'cost_per_view' => '2,00',
             'budget_confirmed' => '1',
         ]);
+        self::assertSame('Sponsored', (string)$this->database->cell(
+            'SELECT article_label FROM articles WHERE id=:id',
+            ['id' => $articleId],
+        ));
         $job = $this->talent()->queueAward($userId, 'article_read_bonus', 'article', $articleId, [
             'proof_verified' => true,
             'proof_type' => 'article_read',
@@ -169,13 +172,27 @@ final class CampaignTalentIntegrationTest extends DatabaseTestCase
         $this->setRule('bug_report_bonus', 77, true);
         $service = new BugReportService($this->database, $this->talent());
         $userId = $this->ordinaryUserId();
-        $rejectedId = $service->create($userId, 'http://localhost:8080/pl/articles', 'Błąd odrzucony', null, null, null);
+        $rejectedId = $service->create(
+            $userId,
+            'http://localhost:8080/pl/articles',
+            'Błąd odrzucony',
+            'Otwórz listę artykułów i odśwież stronę.',
+            '/uploads/bug-reports/rejected.png',
+            'image/png',
+        );
         $service->reject($rejectedId, $this->adminId(), 'To nie jest błąd systemu.');
         self::assertSame(0, (int)$this->database->cell(
             "SELECT COUNT(*) FROM background_jobs WHERE job_type='earnings.talent_award' AND payload_json->>'activity_type'='bug_report_bonus'",
         ));
 
-        $acceptedId = $service->create($userId, 'http://localhost:8080/pl/wallet', 'Prawdziwy błąd', 'Kroki odtworzenia', null, null);
+        $acceptedId = $service->create(
+            $userId,
+            'http://localhost:8080/pl/wallet',
+            'Prawdziwy błąd',
+            'Kroki odtworzenia',
+            '/uploads/bug-reports/accepted.webp',
+            'image/webp',
+        );
         $accepted = $service->accept($acceptedId, $this->adminId(), 'Potwierdzone przez redakcję.');
         self::assertFalse((bool)$accepted['duplicate']);
         self::assertSame(77, (int)$accepted['points']);
@@ -191,6 +208,20 @@ final class CampaignTalentIntegrationTest extends DatabaseTestCase
             "SELECT points_amount FROM activity_reward_logs WHERE activity_type='bug_report_bonus' AND reference_type='bug_report' AND reference_id=:id",
             ['id' => $acceptedId],
         ));
+    }
+
+    public function testBugReportRequiresReproductionStepsAndScreenshot(): void
+    {
+        $service = new BugReportService($this->database, $this->talent());
+        $this->expectException(\InvalidArgumentException::class);
+        $service->create(
+            $this->ordinaryUserId(),
+            'http://localhost:8080/pl/articles',
+            'Opis błędu',
+            'Kroki odtworzenia',
+            null,
+            null,
+        );
     }
 
     private function campaigns(): CampaignService

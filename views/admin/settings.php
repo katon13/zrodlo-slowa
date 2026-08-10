@@ -1,35 +1,35 @@
 
 <div class="admin-container zs-settings-page zs-operator-page">
     <div class="admin-page-head">
-        <div class="kicker">KONFIGURACJA SYSTEMU</div>
-        <h1>Ustawienia i Talent</h1>
-        <p class="admin-intro">Centrum ustawień ekonomii, Talentu i Snajpera Słowa. Tutaj zarządzasz fundamentami serwisu <?= t('brand.name') ?>.</p>
+        <div class="kicker"><?= e(t('admin.settings.konfiguracja_systemu')) ?></div>
+        <h1><?= e(t('admin.settings.ustawienia_i_talent')) ?></h1>
+        <p class="admin-intro"><?= e(str_replace('{brand}', t('brand.name'), t('admin.settings.intro'))) ?></p>
     </div>
 
     <?php
     $keyLabels = [
-        'site.name' => 'Nazwa serwisu',
-        'site.tagline' => 'Hasło serwisu',
-        'migration.status' => 'Stan przygotowania serwisu',
-        'premium_access_hours' => 'Czas dostępu premium (godziny)',
-        'slowo_snajper.enabled' => 'SNAJPER SŁOWA',
-        'slowo_snajper.strict_mode' => 'Tryb ścisły',
-        'slowo_snajper.audit_enabled' => 'Audyt administracyjny',
-        'slowo_snajper.editorial_panels_enabled' => 'Panel ról / Kafelki redakcyjne',
-        'slowo_snajper.anti_fraud_enabled' => 'Antyfraud / Strażnik Słowa',
-        'slowo_snajper.block_suspicious_rewards' => 'Blokowanie podejrzanych bonusów',
-        'slowo_snajper.hold_payouts_on_high_risk' => 'Wstrzymanie wypłat przy ryzyku',
-        'slowo_snajper.log_login_events' => 'Logowanie zdarzeń logowania',
+        'site.name' => t('admin.settings.site_name'),
+        'site.tagline' => t('admin.settings.haso_serwisu'),
+        'migration.status' => t('admin.settings.migration_status'),
+        'premium_access_hours' => t('admin.settings.czas_dostepu_premium_godziny'),
+        'slowo_snajper.enabled' => t('admin.dashboard.snajper_sowa'),
+        'slowo_snajper.strict_mode' => t('admin.settings.tryb_scisy'),
+        'slowo_snajper.audit_enabled' => t('admin.settings.administrative_audit'),
+        'slowo_snajper.editorial_panels_enabled' => t('admin.settings.panel_rol_kafelki_redakcyjne'),
+        'slowo_snajper.anti_fraud_enabled' => t('admin.settings.antyfraud_straznik_sowa'),
+        'slowo_snajper.block_suspicious_rewards' => t('admin.settings.blokowanie_podejrzanych_bonusow'),
+        'slowo_snajper.hold_payouts_on_high_risk' => t('admin.settings.wstrzymanie_wypat_przy_ryzyku'),
+        'slowo_snajper.log_login_events' => t('admin.settings.logowanie_zdarzen_logowania'),
     ];
 
     $keyGroups = [
-        'SERWIS' => ['site.name', 'site.tagline', 'migration.status'],
-        'EKONOMIA' => ['premium_access_hours'],
+        t('admin.settings.group_service') => ['site.name', 'site.tagline', 'migration.status'],
+        t('admin.settings.group_economy') => ['premium_access_hours'],
     ];
 
     $settingsByGroup = [];
     foreach ($settings as $s) {
-        $foundGroup = 'POZOSTAŁE';
+        $foundGroup = t('admin.settings.pozostae_2');
         foreach ($keyGroups as $group => $keys) {
             if (in_array($s['name'], $keys)) {
                 $foundGroup = $group;
@@ -81,30 +81,30 @@
     $settingValues = array_column($settings, 'value', 'name');
     ?>
 
-    <section class="zs-operator-overview" aria-label="Podsumowanie ustawień systemu">
+    <section class="zs-operator-overview" aria-label="<?= e(t('admin.settings.podsumowanie_ustawien_systemu')) ?>">
         <article class="<?= in_array((string)($settingValues['migration.status'] ?? ''), ['complete', 'completed', 'ready'], true) ? 'is-ready' : 'is-muted' ?>">
-            <span>Serwis</span><strong><?= in_array((string)($settingValues['migration.status'] ?? ''), ['complete', 'completed', 'ready'], true) ? 'GOTOWY' : 'W PRZYGOTOWANIU' ?></strong><small>stan konfiguracji głównej</small>
+            <span><?= e(t('article.premium.platform_share')) ?></span><strong><?= e(t(in_array((string)($settingValues['migration.status'] ?? ''), ['complete', 'completed', 'ready'], true) ? 'admin.settings.status_ready' : 'admin.settings.status_preparing')) ?></strong><small><?= e(t('admin.settings.stan_konfiguracji_gownej')) ?></small>
         </article>
         <article class="<?= !empty($snajper['enabled']) ? 'is-ready' : 'is-warning' ?>">
-            <span>Snajper Słowa</span><strong><?= !empty($snajper['enabled']) ? 'AKTYWNY' : 'WYŁĄCZONY' ?></strong><small>ochrona ruchu i ról</small>
+            <span><?= e(t('admin.settings.snajper_sowa')) ?></span><strong><?= !empty($snajper['enabled']) ? 'AKTYWNY' : t('admin.settings.wyaczony_2') ?></strong><small><?= e(t('admin.settings.ochrona_ruchu_i_rol')) ?></small>
         </article>
         <article class="<?= !empty($antiFraudCfg['enabled']) ? 'is-ready' : 'is-warning' ?>">
-            <span>Kontrola ryzyka</span><strong><?= !empty($antiFraudCfg['enabled']) ? 'AKTYWNA' : 'WYŁĄCZONA' ?></strong><small>nagrody i wypłaty</small>
+            <span><?= e(t('admin.settings.kontrola_ryzyka')) ?></span><strong><?= !empty($antiFraudCfg['enabled']) ? 'AKTYWNA' : t('admin.settings.wyaczona') ?></strong><small><?= e(t('admin.settings.nagrody_i_wypaty')) ?></small>
         </article>
         <article class="<?= $activeTalentRuleCount > 0 ? 'is-ready' : 'is-muted' ?>">
-            <span>Program Talent</span><strong><?= $activeTalentRuleCount ?> / <?= $talentRuleCount ?></strong><small>aktywnych zasad nagradzania</small>
+            <span><?= e(t('referral.landing.kicker')) ?></span><strong><?= $activeTalentRuleCount ?> / <?= $talentRuleCount ?></strong><small><?= e(t('admin.settings.aktywnych_zasad_nagradzania')) ?></small>
         </article>
     </section>
 
     <!-- 1. SERWIS -->
     <section class="zs-settings-section zs-operator-settings-section">
         <div class="zs-operator-section-head">
-            <div><p class="kicker">Tożsamość serwisu</p><h2>Serwis</h2><p>Nazwa, hasło i stan przygotowania aplikacji widoczne dla operatora.</p></div>
-            <span>Ustawienia główne</span>
+            <div><p class="kicker"><?= e(t('admin.settings.tozsamosc_serwisu')) ?></p><h2><?= e(t('article.premium.platform_share')) ?></h2><p><?= e(t('admin.settings.nazwa_haso_i_stan_przygotowania_aplikacji_widoczne_dla_operatora')) ?></p></div>
+            <span><?= e(t('admin.settings.ustawienia_gowne')) ?></span>
         </div>
         <form action="/admin/settings" method="POST">
             <?php echo csrf_field(); ?>
-            <label class="zs-setting-label zs-critical-password"><span>Potwierdź hasłem administratora</span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="Hasło chroniące zmianę"></label>
+            <label class="zs-setting-label zs-critical-password"><span><?= e(t('admin.settings.potwierdz_hasem_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
             <div class="zs-settings-grid">
                 <?php foreach ($settingsByGroup['SERWIS'] ?? [] as $s): ?>
                     <div class="zs-setting-item">
@@ -118,7 +118,7 @@
                 <?php endforeach; ?>
             </div>
             <div class="zs-settings-actions">
-                <button type="submit" class="btn-red">Zapisz ustawienia serwisu</button>
+                <button type="submit" class="btn-red"><?= e(t('admin.settings.zapisz_ustawienia_serwisu')) ?></button>
             </div>
         </form>
     </section>
@@ -126,12 +126,12 @@
     <!-- 2. EKONOMIA -->
     <section class="zs-settings-section zs-operator-settings-section">
         <div class="zs-operator-section-head">
-            <div><p class="kicker">Model rozliczeń</p><h2>Ekonomia</h2><p>Czas dostępu do treści premium. Globalny podział Autor / Serwis / Safety Fund jest wersjonowany i zarządzany w module Safety Fund.</p></div>
-            <span>Wpływa na rozliczenia</span>
+            <div><p class="kicker"><?= e(t('admin.settings.model_rozliczen')) ?></p><h2><?= e(t('admin.settings.ekonomia')) ?></h2><p><?= e(t('admin.settings.czas_dostepu_do_tresci_premium_globalny_podzia_autor_se_76c838e2')) ?></p></div>
+            <span><?= e(t('admin.settings.wpywa_na_rozliczenia')) ?></span>
         </div>
         <form action="/admin/settings" method="POST">
             <?php echo csrf_field(); ?>
-            <label class="zs-setting-label zs-critical-password"><span>Potwierdź hasłem administratora</span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="Hasło chroniące zmianę"></label>
+            <label class="zs-setting-label zs-critical-password"><span><?= e(t('admin.settings.potwierdz_hasem_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
             <div class="zs-settings-grid">
                 <?php foreach ($settingsByGroup['EKONOMIA'] ?? [] as $s): ?>
                     <div class="zs-setting-item">
@@ -145,8 +145,8 @@
                 <?php endforeach; ?>
             </div>
             <div class="zs-settings-actions">
-                <button type="submit" class="btn-red">Zapisz ekonomię</button>
-                <a class="btn-line" href="/admin/safety-fund#policy">Otwórz politykę Safety Fund</a>
+                <button type="submit" class="btn-red"><?= e(t('admin.settings.zapisz_ekonomie')) ?></button>
+                <a class="btn-line" href="/admin/safety-fund#policy"><?= e(t('admin.settings.otworz_polityke_safety_fund')) ?></a>
             </div>
         </form>
     </section>
@@ -154,107 +154,107 @@
     <!-- 3. SNAJPER SŁOWA -->
     <section class="zs-settings-section zs-operator-settings-section" id="slowo-snajper">
         <div class="zs-operator-section-head">
-            <div><p class="kicker">Ochrona operacyjna</p><h2>Snajper Słowa</h2><p>Limity zapytań, ochrona ról wysokich i zachowanie ciężkich operacji.</p></div>
-            <span>Bezpieczeństwo ruchu</span>
+            <div><p class="kicker"><?= e(t('admin.settings.ochrona_operacyjna')) ?></p><h2><?= e(t('admin.settings.snajper_sowa')) ?></h2><p><?= e(t('admin.settings.limity_zapytan_ochrona_rol_wysokich_i_zachowanie_ciezki_067bfdaf')) ?></p></div>
+            <span><?= e(t('admin.settings.bezpieczenstwo_ruchu')) ?></span>
         </div>
         
         <form action="/admin/settings/slowo-snajper" method="POST">
             <?php echo csrf_field(); ?>
-            <label class="zs-setting-label zs-critical-password"><span>Potwierdź hasłem administratora</span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="Hasło chroniące zmianę"></label>
+            <label class="zs-setting-label zs-critical-password"><span><?= e(t('admin.settings.potwierdz_hasem_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
             
-            <h3>Status i tryby pracy</h3>
+            <h3><?= e(t('admin.settings.status_i_tryby_pracy')) ?></h3>
             <div class="zs-settings-grid">
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">SNAJPER SŁOWA</label>
+                    <label class="zs-setting-label"><?= e(t('admin.dashboard.snajper_sowa')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[enabled]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($snajper['enabled']) ? 'selected' : ''; ?>>Włączony</option>
-                            <option value="0" <?php echo empty($snajper['enabled']) ? 'selected' : ''; ?>>Wyłączony</option>
+                            <option value="1" <?php echo !empty($snajper['enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.waczony')) ?></option>
+                            <option value="0" <?php echo empty($snajper['enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.wyaczony')) ?></option>
                         </select>
                     </div>
-                    <p class="zs-setting-description">Włącza limity i precyzyjne ładowanie danych.</p>
+                    <p class="zs-setting-description"><?= e(t('admin.settings.wacza_limity_i_precyzyjne_adowanie_danych')) ?></p>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Audyt administracyjny</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.audyt_administracyjny')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[audit_enabled]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($snajper['audit_enabled']) ? 'selected' : ''; ?>>Włączony</option>
-                            <option value="0" <?php echo empty($snajper['audit_enabled']) ? 'selected' : ''; ?>>Wyłączony</option>
+                            <option value="1" <?php echo !empty($snajper['audit_enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.waczony')) ?></option>
+                            <option value="0" <?php echo empty($snajper['audit_enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.wyaczony')) ?></option>
                         </select>
                     </div>
-                    <p class="zs-setting-description">Zapisuje ślad zmian ról, statusów i zgód.</p>
+                    <p class="zs-setting-description"><?= e(t('admin.settings.zapisuje_slad_zmian_rol_statusow_i_zgod')) ?></p>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Tryb ścisły</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.tryb_scisy')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[strict_mode]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($snajper['strict_mode']) ? 'selected' : ''; ?>>Włączony</option>
-                            <option value="0" <?php echo empty($snajper['strict_mode']) ? 'selected' : ''; ?>>Wyłączony</option>
+                            <option value="1" <?php echo !empty($snajper['strict_mode']) ? 'selected' : ''; ?>><?= e(t('admin.settings.waczony')) ?></option>
+                            <option value="0" <?php echo empty($snajper['strict_mode']) ? 'selected' : ''; ?>><?= e(t('admin.settings.wyaczony')) ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Kompaktowe bonusy</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.kompaktowe_bonusy')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[ui][compact_bonus_rows]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($uiCfg['compact_bonus_rows']) ? 'selected' : ''; ?>>TAK</option>
-                            <option value="0" <?php echo empty($uiCfg['compact_bonus_rows']) ? 'selected' : ''; ?>>NIE</option>
+                            <option value="1" <?php echo !empty($uiCfg['compact_bonus_rows']) ? 'selected' : ''; ?>><?= e(t('admin.settings.tak')) ?></option>
+                            <option value="0" <?php echo empty($uiCfg['compact_bonus_rows']) ? 'selected' : ''; ?>><?= e(t('admin.settings.nie')) ?></option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <h3>Bezpieczeństwo i Panele Ról</h3>
+            <h3><?= e(t('admin.settings.bezpieczenstwo_i_panele_rol')) ?></h3>
             <div class="zs-settings-grid">
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Kafelki redakcyjne / Panele ról</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.kafelki_redakcyjne_panele_rol')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[roles][editorial_panels_enabled]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($rolesCfg['editorial_panels_enabled']) ? 'selected' : ''; ?>>Aktywne</option>
-                            <option value="0" <?php echo empty($rolesCfg['editorial_panels_enabled']) ? 'selected' : ''; ?>>Ukryte</option>
+                            <option value="1" <?php echo !empty($rolesCfg['editorial_panels_enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.aktywne')) ?></option>
+                            <option value="0" <?php echo empty($rolesCfg['editorial_panels_enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.ukryte')) ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Przydział ról w administracji</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.przydzia_rol_w_administracji')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[roles][admin_role_assignment_enabled]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($rolesCfg['admin_role_assignment_enabled']) ? 'selected' : ''; ?>>Włączony</option>
-                            <option value="0" <?php echo empty($rolesCfg['admin_role_assignment_enabled']) ? 'selected' : ''; ?>>Wyłączony</option>
+                            <option value="1" <?php echo !empty($rolesCfg['admin_role_assignment_enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.waczony')) ?></option>
+                            <option value="0" <?php echo empty($rolesCfg['admin_role_assignment_enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.wyaczony')) ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Wymagaj 2FA dla ról wysokich</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.wymagaj_2fa_dla_rol_wysokich')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[roles][higher_roles_require_2fa]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($rolesCfg['higher_roles_require_2fa']) ? 'selected' : ''; ?>>TAK / Wymagaj</option>
-                            <option value="0" <?php echo empty($rolesCfg['higher_roles_require_2fa']) ? 'selected' : ''; ?>>NIE</option>
+                            <option value="1" <?php echo !empty($rolesCfg['higher_roles_require_2fa']) ? 'selected' : ''; ?>><?= e(t('admin.settings.tak_wymagaj')) ?></option>
+                            <option value="0" <?php echo empty($rolesCfg['higher_roles_require_2fa']) ? 'selected' : ''; ?>><?= e(t('admin.settings.nie')) ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Wymagaj e-mail dla ról wysokich</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.wymagaj_e_mail_dla_rol_wysokich')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[roles][higher_roles_require_verified_email]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($rolesCfg['higher_roles_require_verified_email']) ? 'selected' : ''; ?>>TAK / Wymagaj</option>
-                            <option value="0" <?php echo empty($rolesCfg['higher_roles_require_verified_email']) ? 'selected' : ''; ?>>NIE</option>
+                            <option value="1" <?php echo !empty($rolesCfg['higher_roles_require_verified_email']) ? 'selected' : ''; ?>><?= e(t('admin.settings.tak_wymagaj')) ?></option>
+                            <option value="0" <?php echo empty($rolesCfg['higher_roles_require_verified_email']) ? 'selected' : ''; ?>><?= e(t('admin.settings.nie')) ?></option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <h3>Liczba pozycji wyświetlanych w panelach</h3>
+            <h3><?= e(t('admin.settings.liczba_pozycji_wyswietlanych_w_panelach')) ?></h3>
             <div class="zs-settings-grid">
                 <?php
                 $limitLabels = [
-                    'public_articles' => 'Artykuły publiczne',
-                    'author_articles' => 'Panel autora / teksty',
-                    'wallet_transactions' => 'Transakcje portfela',
-                    'admin_articles' => 'Admin / artykuły',
-                    'admin_users' => 'Admin / użytkownicy',
-                    'admin_surveys' => 'Admin / ankiety',
-                    'admin_campaigns' => 'Admin / kampanie',
+                    'public_articles' => t('admin.settings.artykuy_publiczne'),
+                    'author_articles' => t('admin.settings.limit_author_articles'),
+                    'wallet_transactions' => t('admin.settings.limit_wallet_transactions'),
+                    'admin_articles' => t('admin.settings.admin_artykuy'),
+                    'admin_users' => t('admin.settings.admin_uzytkownicy'),
+                    'admin_surveys' => t('admin.settings.limit_admin_surveys'),
+                    'admin_campaigns' => t('admin.settings.limit_admin_campaigns'),
                 ];
                 ?>
                 <?php foreach ($limitLabels as $key => $label): ?>
@@ -267,13 +267,13 @@
                 <?php endforeach; ?>
             </div>
 
-            <h3>Działania o podwyższonym ryzyku</h3>
+            <h3><?= e(t('admin.settings.dziaania_o_podwyzszonym_ryzyku')) ?></h3>
             <div class="zs-settings-grid">
                 <?php
                 $antiLabels = [
-                    'allow_full_table_admin_lists' => 'Pełne listy bez limitu',
-                    'allow_hard_user_clean' => 'Twarde czyszczenie użytkownika',
-                    'allow_database_reset_from_admin' => 'Reset bazy z panelu admina',
+                    'allow_full_table_admin_lists' => t('admin.settings.pene_listy_bez_limitu'),
+                    'allow_hard_user_clean' => t('admin.settings.twarde_czyszczenie_uzytkownika'),
+                    'allow_database_reset_from_admin' => t('admin.settings.database_reset'),
                 ];
                 ?>
                 <?php foreach ($antiLabels as $key => $label): ?>
@@ -281,8 +281,8 @@
                         <label class="zs-setting-label"><?php echo e($label); ?></label>
                         <div class="zs-setting-control">
                             <select name="snajper[anti_heavy_actions][<?php echo e($key); ?>]" class="zs-setting-input">
-                                <option value="1" <?php echo !empty($anti[$key]) ? 'selected' : ''; ?>>DOZWOLONE</option>
-                                <option value="0" <?php echo empty($anti[$key]) ? 'selected' : ''; ?>>ZABLOKOWANE</option>
+                                <option value="1" <?php echo !empty($anti[$key]) ? 'selected' : ''; ?>><?= e(t('admin.settings.dozwolone')) ?></option>
+                                <option value="0" <?php echo empty($anti[$key]) ? 'selected' : ''; ?>><?= e(t('admin.settings.zablokowane')) ?></option>
                             </select>
                         </div>
                     </div>
@@ -290,7 +290,7 @@
             </div>
 
             <div class="zs-settings-actions">
-                <button type="submit" class="btn-red">Zapisz ustawienia Snajpera</button>
+                <button type="submit" class="btn-red"><?= e(t('admin.settings.zapisz_ustawienia_snajpera')) ?></button>
             </div>
         </form>
     </section>
@@ -298,58 +298,58 @@
     <!-- 4. ANTYFRAUD / STRAŻNIK SŁOWA -->
     <section class="zs-settings-section zs-operator-settings-section">
         <div class="zs-operator-section-head">
-            <div><p class="kicker">Ochrona finansowa</p><h2>Ochrona nagród i wypłat</h2><p>Ustal, kiedy system ma zatrzymać nietypową nagrodę lub wypłatę do sprawdzenia.</p></div>
-            <span>Kontrola ryzyka</span>
+            <div><p class="kicker"><?= e(t('admin.settings.ochrona_finansowa')) ?></p><h2><?= e(t('admin.settings.ochrona_nagrod_i_wypat')) ?></h2><p><?= e(t('admin.settings.ustal_kiedy_system_ma_zatrzymac_nietypowa_nagrode_lub_w_1d1ac165')) ?></p></div>
+            <span><?= e(t('admin.settings.kontrola_ryzyka')) ?></span>
         </div>
         <form action="/admin/settings/slowo-snajper" method="POST">
             <?php echo csrf_field(); ?>
-            <label class="zs-setting-label zs-critical-password"><span>Potwierdź hasłem administratora</span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="Hasło chroniące zmianę"></label>
+            <label class="zs-setting-label zs-critical-password"><span><?= e(t('admin.settings.potwierdz_hasem_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
             <div class="zs-settings-grid">
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Automatyczna kontrola ryzyka</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.automatyczna_kontrola_ryzyka')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[anti_fraud][enabled]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($antiFraudCfg['enabled']) ? 'selected' : ''; ?>>Włączony</option>
-                            <option value="0" <?php echo empty($antiFraudCfg['enabled']) ? 'selected' : ''; ?>>Wyłączony</option>
+                            <option value="1" <?php echo !empty($antiFraudCfg['enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.waczony')) ?></option>
+                            <option value="0" <?php echo empty($antiFraudCfg['enabled']) ? 'selected' : ''; ?>><?= e(t('admin.settings.wyaczony')) ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Blokowanie podejrzanych nagród</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.blokowanie_podejrzanych_nagrod')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[anti_fraud][block_suspicious_rewards]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($antiFraudCfg['block_suspicious_rewards']) ? 'selected' : ''; ?>>TAK / Blokuj</option>
-                            <option value="0" <?php echo empty($antiFraudCfg['block_suspicious_rewards']) ? 'selected' : ''; ?>>NIE / Tylko loguj</option>
+                            <option value="1" <?php echo !empty($antiFraudCfg['block_suspicious_rewards']) ? 'selected' : ''; ?>><?= e(t('admin.settings.tak_blokuj')) ?></option>
+                            <option value="0" <?php echo empty($antiFraudCfg['block_suspicious_rewards']) ? 'selected' : ''; ?>><?= e(t('admin.settings.nie_tylko_loguj')) ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Wstrzymanie wypłat przy ryzyku</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.wstrzymanie_wypat_przy_ryzyku')) ?></label>
                     <div class="zs-setting-control">
                         <select name="snajper[anti_fraud][hold_payouts_on_high_risk]" class="zs-setting-input">
-                            <option value="1" <?php echo !empty($antiFraudCfg['hold_payouts_on_high_risk']) ? 'selected' : ''; ?>>TAK / Wstrzymuj</option>
-                            <option value="0" <?php echo empty($antiFraudCfg['hold_payouts_on_high_risk']) ? 'selected' : ''; ?>>NIE</option>
+                            <option value="1" <?php echo !empty($antiFraudCfg['hold_payouts_on_high_risk']) ? 'selected' : ''; ?>><?= e(t('admin.settings.tak_wstrzymuj')) ?></option>
+                            <option value="0" <?php echo empty($antiFraudCfg['hold_payouts_on_high_risk']) ? 'selected' : ''; ?>><?= e(t('admin.settings.nie')) ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Poziom ryzyka wstrzymujący wypłatę (0–100)</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.poziom_ryzyka_wstrzymujacy_wypate_0100')) ?></label>
                     <div class="zs-setting-control">
                         <input type="number" name="snajper[sensitivity][risk_score_hold_payout]" value="<?php echo e((string)($sens['risk_score_hold_payout'] ?? 80)); ?>" class="zs-setting-input">
                     </div>
                 </div>
             </div>
 
-            <h3>Poziomy kontroli</h3>
+            <h3><?= e(t('admin.settings.poziomy_kontroli')) ?></h3>
             <div class="zs-settings-grid">
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Poziom ryzyka pokazujący ostrzeżenie (0–100)</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.poziom_ryzyka_pokazujacy_ostrzezenie_0100')) ?></label>
                     <div class="zs-setting-control">
                         <input type="number" name="snajper[sensitivity][risk_score_warn]" value="<?php echo e((string)($sens['risk_score_warn'] ?? 60)); ?>" class="zs-setting-input">
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Maksymalna liczba bonusów dziennie</label>
+                    <label class="zs-setting-label"><?= e(t('admin.settings.maksymalna_liczba_bonusow_dziennie')) ?></label>
                     <div class="zs-setting-control">
                         <input type="number" name="snajper[sensitivity][max_user_daily_bonus_events]" value="<?php echo e((string)($sens['max_user_daily_bonus_events'] ?? 40)); ?>" class="zs-setting-input">
                     </div>
@@ -357,7 +357,7 @@
             </div>
 
             <div class="zs-settings-actions">
-                <button type="submit" class="btn-red">Zapisz ustawienia antyfraudu</button>
+                <button type="submit" class="btn-red"><?= e(t('admin.settings.zapisz_ustawienia_antyfraudu')) ?></button>
             </div>
         </form>
     </section>
@@ -366,21 +366,21 @@
     <section class="zs-settings-section zs-talent-operator" id="program-talent">
         <div class="zs-talent-section-head">
             <div>
-                <p class="kicker">PROGRAM AKTYWNOŚCI</p>
-                <h2>Program Talent</h2>
-                <p>Ustal nagrody TT dla ośmiu działań, które system potrafi rzeczywiście potwierdzić. Wyłączona zasada nie przyznaje nowych nagród.</p>
+                <p class="kicker"><?= e(t('admin.settings.program_aktywnosci')) ?></p>
+                <h2><?= e(t('referral.landing.kicker')) ?></h2>
+                <p><?= e(t('admin.settings.ustal_nagrody_tt_dla_osmiu_dziaan_ktore_system_potrafi_7190d680')) ?></p>
             </div>
-            <div class="zs-talent-summary" aria-label="Podsumowanie reguł programu Talent">
-                <div><strong><?php echo $activeTalentRuleCount; ?></strong><span>aktywnych</span></div>
-                <div><strong><?php echo $talentRuleCount; ?></strong><span>wszystkich reguł</span></div>
+            <div class="zs-talent-summary" aria-label="<?= e(t('admin.settings.podsumowanie_regu_programu_talent')) ?>">
+                <div><strong><?php echo $activeTalentRuleCount; ?></strong><span><?= e(t('admin.settings.aktywnych')) ?></span></div>
+                <div><strong><?php echo $talentRuleCount; ?></strong><span><?= e(t('admin.settings.wszystkich_regu')) ?></span></div>
             </div>
         </div>
 
         <div class="zs-talent-presence-note">
             <?php echo zs_icon('shield'); ?>
             <div>
-                <strong>Nagrody trafiają tylko do rozpoznanego użytkownika.</strong>
-                <p>Aktywna wizyta dzienna wymaga bieżącego sygnału obecności z widocznej karty. Czytanie artykułu ma dodatkową kontrolę czasu i postępu.</p>
+                <strong><?= e(t('admin.settings.nagrody_trafiaja_tylko_do_rozpoznanego_uzytkownika')) ?></strong>
+                <p><?= e(t('admin.settings.aktywna_wizyta_dzienna_wymaga_biezacego_sygnau_obecnosc_8021fde9')) ?></p>
             </div>
         </div>
 
@@ -388,17 +388,17 @@
             <div class="zs-talent-group-head">
                 <?php echo zs_icon('share'); ?>
                 <div>
-                    <p class="kicker">PROMOCJA APLIKACJI</p>
-                    <h3 id="talent-promotion-title">Bonus za instalację i polecenie</h3>
-                    <p>Kontrolowana promocja nad istniejącym Talentem. Kwota jest kopiowana do zaproszenia podczas wysyłki, więc późniejsza zmiana nie modyfikuje starych zaproszeń.</p>
+                    <p class="kicker"><?= e(t('admin.settings.promocja_aplikacji')) ?></p>
+                    <h3 id="talent-promotion-title"><?= e(t('admin.settings.bonus_za_instalacje_i_polecenie')) ?></h3>
+                    <p><?= e(t('admin.settings.kontrolowana_promocja_nad_istniejacym_talentem_kwota_je_993d3d5a')) ?></p>
                 </div>
-                <span class="zs-talent-state<?= !empty($referralPromotion['is_promoted']) ? ' is-active' : '' ?>"><?= !empty($referralPromotion['is_promoted']) ? 'PROMOWANE' : 'WYŁĄCZONE' ?></span>
+                <span class="zs-talent-state<?= !empty($referralPromotion['is_promoted']) ? ' is-active' : '' ?>"><?= !empty($referralPromotion['is_promoted']) ? 'PROMOWANE' : t('admin.payments.wyaczone') ?></span>
             </div>
 
             <div class="zs-referral-admin-stats">
-                <article><strong><?= (int)($referralCounts['mail_queued'] ?? 0) + (int)($referralCounts['sent'] ?? 0) + (int)($referralCounts['link_opened'] ?? 0) + (int)($referralCounts['installed'] ?? 0) + (int)($referralCounts['registered'] ?? 0) ?></strong><span>aktywnych zaproszeń</span></article>
-                <article><strong><?= (int)($referralCounts['reward_queued'] ?? 0) + (int)($referralCounts['rewarded'] ?? 0) ?></strong><span>skutecznych poleceń</span></article>
-                <article><strong><?= (int)($referralCounts['mail_dead_letter'] ?? 0) ?></strong><span>wiadomości wymagających uwagi</span></article>
+                <article><strong><?= (int)($referralCounts['mail_queued'] ?? 0) + (int)($referralCounts['sent'] ?? 0) + (int)($referralCounts['link_opened'] ?? 0) + (int)($referralCounts['installed'] ?? 0) + (int)($referralCounts['registered'] ?? 0) ?></strong><span><?= e(t('admin.settings.aktywnych_zaproszen')) ?></span></article>
+                <article><strong><?= (int)($referralCounts['reward_queued'] ?? 0) + (int)($referralCounts['rewarded'] ?? 0) ?></strong><span><?= e(t('admin.settings.skutecznych_polecen')) ?></span></article>
+                <article><strong><?= (int)($referralCounts['mail_dead_letter'] ?? 0) ?></strong><span><?= e(t('admin.settings.wiadomosci_wymagajacych_uwagi')) ?></span></article>
             </div>
 
             <form action="/admin/settings/talent-promotion" method="POST" class="zs-talent-form zs-referral-promotion-form">
@@ -406,46 +406,46 @@
                 <div class="zs-talent-rule-card is-active">
                     <div class="zs-talent-rule-controls">
                         <label>
-                            <span>Nagroda dla każdej strony</span>
+                            <span><?= e(t('admin.settings.nagroda_dla_kazdej_strony')) ?></span>
                             <div class="zs-input-with-unit"><input type="number" min="1" max="1000000" step="1" required name="promotion[reward_points]" value="<?= e((string)($referralPromotion['reward_points'] ?? 1000)) ?>"><b>TT</b></div>
                         </label>
                         <label>
-                            <span>Aktywne zaproszenia / osoba</span>
+                            <span><?= e(t('admin.settings.aktywne_zaproszenia_osoba')) ?></span>
                             <div class="zs-input-with-unit"><input type="number" min="1" max="100" step="1" required name="promotion[active_invitation_limit]" value="<?= e((string)($referralPromotion['active_invitation_limit'] ?? 3)) ?>"><b>szt.</b></div>
                         </label>
                         <label>
-                            <span>Skuteczne polecenia / osoba</span>
+                            <span><?= e(t('admin.settings.skuteczne_polecenia_osoba')) ?></span>
                             <div class="zs-input-with-unit"><input type="number" min="1" max="100" step="1" required name="promotion[successful_referral_limit]" value="<?= e((string)($referralPromotion['successful_referral_limit'] ?? 3)) ?>"><b>szt.</b></div>
                         </label>
                         <label>
-                            <span>Ważność zaproszenia</span>
-                            <div class="zs-input-with-unit"><input type="number" min="1" max="365" step="1" required name="promotion[invitation_valid_days]" value="<?= e((string)($referralPromotion['invitation_valid_days'] ?? 30)) ?>"><b>dni</b></div>
+                            <span><?= e(t('admin.settings.waznosc_zaproszenia')) ?></span>
+                            <div class="zs-input-with-unit"><input type="number" min="1" max="365" step="1" required name="promotion[invitation_valid_days]" value="<?= e((string)($referralPromotion['invitation_valid_days'] ?? 30)) ?>"><b><?= e(t('admin.settings.dni')) ?></b></div>
                         </label>
-                        <label><span>Promuj od</span><input type="datetime-local" required name="promotion[starts_at]" value="<?= e($promotionDateInput($referralPromotion['starts_at'] ?? null)) ?>"></label>
-                        <label><span>Promuj do</span><input type="datetime-local" name="promotion[ends_at]" value="<?= e($promotionDateInput($referralPromotion['ends_at'] ?? null)) ?>"><small>Puste pole oznacza brak daty końcowej.</small></label>
+                        <label><span><?= e(t('admin.settings.promuj_od')) ?></span><input type="datetime-local" required name="promotion[starts_at]" value="<?= e($promotionDateInput($referralPromotion['starts_at'] ?? null)) ?>"></label>
+                        <label><span><?= e(t('admin.settings.promuj_do')) ?></span><input type="datetime-local" name="promotion[ends_at]" value="<?= e($promotionDateInput($referralPromotion['ends_at'] ?? null)) ?>"><small><?= e(t('admin.settings.puste_pole_oznacza_brak_daty_koncowej')) ?></small></label>
                         <label class="zs-talent-switch">
                             <input type="checkbox" name="promotion[is_promoted]" value="1" <?= !empty($referralPromotion['is_promoted']) ? 'checked' : '' ?>>
                             <span class="zs-talent-switch-track" aria-hidden="true"><i></i></span>
-                            <span>Promuj w portfelu i na stronie „Jak zarabiać”</span>
+                            <span><?= e(t('admin.settings.promuj_w_portfelu_i_na_stronie_jak_zarabiac')) ?></span>
                         </label>
                     </div>
                 </div>
                 <div class="zs-critical-confirmation">
                     <?php echo zs_icon('shield'); ?>
-                    <div class="zs-critical-confirmation-copy"><strong>Zmiana kontrolowana przez 3DORS</strong><p>Nowa wartość obejmie wyłącznie zaproszenia utworzone po zapisie.</p></div>
-                    <label><span>Hasło administratora</span><input type="password" name="critical_password" required autocomplete="current-password"></label>
-                    <button type="submit" class="btn-red">Zapisz promocję</button>
+                    <div class="zs-critical-confirmation-copy"><strong><?= e(t('admin.settings.zmiana_kontrolowana_przez_3dors')) ?></strong><p><?= e(t('admin.settings.nowa_wartosc_obejmie_wyacznie_zaproszenia_utworzone_po_zapisie')) ?></p></div>
+                    <label><span><?= e(t('admin.ai.haso_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password"></label>
+                    <button type="submit" class="btn-red"><?= e(t('admin.settings.zapisz_promocje')) ?></button>
                 </div>
             </form>
 
             <div class="zs-referral-admin-history-head">
-                <h4>Ostatnie zaproszenia</h4>
-                <p>Historia pokazuje kwotę zapisaną przy wysłaniu, stan realizacji oraz wynik wysyłki e-mail.</p>
+                <h4><?= e(t('admin.settings.ostatnie_zaproszenia')) ?></h4>
+                <p><?= e(t('admin.settings.historia_pokazuje_kwote_zapisana_przy_wysaniu_stan_real_a08d7da7')) ?></p>
             </div>
             <?php if ($referralRecent !== []): ?>
                 <div class="table-wrap zs-referral-admin-table">
                     <table>
-                        <thead><tr><th>Data</th><th>Polecający</th><th>Zaproszony e-mail</th><th>Zapisana kwota</th><th>Status</th><th>Poczta</th></tr></thead>
+                        <thead><tr><th><?= e(t('wallet.history.table.date')) ?></th><th><?= e(t('admin.settings.polecajacy')) ?></th><th><?= e(t('admin.settings.zaproszony_e_mail')) ?></th><th><?= e(t('admin.settings.zapisana_kwota')) ?></th><th><?= e(t('wallet.history.table.status')) ?></th><th><?= e(t('admin.settings.poczta')) ?></th></tr></thead>
                         <tbody>
                         <?php foreach ($referralRecent as $invitation): ?>
                             <tr>
@@ -453,8 +453,8 @@
                                 <td><?= e((string)$invitation['inviter_email']) ?></td>
                                 <td><?= e((string)$invitation['invited_email']) ?></td>
                                 <td><strong><?= number_format((int)$invitation['reward_points'], 0, ',', ' ') ?> TT</strong></td>
-                                <td><?= e(match((string)$invitation['status']) { 'mail_queued'=>'Wysyłanie', 'sent'=>'Wysłane', 'link_opened'=>'Link otwarty', 'installed'=>'Aplikacja zainstalowana', 'registered'=>'Konto założone', 'reward_queued'=>'Nagroda w realizacji', 'rewarded'=>'Nagroda przyznana', default=>'Zakończone' }) ?></td>
-                                <td><?= e(match((string)($invitation['mail_status'] ?? '')) { 'queued'=>'Oczekuje na wysłanie', 'sent'=>'Dostarczone do wysyłki', 'dead_letter'=>'Wymaga ponowienia', default=>'—' }) ?></td>
+                                <td><?= e(match((string)$invitation['status']) { 'mail_queued'=>t('admin.mails.wysyanie'), 'sent'=>t('admin.settings.wysane'), 'link_opened'=>t('admin.settings.referral_link_opened'), 'installed'=>t('admin.settings.referral_app_installed'), 'registered'=>t('admin.settings.konto_zaozone'), 'reward_queued'=>t('admin.settings.referral_reward_queued'), 'rewarded'=>t('admin.settings.referral_rewarded'), default=>t('admin.ai.zakonczone') }) ?></td>
+                                <td><?= e(match((string)($invitation['mail_status'] ?? '')) { 'queued'=>t('admin.settings.oczekuje_na_wysanie'), 'sent'=>t('admin.settings.dostarczone_do_wysyki'), 'dead_letter'=>t('admin.settings.referral_retry_required'), default=>'—' }) ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -462,8 +462,8 @@
                 </div>
             <?php else: ?>
                 <div class="zs-referral-admin-empty">
-                    <strong>Brak zaproszeń do wyświetlenia.</strong>
-                    <span>Pierwsze zaproszenie pojawi się tutaj po wysłaniu go przez użytkownika z portfela.</span>
+                    <strong><?= e(t('admin.settings.brak_zaproszen_do_wyswietlenia')) ?></strong>
+                    <span><?= e(t('admin.settings.pierwsze_zaproszenie_pojawi_sie_tutaj_po_wysaniu_go_prz_cfbb65be')) ?></span>
                 </div>
             <?php endif; ?>
         </section>
@@ -503,12 +503,12 @@
                                         <p><?php echo e((string)$r['operator_description']); ?></p>
                                         <small class="zs-talent-human-trigger"><?php echo e((string)($r['operator_trigger'] ?? '')); ?></small>
                                     </div>
-                                    <span class="zs-talent-state<?php echo $isActive ? ' is-active' : ''; ?>" data-talent-state><?php echo $isActive ? 'Aktywna' : 'Wyłączona'; ?></span>
+                                    <span class="zs-talent-state<?php echo $isActive ? ' is-active' : ''; ?>" data-talent-state><?php echo $isActive ? 'Aktywna' : t('admin.settings.wyaczona_2'); ?></span>
                                 </div>
 
                                 <div class="zs-talent-rule-controls">
                                     <label for="<?php echo e($fieldId); ?>-points">
-                                        <span>Punkty Talent</span>
+                                        <span><?= e(t('admin.settings.punkty_talent')) ?></span>
                                         <div class="zs-input-with-unit">
                                             <input id="<?php echo e($fieldId); ?>-points" type="number" min="0" max="1000000" step="1" required name="rules[<?php echo e($ruleType); ?>][points]" value="<?php echo e((string)$r['points_amount']); ?>">
                                             <b>TT</b>
@@ -516,26 +516,26 @@
                                     </label>
                                     <?php if ($isResponsePublicationRule): ?>
                                     <label for="<?php echo e($fieldId); ?>-deposit">
-                                        <span>Kaucja przy wysłaniu</span>
+                                        <span><?= e(t('admin.settings.kaucja_przy_wysaniu')) ?></span>
                                         <div class="zs-input-with-unit">
                                             <input id="<?php echo e($fieldId); ?>-deposit" type="number" min="0" max="1000000" step="1" required name="rules[<?php echo e($ruleType); ?>][submission_deposit_points]" value="<?php echo e((string)($r['submission_deposit_points'] ?? 0)); ?>">
                                             <b>TT</b>
                                         </div>
-                                        <small>0 wyłącza kaucję. Pobieramy ją tylko raz przy wysłaniu; po publikacji wraca do użytkownika.</small>
+                                        <small><?= e(t('admin.settings.0_wyacza_kaucje_pobieramy_ja_tylko_raz_przy_wysaniu_po_b36b5ad9')) ?></small>
                                     </label>
                                     <?php endif; ?>
                                     <input type="hidden" name="rules[<?php echo e($ruleType); ?>][money]" value="0">
                                     <?php if ($hasDailyLimit): ?>
-                                      <label for="<?php echo e($fieldId); ?>-limit"><span>Maksymalnie dziennie</span><div class="zs-input-with-unit"><input id="<?php echo e($fieldId); ?>-limit" type="number" min="0" max="1000" step="1" required name="rules[<?php echo e($ruleType); ?>][limit]" value="<?php echo e((string)$r['daily_limit']); ?>"><b>tekstów</b></div><small>0 oznacza brak dodatkowego limitu.</small></label>
+                                      <label for="<?php echo e($fieldId); ?>-limit"><span><?= e(t('admin.settings.maksymalnie_dziennie')) ?></span><div class="zs-input-with-unit"><input id="<?php echo e($fieldId); ?>-limit" type="number" min="0" max="1000" step="1" required name="rules[<?php echo e($ruleType); ?>][limit]" value="<?php echo e((string)$r['daily_limit']); ?>"><b><?= e(t('admin.settings.tekstow')) ?></b></div><small><?= e(t('admin.settings.0_oznacza_brak_dodatkowego_limitu')) ?></small></label>
                                     <?php else: ?>
                                       <input type="hidden" name="rules[<?php echo e($ruleType); ?>][limit]" value="<?= $ruleType === 'day_visit_bonus' ? '1' : '0' ?>">
                                     <?php endif; ?>
-                                    <?php if ($isResponsePublicationRule): ?><div class="zs-talent-tt-only"><strong>Nagroda i kaucja są wyłącznie w TT</strong><span>Odrzucenie oznacza przepadek kaucji, a poprawka tej samej polemiki nie pobiera jej drugi raz.</span></div><?php endif; ?>
+                                    <?php if ($isResponsePublicationRule): ?><div class="zs-talent-tt-only"><strong><?= e(t('admin.settings.nagroda_i_kaucja_sa_wyacznie_w_tt')) ?></strong><span><?= e(t('admin.settings.odrzucenie_oznacza_przepadek_kaucji_a_poprawka_tej_same_91351cf8')) ?></span></div><?php endif; ?>
                                     <label class="zs-talent-switch" for="<?php echo e($fieldId); ?>-active">
                                         <input type="hidden" name="rules[<?php echo e($ruleType); ?>][exists]" value="1">
                                         <input id="<?php echo e($fieldId); ?>-active" type="checkbox" name="rules[<?php echo e($ruleType); ?>][active]" <?php echo $isActive ? 'checked' : ''; ?> data-talent-toggle>
                                         <span class="zs-talent-switch-track" aria-hidden="true"><i></i></span>
-                                        <span>Przyznawaj tę nagrodę</span>
+                                        <span><?= e(t('admin.settings.przyznawaj_te_nagrode')) ?></span>
                                     </label>
                                 </div>
                             </article>
@@ -547,14 +547,14 @@
             <div class="zs-critical-confirmation">
                 <?php echo zs_icon('shield'); ?>
                 <div class="zs-critical-confirmation-copy">
-                    <strong>Potwierdź zmianę zasad nagradzania</strong>
-                    <p>To ustawienie wpływa na salda użytkowników. 3DORS zapisze operację w historii bezpieczeństwa.</p>
+                    <strong><?= e(t('admin.settings.potwierdz_zmiane_zasad_nagradzania')) ?></strong>
+                    <p><?= e(t('admin.settings.to_ustawienie_wpywa_na_salda_uzytkownikow_3dors_zapisze_6f7d5b0e')) ?></p>
                 </div>
                 <label for="talent-critical-password">
-                    <span>Hasło administratora</span>
+                    <span><?= e(t('admin.ai.haso_administratora')) ?></span>
                     <input id="talent-critical-password" type="password" name="critical_password" required autocomplete="current-password">
                 </label>
-                <button type="submit" class="btn-red">Zapisz program Talent</button>
+                <button type="submit" class="btn-red"><?= e(t('admin.settings.zapisz_program_talent')) ?></button>
             </div>
         </form>
     </section>
@@ -563,12 +563,12 @@
     <?php if (!empty($settingsByGroup['POZOSTAŁE'])): ?>
     <section class="zs-settings-section zs-operator-settings-section">
         <div class="zs-operator-section-head">
-            <div><p class="kicker">Ustawienia dodatkowe</p><h2>Pozostałe</h2><p>Parametry pomocnicze, które nie należą do wyspecjalizowanych modułów.</p></div>
-            <span>Zaawansowane</span>
+            <div><p class="kicker"><?= e(t('admin.settings.ustawienia_dodatkowe')) ?></p><h2><?= e(t('admin.settings.pozostae')) ?></h2><p><?= e(t('admin.settings.parametry_pomocnicze_ktore_nie_naleza_do_wyspecjalizowa_e1e27c2e')) ?></p></div>
+            <span><?= e(t('admin.settings.zaawansowane')) ?></span>
         </div>
         <form action="/admin/settings" method="POST">
             <?php echo csrf_field(); ?>
-            <label class="zs-setting-label zs-critical-password"><span>Potwierdź hasłem administratora</span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="Hasło chroniące zmianę"></label>
+            <label class="zs-setting-label zs-critical-password"><span><?= e(t('admin.settings.potwierdz_hasem_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
             <div class="zs-settings-grid">
                 <?php foreach ($settingsByGroup['POZOSTAŁE'] as $s): ?>
                     <div class="zs-setting-item">
@@ -582,14 +582,14 @@
                 <?php endforeach; ?>
             </div>
             <div class="zs-settings-actions">
-                <button type="submit" class="btn-red">Zapisz pozostałe</button>
+                <button type="submit" class="btn-red"><?= e(t('admin.settings.zapisz_pozostae')) ?></button>
             </div>
         </form>
     </section>
     <?php endif; ?>
 
     <div class="admin-actions editorial-note">
-        <a href="/admin" class="btn btn-secondary">Powrót do Dashboardu</a>
+        <a href="/admin" class="btn btn-secondary"><?= e(t('admin.settings.powrot_do_dashboardu')) ?></a>
     </div>
 </div>
 
@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var refreshState = function () {
             card.classList.toggle('is-active', toggle.checked);
             state.classList.toggle('is-active', toggle.checked);
-            state.textContent = toggle.checked ? 'Aktywna' : 'Wyłączona';
+            state.textContent = toggle.checked ? <?= json_encode(t('common.active'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?> : <?= json_encode(t('common.inactive'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
         };
 
         toggle.addEventListener('change', refreshState);

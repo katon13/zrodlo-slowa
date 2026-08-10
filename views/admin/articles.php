@@ -1,42 +1,42 @@
 <?php
 $statusLabels = [
-    'draft' => 'szkic',
-    'submitted' => 'tekst przyszedł od autora',
-    'review' => 'redaktor pracuje nad tekstem',
-    'approved' => 'zaakceptowany i przekazany dalej',
-    'published' => 'opublikowany',
-    'rejected' => 'odrzucony',
-    'archived' => 'archiwum',
+    'draft' => t('article.status.draft'),
+    'submitted' => t('admin.articles.tekst_przyszed_od_autora'),
+    'review' => t('article.status.review'),
+    'approved' => t('article.status.approved'),
+    'published' => t('article.status.published'),
+    'rejected' => t('article.status.rejected'),
+    'archived' => t('article.status.archived'),
 ];
 ?>
 
 <section class="admin-page-head zs-operator-page-head">
-  <p class="kicker">REDAKCJA GŁÓWNA</p>
-  <h1>Teksty Redakcji Głównej</h1>
-  <p>Redaktor Główny przyjmuje tekst od autora, prowadzi go przez ocenę i podejmuje decyzję o zatwierdzeniu albo odrzuceniu.</p>
+  <p class="kicker"><?= e(t('admin.articles.redakcja_gowna')) ?></p>
+  <h1><?= e(t('admin.articles.teksty_redakcji_gownej')) ?></h1>
+  <p><?= e(t('admin.articles.redaktor_gowny_przyjmuje_tekst_od_autora_prowadzi_go_pr_ac5e2975')) ?></p>
 </section>
 
 <?php
 $articleStatusCounts = array_count_values(array_map(static fn(array $article): string => (string)($article['status'] ?? 'submitted'), $articles));
 ?>
-<section class="zs-operator-overview" aria-label="Stan obiegu tekstów">
-  <article><span>W obiegu redakcji</span><strong><?= count($articles) ?></strong><small>tekstów na bieżącej liście</small></article>
-  <article class="<?= (int)($articleStatusCounts['submitted'] ?? 0) > 0 ? 'is-warning' : 'is-ready' ?>"><span>Nowe od autorów</span><strong><?= (int)($articleStatusCounts['submitted'] ?? 0) ?></strong><small>czekają na podjęcie pracy</small></article>
-  <article><span>W opracowaniu</span><strong><?= (int)($articleStatusCounts['review'] ?? 0) ?></strong><small>redakcja pracuje nad tekstem</small></article>
-  <article class="is-ready"><span>Zatwierdzone</span><strong><?= (int)($articleStatusCounts['approved'] ?? 0) ?></strong><small>przekazane do kolejnego etapu</small></article>
+<section class="zs-operator-overview" aria-label="<?= e(t('admin.articles.stan_obiegu_tekstow')) ?>">
+  <article><span><?= e(t('admin.articles.w_obiegu_redakcji')) ?></span><strong><?= count($articles) ?></strong><small><?= e(t('admin.articles.tekstow_na_biezacej_liscie')) ?></small></article>
+  <article class="<?= (int)($articleStatusCounts['submitted'] ?? 0) > 0 ? 'is-warning' : 'is-ready' ?>"><span><?= e(t('admin.articles.nowe_od_autorow')) ?></span><strong><?= (int)($articleStatusCounts['submitted'] ?? 0) ?></strong><small><?= e(t('admin.articles.czekaja_na_podjecie_pracy')) ?></small></article>
+  <article><span><?= e(t('admin.articles.w_opracowaniu')) ?></span><strong><?= (int)($articleStatusCounts['review'] ?? 0) ?></strong><small><?= e(t('admin.articles.redakcja_pracuje_nad_tekstem')) ?></small></article>
+  <article class="is-ready"><span><?= e(t('admin.articles.zatwierdzone')) ?></span><strong><?= (int)($articleStatusCounts['approved'] ?? 0) ?></strong><small><?= e(t('admin.articles.przekazane_do_kolejnego_etapu')) ?></small></article>
 </section>
 
 <section class="admin-panel-block zs-operator-panel">
   <div class="admin-section-head">
     <div>
-      <p class="kicker">Materiał do decyzji</p>
-      <h2>Lista tekstów</h2>
+      <p class="kicker"><?= e(t('admin.articles.materia_do_decyzji')) ?></p>
+      <h2><?= e(t('admin.articles.lista_tekstow')) ?></h2>
     </div>
-    <span><?= count($articles) ?> pozycji</span>
+    <span><?= e(str_replace('{count}', (string)count($articles), t('admin.common.items_count'))) ?></span>
   </div>
 
   <?php if (empty($articles)): ?>
-    <p class="admin-note">Brak tekstów w obiegu Redakcji Głównej.</p>
+    <p class="admin-note"><?= e(t('admin.articles.brak_tekstow_w_obiegu_redakcji_gownej')) ?></p>
   <?php else: ?>
     <div class="chief-editor-list">
       <?php foreach ($articles as $a): ?>
@@ -50,9 +50,9 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
         ?>
         <article class="chief-editor-card" id="article-<?= $articleId ?>">
           <div class="chief-editor-main">
-            <span class="admin-label">Tekst #<?= $articleId ?></span>
+            <span class="admin-label"><?= e(str_replace('{id}', (string)$articleId, t('admin.common.text_number'))) ?></span>
             <?php if (!empty($a['response_to_article_id'])): ?>
-              <span class="zs-status-badge review">OPINIA / POLEMIKA DO #<?= (int)$a['response_to_article_id'] ?></span>
+              <span class="zs-status-badge review"><?= e(str_replace('{id}', (string)(int)$a['response_to_article_id'], t('admin.editorial_edit.response_heading'))) ?></span>
             <?php endif; ?>
             <h3><?= e((string)($a['title'] ?? '')) ?></h3>
             <?php if (!empty($a['lead'])): ?>
@@ -60,37 +60,37 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
             <?php endif; ?>
             <div class="chief-editor-meta">
               <span>Autor: <?= e((string)($a['author_name'] ?? '—')) ?></span>
-              <span>Status: <b><?= e($statusLabels[$status] ?? $status) ?></b></span>
+              <span><?= e(t('admin.articles.status')) ?> <b><?= e($statusLabels[$status] ?? $status) ?></b></span>
               <span>Aktualizacja: <?= e($updatedAt ?: '—') ?></span>
               <?php if (!empty($a['response_to_article_id'])): ?>
-                <span>Talent: <b><?= $a['response_reward_qualified'] === null ? 'snapshot dopiero przy publikacji' : (!empty($a['response_reward_qualified']) ? ((int)$a['response_reward_points'] . ' TT · job ' . e((string)$a['response_reward_job_public_id'])) : '0 TT · reguła nieaktywna przy publikacji') ?></b></span>
+                <span><?= e(t('admin.articles.talent')) ?> <b><?= $a['response_reward_qualified'] === null ? 'snapshot dopiero przy publikacji' : (!empty($a['response_reward_qualified']) ? ((int)$a['response_reward_points'] . ' TT · job ' . e((string)$a['response_reward_job_public_id'])) : t('admin.articles.0_tt_regua_nieaktywna_przy_publikacji')) ?></b></span>
               <?php endif; ?>
               <?php if ($isAuthorBlocked): ?>
-                <span class="author-submit-blocked">Autor zablokowany do: <b><?= e((string)$blockedUntil) ?></b></span>
+                <span class="author-submit-blocked"><?= e(t('admin.articles.autor_zablokowany_do')) ?> <b><?= e((string)$blockedUntil) ?></b></span>
               <?php endif; ?>
             </div>
             <div class="author-submit-block-tools">
-              <span>Blokada wysyłania tekstów autora:</span>
+              <span><?= e(t('admin.articles.blokada_wysyania_tekstow_autora')) ?></span>
               <form method="post" action="/admin/authors/submit-block">
                 <?= csrf_field() ?>
                 <input type="hidden" name="author_id" value="<?= $authorId ?>">
                 <input type="hidden" name="article_id" value="<?= $articleId ?>">
                 <input type="hidden" name="duration" value="24h">
-                <button class="btn-line compact mini" type="submit">24h</button>
+                <button class="btn-line compact mini" type="submit"><?= e(t('admin.articles.24h')) ?></button>
               </form>
               <form method="post" action="/admin/authors/submit-block">
                 <?= csrf_field() ?>
                 <input type="hidden" name="author_id" value="<?= $authorId ?>">
                 <input type="hidden" name="article_id" value="<?= $articleId ?>">
                 <input type="hidden" name="duration" value="7d">
-                <button class="btn-line compact mini" type="submit">7 dni</button>
+                <button class="btn-line compact mini" type="submit"><?= e(t('admin.articles.7_dni')) ?></button>
               </form>
               <form method="post" action="/admin/authors/submit-block">
                 <?= csrf_field() ?>
                 <input type="hidden" name="author_id" value="<?= $authorId ?>">
                 <input type="hidden" name="article_id" value="<?= $articleId ?>">
                 <input type="hidden" name="duration" value="30d">
-                <button class="btn-line compact mini" type="submit">30 dni</button>
+                <button class="btn-line compact mini" type="submit"><?= e(t('admin.articles.30_dni')) ?></button>
               </form>
               <?php if ($isAuthorBlocked): ?>
                 <form method="post" action="/admin/authors/submit-block">
@@ -98,21 +98,21 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
                   <input type="hidden" name="author_id" value="<?= $authorId ?>">
                   <input type="hidden" name="article_id" value="<?= $articleId ?>">
                   <input type="hidden" name="duration" value="clear">
-                  <button class="btn-line compact mini" type="submit">Zdejmij</button>
+                  <button class="btn-line compact mini" type="submit"><?= e(t('admin.articles.zdejmij')) ?></button>
                 </form>
               <?php endif; ?>
             </div>
           </div>
 
           <div class="chief-editor-actions">
-            <a class="btn-line compact" href="/article?id=<?= $articleId ?>" target="_blank" rel="noopener">Podgląd</a>
+            <a class="btn-line compact" href="/article?id=<?= $articleId ?>" target="_blank" rel="noopener"><?= e(t('editorial.editing.preview')) ?></a>
 
             <?php if ($status === 'submitted'): ?>
               <form method="post" action="/admin/articles/status">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" value="<?= $articleId ?>">
                 <input type="hidden" name="status" value="review">
-                <button class="btn-red compact" type="submit">Podejmij pracę</button>
+                <button class="btn-red compact" type="submit"><?= e(t('admin.articles.podejmij_prace')) ?></button>
               </form>
             <?php endif; ?>
 
@@ -121,18 +121,18 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" value="<?= $articleId ?>">
                 <input type="hidden" name="status" value="approved">
-                <button class="btn-red compact" type="submit">Zatwierdź</button>
+                <button class="btn-red compact" type="submit"><?= e(t('admin.articles.zatwierdz')) ?></button>
               </form>
               <form method="post" action="/admin/articles/status">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" value="<?= $articleId ?>">
                 <input type="hidden" name="status" value="rejected">
-                <button class="btn-line compact" type="submit">Odrzuć / cofnij</button>
+                <button class="btn-line compact" type="submit"><?= e(t('admin.articles.odrzuc_cofnij')) ?></button>
               </form>
             <?php endif; ?>
 
             <?php if ($status === 'approved'): ?>
-              <span class="admin-note compact-note">Przekazany do Wydawcy i Moderatora</span>
+              <span class="admin-note compact-note"><?= e(t('admin.articles.przekazany_do_wydawcy_i_moderatora')) ?></span>
             <?php endif; ?>
           </div>
         </article>
@@ -142,9 +142,9 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
 
   <div class="zs-pagination-bar">
     <?php $prev = max(1, (int)($snajper_page ?? 1) - 1); $next = (int)($snajper_page ?? 1) + 1; ?>
-    <a class="zs-btn-small" href="/admin/articles?page=<?= $prev ?>">&laquo; Poprzednia strona</a>
+    <a class="zs-btn-small" href="/admin/articles?page=<?= $prev ?>"><?= e(t('admin.articles.laquo_poprzednia_strona')) ?></a>
     <span class="zs-pagination-info">Strona <?= (int)($snajper_page ?? 1); ?></span>
-    <a class="zs-btn-small" href="/admin/articles?page=<?= $next ?>">Następna strona &raquo;</a>
+    <a class="zs-btn-small" href="/admin/articles?page=<?= $next ?>"><?= e(t('admin.articles.nastepna_strona_raquo')) ?></a>
   </div>
 </section>
 

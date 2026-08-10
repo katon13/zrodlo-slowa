@@ -174,11 +174,11 @@ final class ResponsePublicationController extends BaseController
         }
 
         if ($service->findOwned($articleId, $userId) === null) {
-            throw new \RuntimeException('Nie znaleziono opinii lub polemiki.');
+            throw new \RuntimeException(t('response.error.not_found'));
         }
         $block = (new UserService($this->app->db))->authorSubmitBlockInfo($userId);
         if (!empty($block['is_blocked'])) {
-            throw new \RuntimeException('Redakcja czasowo zablokowała wysyłanie publikacji z tego konta.');
+            throw new \RuntimeException(t('controller.responsepublication.redakcja_czasowo_zablokowaa_wysyanie_publikacji_z_tego_konta'));
         }
 
         $issuedAt = time();

@@ -106,7 +106,7 @@ final class PublicTranslationService
         }
 
         $phrases = [];
-        foreach (['public.json', 'safety_fund.json'] as $catalog) {
+        foreach (['public.json', 'admin.json', 'safety_fund.json'] as $catalog) {
             $path = $this->rootPath . '/resources/lang/' . $catalog;
             if (!is_file($path)) {
                 continue;

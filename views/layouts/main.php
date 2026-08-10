@@ -1,7 +1,7 @@
 <!doctype html>
 <?php
 $currentLanguage = (string)($current_language ?? (function_exists('public_language') ? public_language() : 'pl'));
-$brandName = function_exists('t') ? t('brand.name', $currentLanguage) : (string)($current_site['brand_name'] ?? 'ŹRÓDŁO SŁOWA');
+$brandName = t('brand.name', $currentLanguage);
 $pageTitle = (string)($title ?? mb_strtoupper($brandName, 'UTF-8'));
 $content = (string)($content ?? '');
 ?>
@@ -10,6 +10,7 @@ $content = (string)($content ?? '');
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= e($pageTitle) ?></title>
+  <link rel="icon" href="<?= e(asset_url('/assets/img/logo/logo-mark.svg')) ?>" type="image/svg+xml">
   <?php if (!empty($seo_meta['description'])): ?>
     <meta name="description" content="<?= e((string)$seo_meta['description']) ?>">
   <?php endif; ?>

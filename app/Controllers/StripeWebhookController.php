@@ -40,7 +40,7 @@ final class StripeWebhookController extends BaseController
                 case 'checkout.session.completed':
                 case 'checkout.session.async_payment_succeeded':
                     if (!is_array($object)) {
-                        throw new \RuntimeException('Brak obiektu checkout.session w webhooku.');
+                        throw new \RuntimeException(t('controller.stripewebhook.brak_obiektu_checkout_session_w_webhooku'));
                     }
                     $txId = (new WalletTopupService($this->app->db, new LedgerService($this->app->db, new \App\Services\FinancialService($this->app->db))))->creditStripeCheckoutSession($object);
                     $order = $sessionId !== '' ? (new PaymentOrderService($this->app->db))->findByStripeSession($sessionId) : null;
@@ -73,7 +73,10 @@ final class StripeWebhookController extends BaseController
         } catch (\Throwable $e) {
             $reference = (new \App\Services\ErrorReporter())->report($e, 'stripe_webhook');
             if ($gatewayEventId) {
-                $eventService->markFailed($gatewayEventId, "Błąd przetwarzania; referencja {$reference}");
+                $eventService->markFailed(
+                    $gatewayEventId,
+                    str_replace('{reference}', (string)$reference, t('controller.stripewebhook.processing_failed'))
+                );
             }
             $this->respond(400, 'webhook rejected');
         }

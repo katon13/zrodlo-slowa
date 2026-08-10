@@ -1,17 +1,17 @@
 <?php
 $money = static fn($minor) => number_format(((int)$minor) / 100, 2, ',', ' ') . ' PLN';
 $statusLabels = [
-    'requested' => 'OCZEKUJE',
-    'approved' => 'ZATWIERDZONA',
-    'paid' => 'WYPŁACONA',
-    'rejected' => 'ODRZUCONA',
-    'cancelled' => 'ANULOWANA',
+    'requested' => t('admin.payouts.status_requested'),
+    'approved' => t('admin.payouts.status_approved'),
+    'paid' => t('admin.payouts.wypacona'),
+    'rejected' => t('admin.payouts.status_rejected'),
+    'cancelled' => t('admin.payouts.status_cancelled'),
 ];
 ?>
 <section class="admin-page-head zs-operator-page-head">
-  <p class="kicker">Portfel / wypłaty</p>
-  <h1>Wypłaty i rozliczenia</h1>
-  <p>Kontrola wypłat autora i użytkownika: rezerwacja środków, decyzja redakcji oraz końcowy zapis w dzienniku portfela.</p>
+  <p class="kicker"><?= e(t('admin.payouts.portfel_wypaty')) ?></p>
+  <h1><?= e(t('admin.payouts.wypaty_i_rozliczenia')) ?></h1>
+  <p><?= e(t('admin.payouts.kontrola_wypat_autora_i_uzytkownika_rezerwacja_srodkow_b19645fb')) ?></p>
 </section>
 
 <?php if (!empty($flash_success)): ?><div class="notice success"><?= e($flash_success) ?></div><?php endif; ?>
@@ -19,22 +19,22 @@ $statusLabels = [
 
 <section class="settlement-grid">
   <div class="settlement-card">
-    <span>WNIOSKI</span>
+    <span><?= e(t('admin.payouts.wnioski')) ?></span>
     <strong><?= (int)($summary['total_count'] ?? 0) ?></strong>
     <small><?= $money($summary['total_amount'] ?? 0) ?></small>
   </div>
   <div class="settlement-card is-red">
-    <span>DO DECYZJI</span>
+    <span><?= e(t('admin.payouts.do_decyzji')) ?></span>
     <strong><?= (int)($summary['requested_count'] ?? 0) ?></strong>
     <small><?= $money($summary['requested_amount'] ?? 0) ?></small>
   </div>
   <div class="settlement-card">
-    <span>ZATWIERDZONE</span>
+    <span><?= e(t('admin.payouts.zatwierdzone')) ?></span>
     <strong><?= (int)($summary['approved_count'] ?? 0) ?></strong>
     <small><?= $money($summary['approved_amount'] ?? 0) ?></small>
   </div>
   <div class="settlement-card">
-    <span>WYPŁACONE</span>
+    <span><?= e(t('admin.payouts.wypacone')) ?></span>
     <strong><?= (int)($summary['paid_count'] ?? 0) ?></strong>
     <small><?= $money($summary['paid_amount'] ?? 0) ?></small>
   </div>
@@ -43,19 +43,19 @@ $statusLabels = [
 <section class="admin-panel-block zs-operator-panel">
   <div class="admin-section-head">
     <div>
-      <p class="kicker">Lista wypłat</p>
-      <h2>Wnioski użytkowników</h2>
+      <p class="kicker"><?= e(t('admin.payouts.lista_wypat')) ?></p>
+      <h2><?= e(t('admin.payouts.wnioski_uzytkownikow')) ?></h2>
     </div>
-    <span><?= count($payouts) ?> pozycji</span>
+    <span><?= e(str_replace('{count}', (string)count($payouts), t('admin.common.items_count'))) ?></span>
   </div>
 
   <?php if (empty($payouts)): ?>
-    <div class="empty-state"><h3>Brak wniosków o wypłatę.</h3><p>Gdy użytkownik złoży wniosek, pojawi się tutaj razem z rezerwacją środków.</p></div>
+    <div class="empty-state"><h3><?= e(t('admin.payouts.brak_wnioskow_o_wypate')) ?></h3><p><?= e(t('admin.payouts.gdy_uzytkownik_zozy_wniosek_pojawi_sie_tutaj_razem_z_re_d671456b')) ?></p></div>
   <?php else: ?>
     <div class="admin-table-wrap">
       <table class="admin-table admin-table-wide">
         <thead>
-          <tr><th>Typ</th><th>ID</th><th>Użytkownik</th><th>Kwota</th><th>Status</th><th>Metoda</th><th>Notatki</th><th>Decyzja</th></tr>
+          <tr><th><?= e(t('wallet.withdrawals.method_type')) ?></th><th>ID</th><th><?= e(t('wallet.orders.table.user')) ?></th><th><?= e(t('wallet.history.table.amount')) ?></th><th><?= e(t('wallet.history.table.status')) ?></th><th><?= e(t('wallet.history.table.method')) ?></th><th><?= e(t('admin.payouts.notatki')) ?></th><th><?= e(t('admin.payouts.decyzja')) ?></th></tr>
         </thead>
         <tbody>
           <?php foreach ($payouts as $p): ?>
@@ -75,20 +75,20 @@ $statusLabels = [
               <td><span class="admin-note"><?= e($p['note'] ?: '—') ?></span><?php if (!empty($p['admin_note'])): ?><span class="admin-note">Redakcja: <?= e($p['admin_note']) ?></span><?php endif; ?></td>
               <td class="admin-actions-cell">
                 <?php if (in_array($status, ['paid','rejected','cancelled'], true)): ?>
-                  <span class="admin-note">Zamknięte. Historia zostaje w księdze portfela.</span>
+                  <span class="admin-note"><?= e(t('admin.payouts.zamkniete_historia_zostaje_w_ksiedze_portfela')) ?></span>
                 <?php else: ?>
                   <form class="admin-action-form payout-action-form" method="post" action="/admin/payouts/status">
                     <?= csrf_field() ?>
                     <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
-                    <label><span>Hasło administratora</span><input type="password" name="critical_password" required autocomplete="current-password" placeholder="Potwierdź decyzję"></label>
-                    <label><span>Status</span><select name="status">
-                      <?php if ($status === 'requested'): ?><option value="approved">Zatwierdź</option><?php endif; ?>
-                      <?php if ($status === 'approved'): ?><option value="paid">Oznacz jako wypłacone</option><?php endif; ?>
-                      <option value="rejected">Odrzuć</option>
-                      <option value="cancelled">Anuluj</option>
+                    <label><span><?= e(t('admin.ai.haso_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" placeholder="<?= e(t('admin.financial_approvals.potwierdz_decyzje')) ?>"></label>
+                    <label><span><?= e(t('wallet.history.table.status')) ?></span><select name="status">
+                      <?php if ($status === 'requested'): ?><option value="approved"><?= e(t('admin.articles.zatwierdz')) ?></option><?php endif; ?>
+                      <?php if ($status === 'approved'): ?><option value="paid"><?= e(t('admin.payouts.oznacz_jako_wypacone')) ?></option><?php endif; ?>
+                      <option value="rejected"><?= e(t('admin.payouts.odrzuc')) ?></option>
+                      <option value="cancelled"><?= e(t('author.article.cancel')) ?></option>
                     </select></label>
-                    <label><span>Notatka</span><input name="admin_note" placeholder="Decyzja redakcji"></label>
-                    <button class="btn-red compact" type="submit">Zapisz</button>
+                    <label><span><?= e(t('article.support.form_note')) ?></span><input name="admin_note" placeholder="<?= e(t('admin.payouts.decyzja_redakcji')) ?>"></label>
+                    <button class="btn-red compact" type="submit"><?= e(t('admin.categories.zapisz')) ?></button>
                   </form>
                 <?php endif; ?>
               </td>

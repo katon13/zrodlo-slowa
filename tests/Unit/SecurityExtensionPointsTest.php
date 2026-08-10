@@ -11,6 +11,14 @@ use PHPUnit\Framework\TestCase;
 
 final class SecurityExtensionPointsTest extends TestCase
 {
+    public function testContentSecurityPolicyAllowsLocalUploadPreviews(): void
+    {
+        $source = (string)file_get_contents(dirname(__DIR__, 2) . '/app/Core/App.php');
+
+        self::assertStringContainsString("img-src 'self' data: blob: https:", $source);
+        self::assertStringContainsString("media-src 'self' data: blob:", $source);
+    }
+
     public function testOrdinaryUserCannotUseAiPermissions(): void
     {
         self::assertFalse(PermissionCatalog::allows(['reader'], PermissionCatalog::AI_VIEW));

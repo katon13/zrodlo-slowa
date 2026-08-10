@@ -1,7 +1,7 @@
 <section class="admin-page-head">
-  <p class="kicker">Redakcja</p>
-  <h1>Kategorie</h1>
-  <p>Zarządzaj strukturą tematyczną serwisu i menu głównym.</p>
+  <p class="kicker"><?= e(t('admin.categories.redakcja')) ?></p>
+  <h1><?= e(t('admin.categories.kategorie')) ?></h1>
+  <p><?= e(t('admin.categories.zarzadzaj_struktura_tematyczna_serwisu_i_menu_gownym')) ?></p>
 </section>
 
 <div id="ajax-notice-container">
@@ -13,9 +13,9 @@
   <form id="add-category-form" class="zs-compact-form" method="post" action="/admin/categories">
     <?= csrf_field() ?>
     <div class="zs-form-inner">
-      <label>Nowa kategoria</label>
-      <input name="name" required placeholder="np. Kultura">
-      <button class="btn-red" type="submit">Dodaj</button>
+      <label><?= e(t('admin.categories.nowa_kategoria')) ?></label>
+      <input name="name" required placeholder="<?= e(t('admin.categories.np_kultura')) ?>">
+      <button class="btn-red" type="submit"><?= e(t('admin.categories.dodaj')) ?></button>
     </div>
   </form>
 </section>
@@ -24,14 +24,14 @@
   <table class="zs-admin-table" id="categories-table">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Nazwa</th>
-        <th>Slug</th>
-        <th class="text-center">W menu</th>
-        <th class="text-center">Kolejność</th>
-        <th class="text-center">Aktywna</th>
-        <th class="text-center">Artykuły</th>
-        <th class="text-right">Akcje</th>
+        <th><?= e(t('admin.common.id')) ?></th>
+        <th><?= e(t('admin.categories.nazwa')) ?></th>
+        <th><?= e(t('admin.categories.slug')) ?></th>
+        <th class="text-center"><?= e(t('admin.categories.w_menu')) ?></th>
+        <th class="text-center"><?= e(t('editorial.editing.display_order')) ?></th>
+        <th class="text-center"><?= e(t('safety_fund.status.active')) ?></th>
+        <th class="text-center"><?= e(t('admin.categories.artykuy')) ?></th>
+        <th class="text-right"><?= e(t('admin.categories.akcje')) ?></th>
       </tr>
     </thead>
     <tbody>
@@ -43,15 +43,15 @@
               <?= csrf_field() ?>
               <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
               <div class="zs-category-edit-main">
-                <input type="text" name="name" value="<?= e($c['name']) ?>" class="zs-table-input" placeholder="Nazwa PL">
-                <button type="button" class="btn-toggle-translations" onclick="toggleTranslations(<?= (int)$c['id'] ?>)" title="Tłumaczenia">🌐</button>
+                <input type="text" name="name" value="<?= e($c['name']) ?>" class="zs-table-input" placeholder="<?= e(t('admin.categories.nazwa_pl')) ?>">
+                <button type="button" class="btn-toggle-translations" onclick="toggleTranslations(<?= (int)$c['id'] ?>)" title="<?= e(t('editorial.editing.translations')) ?>">🌐</button>
               </div>
               
               <div id="translations-<?= (int)$c['id'] ?>" class="zs-category-translations-box" style="display: none;">
                 <?php foreach (['en', 'de', 'fr', 'it', 'es'] as $lang): ?>
                   <div class="zs-trans-row">
                     <span class="zs-trans-label"><?= strtoupper($lang) ?>:</span>
-                    <input type="text" name="translations[<?= $lang ?>][name]" value="<?= e($c['translations'][$lang]['name'] ?? '') ?>" class="zs-table-input-sm" placeholder="Nazwa <?= strtoupper($lang) ?>">
+                    <input type="text" name="translations[<?= $lang ?>][name]" value="<?= e($c['translations'][$lang]['name'] ?? '') ?>" class="zs-table-input-sm" placeholder="<?= e(str_replace('{language}', strtoupper($lang), t('admin.categories.name_in_language'))) ?>">
                   </div>
                 <?php endforeach; ?>
               </div>
@@ -62,7 +62,7 @@
             <input type="checkbox" name="show_in_menu" form="edit-form-<?= (int)$c['id'] ?>" <?= $c['show_in_menu'] ? 'checked' : '' ?>>
             <br>
             <span class="zs-badge <?= $c['show_in_menu'] ? 'badge-green' : 'badge-gray' ?>">
-              <?= $c['show_in_menu'] ? 'W MENU' : 'UKRYTA' ?>
+              <?= e($c['show_in_menu'] ? t('admin.categories.in_menu') : t('admin.categories.hidden')) ?>
             </span>
           </td>
           <td class="text-center">
@@ -72,7 +72,7 @@
             <input type="checkbox" name="is_active" form="edit-form-<?= (int)$c['id'] ?>" <?= $c['is_active'] ? 'checked' : '' ?>>
             <br>
             <span class="zs-badge <?= $c['is_active'] ? 'badge-red' : 'badge-gray' ?>">
-              <?= $c['is_active'] ? 'AKTYWNA' : 'NIEAKTYWNA' ?>
+              <?= e($c['is_active'] ? t('common.active') : t('common.inactive')) ?>
             </span>
           </td>
           <td class="text-center">
@@ -80,12 +80,12 @@
           </td>
           <td class="text-right">
             <div class="zs-action-group">
-              <button type="submit" form="edit-form-<?= (int)$c['id'] ?>" class="btn-outline btn-small">Zapisz</button>
+              <button type="submit" form="edit-form-<?= (int)$c['id'] ?>" class="btn-outline btn-small"><?= e(t('admin.categories.zapisz')) ?></button>
               
               <form action="/admin/categories/delete" method="post" class="ajax-form delete-form">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
-                <button type="submit" class="btn-outline btn-small delete-btn <?= (int)($c['articles_count'] ?? 0) > 0 ? 'btn-disabled' : '' ?>" <?= (int)($c['articles_count'] ?? 0) > 0 ? 'disabled title="Kategoria zawiera artykuły"' : '' ?>>Usuń</button>
+                <button type="submit" class="btn-outline btn-small delete-btn <?= (int)($c['articles_count'] ?? 0) > 0 ? 'btn-disabled' : '' ?>" <?= (int)($c['articles_count'] ?? 0) > 0 ? 'disabled title="' . e(t('admin.categories.contains_articles')) . '"' : '' ?>><?= e(t('author.article.remove_image')) ?></button>
               </form>
             </div>
           </td>
@@ -96,6 +96,11 @@
 </div>
 
 <script>
+const categoriesUi = <?= json_encode([
+    'confirmDelete' => t('admin.categories.confirm_delete'),
+    'remove' => t('author.article.remove_image'),
+    'connectionError' => t('common.connection_error'),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 document.addEventListener('DOMContentLoaded', function() {
     const noticeContainer = document.getElementById('ajax-notice-container');
 
@@ -111,21 +116,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Obsługa wszystkich formularzy AJAX
     document.querySelectorAll('.ajax-form').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Specjalna obsługa usuwania
             if (this.classList.contains('delete-form')) {
                 const btn = this.querySelector('.delete-btn');
                 if (!btn.classList.contains('confirm-delete')) {
                     btn.dataset.originalText = btn.textContent;
-                    btn.textContent = 'Na pewno?';
+                    btn.textContent = categoriesUi.confirmDelete;
                     btn.classList.add('confirm-delete', 'btn-danger');
                     
                     setTimeout(() => {
-                        btn.textContent = btn.dataset.originalText || 'Usuń';
+                        btn.textContent = btn.dataset.originalText || categoriesUi.remove;
                         btn.classList.remove('confirm-delete', 'btn-danger');
                     }, 3000);
                     return;
@@ -150,23 +153,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         row.style.opacity = '0.3';
                         row.style.pointerEvents = 'none';
                     } else if (this.id === 'add-category-form') {
-                        location.reload(); // Najprościej przy dodawaniu nowej
-                    } else {
-                        // Opcjonalnie: aktualizuj badge wizualnie (choć przeładowanie checkboxów z formy wystarczy)
+                        location.reload();
                     }
                 }
             })
-            .catch(err => showNotice('Błąd połączenia: ' + err, 'error'))
+            .catch(() => showNotice(categoriesUi.connectionError, 'error'))
             .finally(() => {
                 if (submitBtn) submitBtn.disabled = false;
             });
         });
     });
 
-    // Przeładowanie przy dodawaniu nowej kategorii (nie przez AJAX, bo to zmienia strukturę tabeli)
     document.getElementById('add-category-form').addEventListener('submit', function(e) {
-        // Jeśli chcemy pełny AJAX tutaj, musielibyśmy wstawiać wiersze do DOM. 
-        // Na razie zostawmy dodawanie tradycyjne lub reload po AJAX.
     });
 });
 

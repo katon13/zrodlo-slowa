@@ -24,16 +24,7 @@ $articleUrl = static function (array $article) use ($currentLanguage): string {
     }
     return '/article?id=' . $articleId;
 };
-$readMoreLabel = static function (string $language): string {
-    return [
-        'pl' => 'Czytaj dalej',
-        'en' => 'Read more',
-        'de' => 'Weiterlesen',
-        'fr' => 'Lire la suite',
-        'it' => 'Leggi di più',
-        'es' => 'Leer más',
-    ][$language] ?? 'Czytaj dalej';
-};
+$readMoreLabel = static fn(string $language): string => t('article.read_more', $language);
 $editorialArticleLabel = static function (array $article) use ($currentLanguage): ?string {
     return \App\Services\ArticleLabelPresenter::display(
         (string)($article['article_label'] ?? ''),
@@ -121,7 +112,7 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
             <span><?= e($featuredArticle['author_name']) ?></span>
           <?php endif; ?>
           <?php if ($featuredEditorialLabel !== null): ?>
-            <span class="zs-public-article-label" aria-label="Etykieta artykułu: <?= e($featuredEditorialLabel) ?>"><?= e($featuredEditorialLabel) ?></span>
+            <span class="zs-public-article-label" aria-label="<?= e(str_replace('{label}', $featuredEditorialLabel, t('article.label.aria'))) ?>"><?= e($featuredEditorialLabel) ?></span>
           <?php else: ?>
             <span>·</span>
             <span><?= e(t('article.type.text', $currentLanguage)) ?></span>
@@ -159,7 +150,7 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
             <?php endif; ?>
             <span><?= e($a['author_name'] ?? '') ?></span>
             <?php if (($cardEditorialLabel = $editorialArticleLabel($a)) !== null): ?>
-              <span class="zs-public-article-label" aria-label="Etykieta artykułu: <?= e($cardEditorialLabel) ?>"><?= e($cardEditorialLabel) ?></span>
+              <span class="zs-public-article-label" aria-label="<?= e(str_replace('{label}', $cardEditorialLabel, t('article.label.aria'))) ?>"><?= e($cardEditorialLabel) ?></span>
             <?php endif; ?>
           </div>
         </div>
@@ -225,7 +216,7 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
             <?php endif; ?>
             <span><?= e($a['author_name'] ?? '') ?></span>
             <?php if (($latestEditorialLabel = $editorialArticleLabel($a)) !== null): ?>
-              <span class="zs-public-article-label" aria-label="Etykieta artykułu: <?= e($latestEditorialLabel) ?>"><?= e($latestEditorialLabel) ?></span>
+              <span class="zs-public-article-label" aria-label="<?= e(str_replace('{label}', $latestEditorialLabel, t('article.label.aria'))) ?>"><?= e($latestEditorialLabel) ?></span>
             <?php endif; ?>
           </div>
         </article>
@@ -265,7 +256,7 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
             <?php endif; ?>
             <small style="margin: 0;"><?= e($a['author_name'] ?? '') ?></small>
             <?php if (($gridEditorialLabel = $editorialArticleLabel($a)) !== null): ?>
-              <span class="zs-public-article-label" aria-label="Etykieta artykułu: <?= e($gridEditorialLabel) ?>"><?= e($gridEditorialLabel) ?></span>
+              <span class="zs-public-article-label" aria-label="<?= e(str_replace('{label}', $gridEditorialLabel, t('article.label.aria'))) ?>"><?= e($gridEditorialLabel) ?></span>
             <?php endif; ?>
           </div>
         </div>

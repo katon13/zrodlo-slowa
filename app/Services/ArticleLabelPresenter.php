@@ -74,12 +74,12 @@ final class ArticleLabelPresenter
             'es' => 'Reportaje',
         ],
         'Sponsored' => [
-            'pl' => 'Sponsorowane',
-            'en' => 'Sponsored',
-            'de' => 'Gesponsert',
-            'fr' => 'Sponsorisé',
-            'it' => 'Sponsorizzato',
-            'es' => 'Patrocinado',
+            'pl' => 'Tekst sponsorowany',
+            'en' => 'Sponsored content',
+            'de' => 'Gesponserter Text',
+            'fr' => 'Contenu sponsorisé',
+            'it' => 'Contenuto sponsorizzato',
+            'es' => 'Contenido patrocinado',
         ],
         'Breaking' => [
             'pl' => 'Ostatnia chwila',

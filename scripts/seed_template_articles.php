@@ -22,10 +22,24 @@ if (isset($options['fresh'])) {
     $db->query('DELETE FROM categories');
 }
 
-// Pobierz admina
-$admin = $db->one('SELECT id FROM users WHERE email=:email', ['email' => 'admin@zrodlo-slowa.local']);
+// Pobierz administratora z bieżącej konfiguracji. Jeżeli adres został zmieniony
+// po instalacji, wybierz pierwsze aktywne konto z rolą administratora.
+$adminEmail = trim((string)env('ADMIN_EMAIL', ''));
+$admin = $adminEmail !== ''
+    ? $db->one('SELECT id FROM users WHERE LOWER(email)=LOWER(:email) LIMIT 1', ['email' => $adminEmail])
+    : null;
 if (!$admin) {
-    die("Blad: Nie znaleziono uzytkownika admin@zrodlo-slowa.local. Uruchom najpierw install.php --fresh." . PHP_EOL);
+    $admin = $db->one(
+        'SELECT u.id
+         FROM users u
+         INNER JOIN user_roles ur ON ur.user_id=u.id AND ur.role=\'admin\'
+         WHERE u.status=\'active\'
+         ORDER BY u.id ASC
+         LIMIT 1'
+    );
+}
+if (!$admin) {
+    die("Blad: Nie znaleziono aktywnego administratora. Uruchom najpierw install.php --fresh." . PHP_EOL);
 }
 $adminId = (int)$admin['id'];
 
@@ -118,23 +132,44 @@ $articlesData = [
 
 foreach ($articlesData as $art) {
     echo "Dodawanie artykulu: {$art['title']}" . PHP_EOL;
-    $id = $articleService->createDraft($adminId, [
-        'title' => $art['title'],
-        'lead' => $art['lead'],
-        'body' => $art['body'],
-        'access_mode' => $art['access_mode'],
-        'price_minor' => $art['price_minor'] ?? 0
-    ]);
+    $existing = $db->one(
+        'SELECT id,status FROM articles WHERE author_id=:author AND title=:title ORDER BY id ASC LIMIT 1',
+        ['author' => $adminId, 'title' => $art['title']]
+    );
+    $id = $existing
+        ? (int)$existing['id']
+        : $articleService->createDraft($adminId, [
+            'title' => $art['title'],
+            'lead' => $art['lead'],
+            'body' => $art['body'],
+            'access_mode' => $art['access_mode'],
+            'price_minor' => $art['price_minor'] ?? 0,
+            'source_language' => 'pl',
+        ]);
     
     foreach ($art['categories'] as $catName) {
-        $db->query('INSERT INTO article_categories(article_id, category_id) VALUES(:a, :c)', [
+        $db->query('INSERT INTO article_categories(article_id, category_id) VALUES(:a, :c) ON CONFLICT DO NOTHING', [
             'a' => $id,
             'c' => $catIds[$catName]
         ]);
     }
-    
-    // Opublikuj od razu
-    $articleService->setStatus($id, 'published', $adminId);
+
+    $status = (string)($existing['status'] ?? 'draft');
+    if ($status === 'rejected' || $status === 'archived') {
+        $articleService->setStatus($id, 'draft', $adminId);
+        $status = 'draft';
+    }
+    if ($status === 'draft') {
+        $articleService->setStatus($id, 'submitted', $adminId);
+        $status = 'submitted';
+    }
+    if ($status === 'submitted' || $status === 'review') {
+        $articleService->setStatus($id, 'approved', $adminId);
+        $status = 'approved';
+    }
+    if ($status === 'approved') {
+        $articleService->setStatus($id, 'published', $adminId);
+    }
 }
 
 echo "Seeding zakonczony sukcesem." . PHP_EOL;

@@ -25,7 +25,7 @@ final class ArticleController extends BaseController
         }
         $articles = $this->applyPublicLanguageToArticleList($articles);
         return $this->view('articles/index', [
-            'title' => (function_exists('t') ? t('articles.index.title') : 'Teksty'),
+            'title' => (function_exists('t') ? t('articles.index.title') : t('articles.index.kicker')),
             'articles' => $articles
         ]);
     }
@@ -61,7 +61,7 @@ final class ArticleController extends BaseController
 
         if (!$article) {
             http_response_code(404);
-            return $this->view('layouts/error', ['title' => '404', 'message' => 'Nie znaleziono tekstu.']);
+            return $this->view('layouts/error', ['title' => '404', 'message' => t('controller.admin.nie_znaleziono_tekstu')]);
         }
 
         $previewLanguage = $translationService->normalizeLanguage((string)($_GET['preview_lang'] ?? ''));
@@ -89,8 +89,8 @@ final class ArticleController extends BaseController
                 if ($previewTranslation === null) {
                     http_response_code(404);
                     return $this->view('layouts/error', [
-                        'title' => 'Brak wersji językowej',
-                        'message' => 'Nie znaleziono zapisanej wersji językowej: ' . strtoupper($requestedLanguage) . '.',
+                        'title' => t('controller.article.brak_wersji_jezykowej'),
+                        'message' => t('controller.article.nie_znaleziono_zapisanej_wersji_jezykowej') . strtoupper($requestedLanguage) . '.',
                     ]);
                 }
                 $article = $this->applyPublishedTranslation($article, $previewTranslation);
@@ -101,7 +101,7 @@ final class ArticleController extends BaseController
             } else {
                 http_response_code(404);
                 return $this->view('articles/translation_unavailable', [
-                    'title' => function_exists('t') ? t('article.translation.unavailable.title', $requestedLanguage) : 'Tłumaczenie niedostępne',
+                    'title' => function_exists('t') ? t('article.translation.unavailable.title', $requestedLanguage) : t('article.translation.unavailable.title'),
                     'article' => $sourceArticle,
                     'requested_article_language' => $requestedLanguage,
                     'display_article_language' => $requestedLanguage,
@@ -280,7 +280,7 @@ final class ArticleController extends BaseController
                 ->purchaseWithWallet($userId, $articleId);
             $this->app->session->flash('success', t('article.purchase.success_split', public_language()));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się wykupić dostępu.', 'article_purchase'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.article.nie_udao_sie_wykupic_dostepu'), 'article_purchase'));
         }
         redirect('/article?id=' . $articleId);
     }

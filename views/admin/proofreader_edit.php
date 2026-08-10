@@ -4,27 +4,27 @@ $proofreadAt = (string)($article['proofread_at'] ?? '');
 ?>
 
 <section class="admin-page-head">
-  <p class="kicker">KOREKTA</p>
-  <h1>Korekta tekstu</h1>
-  <p>Korektor poprawia tylko lead i treść. Tytuł, zdjęcie, status, cena, premium i publikacja pozostają zablokowane.</p>
+  <p class="kicker"><?= e(t('admin.dashboard.korekta')) ?></p>
+  <h1><?= e(t('admin.proofreader_edit.korekta_tekstu')) ?></h1>
+  <p><?= e(t('admin.proofreader_edit.korektor_poprawia_tylko_lead_i_tresc_tytu_zdjecie_statu_5cb5e02d')) ?></p>
 </section>
 
 <section class="admin-panel-block proofreader-edit-wrap">
   <div class="admin-section-head">
     <div>
-      <p class="kicker">Tekst #<?= $articleId ?></p>
+      <p class="kicker"><?= e(str_replace('{id}', (string)$articleId, t('admin.common.text_number'))) ?></p>
       <h2><?= e((string)($article['title'] ?? '')) ?></h2>
     </div>
-    <a class="zs-btn-small" href="/admin/role-panel?panel=proofreader">Powrót do listy</a>
+    <a class="zs-btn-small" href="/admin/role-panel?panel=proofreader"><?= e(t('admin.editorial_edit.powrot_do_listy')) ?></a>
   </div>
 
   <div class="proofreader-meta">
-    <span>Autor: <b><?= e((string)($article['author_name'] ?? '—')) ?></b></span>
+    <span><?= e(t('admin.editorial_list.autor')) ?> <b><?= e((string)($article['author_name'] ?? '—')) ?></b></span>
     <?php if ($proofreadAt !== ''): ?>
-      <span class="zs-status-badge review">KOREKTA</span>
-      <span>Data korekty: <b><?= e(date('d.m.Y H:i', strtotime($proofreadAt))) ?></b></span>
+      <span class="zs-status-badge review"><?= e(t('admin.dashboard.korekta')) ?></span>
+      <span><?= e(t('admin.proofreader_edit.data_korekty')) ?> <b><?= e(date('d.m.Y H:i', strtotime($proofreadAt))) ?></b></span>
     <?php else: ?>
-      <span class="zs-status-badge submitted">DO KOREKTY</span>
+      <span class="zs-status-badge submitted"><?= e(t('admin.proofreader_edit.do_korekty')) ?></span>
     <?php endif; ?>
   </div>
 
@@ -33,27 +33,27 @@ $proofreadAt = (string)($article['proofread_at'] ?? '');
     <input type="hidden" name="id" value="<?= $articleId ?>">
 
     <div class="field proofreader-readonly-title">
-      <span>Tytuł</span>
+      <span><?= e(t('author.article.title')) ?></span>
       <strong><?= e((string)($article['title'] ?? '')) ?></strong>
-      <small>Tytuł jest tylko do odczytu. Korektor nie może go zmieniać.</small>
+      <small><?= e(t('admin.proofreader_edit.tytu_jest_tylko_do_odczytu_korektor_nie_moze_go_zmieniac')) ?></small>
     </div>
 
     <label class="field">
-      <span>Lead</span>
+      <span><?= e(t('author.article.lead')) ?></span>
       <textarea name="lead" rows="4"><?= e((string)($article['lead'] ?? '')) ?></textarea>
     </label>
 
     <label class="field">
-      <span>Treść</span>
+      <span><?= e(t('admin.editorial_edit.tresc')) ?></span>
       <?php if ($proofreadAt !== ''): ?>
-        <em class="proofreader-correction-mark">KOREKTA — <?= e(date('d.m.Y H:i', strtotime($proofreadAt))) ?></em>
+        <em class="proofreader-correction-mark"><?= e(str_replace('{date}', date('d.m.Y H:i', strtotime($proofreadAt)), t('admin.proofreader_edit.correction_mark'))) ?></em>
       <?php endif; ?>
       <textarea name="body" rows="20" required><?= e((string)($article['body'] ?? '')) ?></textarea>
     </label>
 
     <div class="proofreader-actions">
-      <button class="btn-red" type="submit">Zapisz korektę</button>
-      <a class="btn-line" href="/article?id=<?= $articleId ?>" target="_blank" rel="noopener">Podgląd</a>
+      <button class="btn-red" type="submit"><?= e(t('admin.proofreader_edit.zapisz_korekte')) ?></button>
+      <a class="btn-line" href="/article?id=<?= $articleId ?>" target="_blank" rel="noopener"><?= e(t('editorial.editing.preview')) ?></a>
     </div>
   </form>
 </section>

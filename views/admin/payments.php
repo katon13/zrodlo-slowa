@@ -17,44 +17,44 @@ $short = static function($value, int $left = 14): string {
 ?>
 <div class="zs-operator-page zs-payments-operator-page">
 <section class="admin-page-head">
-    <p class="kicker">Finanse i płatności</p>
-    <h1>Płatności zewnętrzne</h1>
-    <p>Centrum kontroli Stripe / Przelewy24, zamówień doładowania, webhooków i konwersji TT → PLN.</p>
+    <p class="kicker"><?= e(t('admin.payments.finanse_i_patnosci')) ?></p>
+    <h1><?= e(t('admin.payments.patnosci_zewnetrzne')) ?></h1>
+    <p><?= e(t('admin.payments.centrum_kontroli_stripe_przelewy24_zamowien_doadowania_d4e8d352')) ?></p>
 </section>
 
 <?php if ($m = ($_SESSION['_flash']['success'] ?? null)): unset($_SESSION['_flash']['success']); ?><div class="notice success"><?= e($m) ?></div><?php endif; ?>
 <?php if ($m = ($_SESSION['_flash']['error'] ?? null)): unset($_SESSION['_flash']['error']); ?><div class="notice error"><?= e($m) ?></div><?php endif; ?>
 
-<section class="zs-operator-overview" aria-label="Stan płatności zewnętrznych">
-    <article class="<?= ($payment_settings['payments.enabled'] ?? '0') === '1' ? 'is-ready' : 'is-muted' ?>"><span>Płatności zewnętrzne</span><strong><?= ($payment_settings['payments.enabled'] ?? '0') === '1' ? 'AKTYWNE' : 'WYŁĄCZONE' ?></strong><small>Główny przełącznik modułu</small></article>
-    <article class="<?= ($payment_settings['stripe.enabled'] ?? '0') === '1' ? 'is-ready' : 'is-warning' ?>"><span>Stripe</span><strong><?= ($payment_settings['stripe.enabled'] ?? '0') === '1' ? 'PODŁĄCZONY' : 'NIEAKTYWNY' ?></strong><small>Tryb: <?= e($payment_settings['stripe.mode'] ?? 'test') ?></small></article>
-    <article><span>Kurs Słowa</span><strong><?= e($payment_settings['wallet.tt_per_pln'] ?? '10') ?> TT</strong><small>za 1 PLN</small></article>
-    <article class="<?= (int)($payment_summary['failed_events_count'] ?? 0) > 0 ? 'is-warning' : 'is-ready' ?>"><span>Webhooki wymagające uwagi</span><strong><?= (int)($payment_summary['failed_events_count'] ?? 0) ?></strong><small><?= (int)($payment_summary['events_count'] ?? 0) ?> odebranych zdarzeń</small></article>
+<section class="zs-operator-overview" aria-label="<?= e(t('admin.payments.stan_patnosci_zewnetrznych')) ?>">
+    <article class="<?= ($payment_settings['payments.enabled'] ?? '0') === '1' ? 'is-ready' : 'is-muted' ?>"><span><?= e(t('admin.payments.patnosci_zewnetrzne')) ?></span><strong><?= e(($payment_settings['payments.enabled'] ?? '0') === '1' ? t('common.active') : t('common.inactive')) ?></strong><small><?= e(t('admin.payments.gowny_przeacznik_moduu')) ?></small></article>
+    <article class="<?= ($payment_settings['stripe.enabled'] ?? '0') === '1' ? 'is-ready' : 'is-warning' ?>"><span><?= e(t('admin.payments.stripe')) ?></span><strong><?= e(($payment_settings['stripe.enabled'] ?? '0') === '1' ? t('admin.payments.podaczony') : t('common.inactive')) ?></strong><small><?= e(str_replace('{mode}', (string)($payment_settings['stripe.mode'] ?? 'test'), t('admin.payments.current_mode'))) ?></small></article>
+    <article><span><?= e(t('admin.payments.kurs_sowa')) ?></span><strong><?= e($payment_settings['wallet.tt_per_pln'] ?? '10') ?> TT</strong><small><?= e(t('admin.payments.za_1_pln')) ?></small></article>
+    <article class="<?= (int)($payment_summary['failed_events_count'] ?? 0) > 0 ? 'is-warning' : 'is-ready' ?>"><span><?= e(t('admin.payments.webhooki_wymagajace_uwagi')) ?></span><strong><?= (int)($payment_summary['failed_events_count'] ?? 0) ?></strong><small><?= e(str_replace('{count}', (string)(int)($payment_summary['events_count'] ?? 0), t('admin.payments.received_events_count'))) ?></small></article>
 </section>
 
 
 <section class="admin-panel-block zs-payment-admin-block zs-payment-settings-block">
     <div class="admin-section-head">
         <div>
-            <p class="kicker">Moduł Stripe</p>
-            <h2>Konfiguracja Stripe</h2>
+            <p class="kicker"><?= e(t('admin.payments.modu_stripe')) ?></p>
+            <h2><?= e(t('admin.payments.konfiguracja_stripe')) ?></h2>
         </div>
-        <span class="zs-badge-info">płatności zewnętrzne</span>
+        <span class="zs-badge-info"><?= e(t('admin.payments.patnosci_zewnetrzne_2')) ?></span>
     </div>
     <form method="post" action="/admin/payments/settings" class="zs-payment-settings-form">
         <?= csrf_field() ?>
         <div class="zs-settings-grid">
-            <label><span>Płatności zewnętrzne</span><select name="payments.enabled"><option value="0" <?= ($payment_settings['payments.enabled'] ?? '0') === '0' ? 'selected' : '' ?>>wyłączone</option><option value="1" <?= ($payment_settings['payments.enabled'] ?? '0') === '1' ? 'selected' : '' ?>>włączone</option></select></label>
-            <label><span>Stripe</span><select name="stripe.enabled"><option value="0" <?= ($payment_settings['stripe.enabled'] ?? '0') === '0' ? 'selected' : '' ?>>wyłączony</option><option value="1" <?= ($payment_settings['stripe.enabled'] ?? '0') === '1' ? 'selected' : '' ?>>włączony</option></select></label>
-            <label><span>Tryb Stripe</span><select name="stripe.mode"><option value="test" <?= ($payment_settings['stripe.mode'] ?? 'test') === 'test' ? 'selected' : '' ?>>test</option><option value="live" <?= ($payment_settings['stripe.mode'] ?? 'test') === 'live' ? 'selected' : '' ?>>live</option></select></label>
-            <label><span>Waluta Stripe</span><input name="stripe.currency" value="<?= e($payment_settings['stripe.currency'] ?? 'pln') ?>" placeholder="pln"></label>
-            <label><span>Metody Stripe</span><input name="stripe.payment_methods" value="<?= e($payment_settings['stripe.payment_methods'] ?? 'card,p24') ?>" placeholder="card,p24"></label>
+            <label><span><?= e(t('admin.payments.patnosci_zewnetrzne')) ?></span><select name="payments.enabled"><option value="0" <?= ($payment_settings['payments.enabled'] ?? '0') === '0' ? 'selected' : '' ?>><?= e(t('admin.ai.wyaczone')) ?></option><option value="1" <?= ($payment_settings['payments.enabled'] ?? '0') === '1' ? 'selected' : '' ?>><?= e(t('admin.ai.waczone')) ?></option></select></label>
+            <label><span><?= e(t('admin.payments.stripe')) ?></span><select name="stripe.enabled"><option value="0" <?= ($payment_settings['stripe.enabled'] ?? '0') === '0' ? 'selected' : '' ?>><?= e(t('admin.payments.wyaczony')) ?></option><option value="1" <?= ($payment_settings['stripe.enabled'] ?? '0') === '1' ? 'selected' : '' ?>><?= e(t('admin.payments.waczony')) ?></option></select></label>
+            <label><span><?= e(t('admin.payments.tryb_stripe')) ?></span><select name="stripe.mode"><option value="test" <?= ($payment_settings['stripe.mode'] ?? 'test') === 'test' ? 'selected' : '' ?>><?= e(t('admin.payments.test')) ?></option><option value="live" <?= ($payment_settings['stripe.mode'] ?? 'test') === 'live' ? 'selected' : '' ?>><?= e(t('admin.payments.live')) ?></option></select></label>
+            <label><span><?= e(t('admin.payments.waluta_stripe')) ?></span><input name="stripe.currency" value="<?= e($payment_settings['stripe.currency'] ?? 'pln') ?>" placeholder="<?= e(t('admin.payments.pln')) ?>"></label>
+            <label><span><?= e(t('admin.payments.metody_stripe')) ?></span><input name="stripe.payment_methods" value="<?= e($payment_settings['stripe.payment_methods'] ?? 'card,p24') ?>" placeholder="<?= e(t('admin.payments.card_p24')) ?>"></label>
         </div>
-        <p class="zs-settings-note">Klucze Stripe (Public, Secret, Webhook) oraz URL-e powrotne są konfigurowane w pliku .env.</p>
+        <p class="zs-settings-note"><?= e(t('admin.payments.klucze_stripe_public_secret_webhook_oraz_url_e_powrotne_dc82edab')) ?></p>
         <div class="zs-operator-savebar">
-            <div><strong>Potwierdź zmianę konfiguracji</strong><span>Operacja zostanie zapisana w audycie administracyjnym.</span></div>
-            <label><span>Hasło administratora</span><input type="password" name="critical_password" required autocomplete="current-password" placeholder="Hasło chroniące zmianę"></label>
-            <button class="zs-btn-red" type="submit">Zapisz ustawienia Stripe</button>
+            <div><strong><?= e(t('admin.payments.potwierdz_zmiane_konfiguracji')) ?></strong><span><?= e(t('admin.payments.operacja_zostanie_zapisana_w_audycie_administracyjnym')) ?></span></div>
+            <label><span><?= e(t('admin.ai.haso_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
+            <button class="zs-btn-red" type="submit"><?= e(t('admin.payments.zapisz_ustawienia_stripe')) ?></button>
         </div>
     </form>
 </section>
@@ -62,25 +62,25 @@ $short = static function($value, int $left = 14): string {
 <section class="admin-panel-block zs-payment-admin-block">
     <div class="admin-section-head">
         <div>
-            <p class="kicker">Konwersja TT</p>
-            <h2>Transfery i limity</h2>
+            <p class="kicker"><?= e(t('admin.payments.konwersja_tt')) ?></p>
+            <h2><?= e(t('admin.payments.transfery_i_limity')) ?></h2>
         </div>
-        <span class="zs-badge-info">operacyjne</span>
+        <span class="zs-badge-info"><?= e(t('admin.payments.operacyjne')) ?></span>
     </div>
     <form method="post" action="/admin/payments/settings" class="zs-payment-settings-form">
         <?= csrf_field() ?>
         <div class="zs-settings-grid">
-            <label><span>Konwersja TT → PLN</span><select name="wallet.transfer.talent_to_pln.enabled"><option value="1" <?= ($payment_settings['wallet.transfer.talent_to_pln.enabled'] ?? '1') === '1' ? 'selected' : '' ?>>aktywna</option><option value="0" <?= ($payment_settings['wallet.transfer.talent_to_pln.enabled'] ?? '1') === '0' ? 'selected' : '' ?>>wyłączona</option></select></label>
-            <label><span>Prowizja %</span><input type="number" min="0" max="30" name="wallet.transfer.talent_to_pln.fee_percent" value="<?= e($payment_settings['wallet.transfer.talent_to_pln.fee_percent'] ?? '5') ?>"></label>
-            <label><span>Minimum TT</span><input type="number" min="1" name="wallet.transfer.talent_to_pln.min_talent" value="<?= e($payment_settings['wallet.transfer.talent_to_pln.min_talent'] ?? '100') ?>"></label>
-            <label><span>Dzienny limit TT</span><input type="number" min="1" name="wallet.transfer.talent_to_pln.max_daily_talent" value="<?= e($payment_settings['wallet.transfer.talent_to_pln.max_daily_talent'] ?? '5000') ?>"></label>
-            <label><span>Autoakceptacja do PLN</span><input name="wallet.transfer.talent_to_pln.auto_approve_below_pln_minor" value="<?= number_format(((int)($payment_settings['wallet.transfer.talent_to_pln.auto_approve_below_pln_minor'] ?? 5000)) / 100, 2, ',', '') ?>"></label>
-            <label><span>PLN → TT</span><select name="wallet.transfer.pln_to_talent.enabled"><option value="1" <?= ($payment_settings['wallet.transfer.pln_to_talent.enabled'] ?? '1') === '1' ? 'selected' : '' ?>>aktywne</option><option value="0" <?= ($payment_settings['wallet.transfer.pln_to_talent.enabled'] ?? '1') === '0' ? 'selected' : '' ?>>wyłączone</option></select></label>
+            <label><span><?= e(t('admin.payments.konwersja_tt_pln')) ?></span><select name="wallet.transfer.talent_to_pln.enabled"><option value="1" <?= ($payment_settings['wallet.transfer.talent_to_pln.enabled'] ?? '1') === '1' ? 'selected' : '' ?>><?= e(t('admin.payments.aktywna')) ?></option><option value="0" <?= ($payment_settings['wallet.transfer.talent_to_pln.enabled'] ?? '1') === '0' ? 'selected' : '' ?>><?= e(t('admin.payments.wyaczona')) ?></option></select></label>
+            <label><span><?= e(t('admin.payments.prowizja')) ?></span><input type="number" min="0" max="30" name="wallet.transfer.talent_to_pln.fee_percent" value="<?= e($payment_settings['wallet.transfer.talent_to_pln.fee_percent'] ?? '5') ?>"></label>
+            <label><span><?= e(t('admin.payments.minimum_tt')) ?></span><input type="number" min="1" name="wallet.transfer.talent_to_pln.min_talent" value="<?= e($payment_settings['wallet.transfer.talent_to_pln.min_talent'] ?? '100') ?>"></label>
+            <label><span><?= e(t('admin.payments.dzienny_limit_tt')) ?></span><input type="number" min="1" name="wallet.transfer.talent_to_pln.max_daily_talent" value="<?= e($payment_settings['wallet.transfer.talent_to_pln.max_daily_talent'] ?? '5000') ?>"></label>
+            <label><span><?= e(t('admin.payments.autoakceptacja_do_pln')) ?></span><input name="wallet.transfer.talent_to_pln.auto_approve_below_pln_minor" value="<?= number_format(((int)($payment_settings['wallet.transfer.talent_to_pln.auto_approve_below_pln_minor'] ?? 5000)) / 100, 2, ',', '') ?>"></label>
+            <label><span><?= e(t('admin.payments.pln_tt')) ?></span><select name="wallet.transfer.pln_to_talent.enabled"><option value="1" <?= ($payment_settings['wallet.transfer.pln_to_talent.enabled'] ?? '1') === '1' ? 'selected' : '' ?>><?= e(t('admin.payments.aktywne')) ?></option><option value="0" <?= ($payment_settings['wallet.transfer.pln_to_talent.enabled'] ?? '1') === '0' ? 'selected' : '' ?>><?= e(t('admin.ai.wyaczone')) ?></option></select></label>
         </div>
         <div class="zs-operator-savebar">
-            <div><strong>Potwierdź zmianę limitów</strong><span>Nowe limity obejmą kolejne zlecenia konwersji.</span></div>
-            <label><span>Hasło administratora</span><input type="password" name="critical_password" required autocomplete="current-password" placeholder="Hasło chroniące zmianę"></label>
-            <button class="zs-btn-red" type="submit">Zapisz limity konwersji</button>
+            <div><strong><?= e(t('admin.payments.potwierdz_zmiane_limitow')) ?></strong><span><?= e(t('admin.payments.nowe_limity_obejma_kolejne_zlecenia_konwersji')) ?></span></div>
+            <label><span><?= e(t('admin.ai.haso_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
+            <button class="zs-btn-red" type="submit"><?= e(t('admin.payments.zapisz_limity_konwersji')) ?></button>
         </div>
     </form>
 </section>
@@ -88,10 +88,10 @@ $short = static function($value, int $left = 14): string {
 <section class="admin-panel-block zs-payment-admin-block zs-payment-rate-block">
     <div class="admin-section-head">
         <div>
-            <p class="kicker">Ekonomia serwisu</p>
-            <h2>Kurs Słowa (TT / PLN)</h2>
+            <p class="kicker"><?= e(t('admin.payments.ekonomia_serwisu')) ?></p>
+            <h2><?= e(t('admin.payments.kurs_sowa_tt_pln')) ?></h2>
         </div>
-        <span class="zs-badge-info">ustawienie centralne</span>
+        <span class="zs-badge-info"><?= e(t('admin.payments.ustawienie_centralne')) ?></span>
     </div>
     <form method="post" action="/admin/payments/settings" class="zs-payment-settings-form">
         <?= csrf_field() ?>
@@ -102,102 +102,63 @@ $short = static function($value, int $left = 14): string {
             <p><small style="color: #666;">1 TT = <?= number_format(1 / (max(1, (int)($payment_settings['wallet.tt_per_pln'] ?? 10))), 2, ',', ' ') ?> PLN</small></p>
         </div>
         <div class="zs-settings-grid">
-            <label><span>Liczba TT za 1 PLN</span><input type="number" min="1" name="wallet.tt_per_pln" value="<?= e($payment_settings['wallet.tt_per_pln'] ?? '10') ?>"></label>
+            <label><span><?= e(t('admin.payments.liczba_tt_za_1_pln')) ?></span><input type="number" min="1" name="wallet.tt_per_pln" value="<?= e($payment_settings['wallet.tt_per_pln'] ?? '10') ?>"></label>
         </div>
-        <p class="zs-settings-note">Kurs używany przez portfel, konwersję TT → PLN i wskaźnik KURS SŁOWA w menu głównym.</p>
+        <p class="zs-settings-note"><?= e(t('admin.payments.kurs_uzywany_przez_portfel_konwersje_tt_pln_i_wskaznik_1d810d59')) ?></p>
         <div class="zs-operator-savebar">
-            <div><strong>Potwierdź zmianę kursu</strong><span>Kurs wpływa na prezentację i rozliczanie kolejnych konwersji.</span></div>
-            <label><span>Hasło administratora</span><input type="password" name="critical_password" required autocomplete="current-password" placeholder="Hasło chroniące zmianę"></label>
-            <button class="zs-btn-red" type="submit">Zapisz centralny kurs</button>
+            <div><strong><?= e(t('admin.payments.potwierdz_zmiane_kursu')) ?></strong><span><?= e(t('admin.payments.kurs_wpywa_na_prezentacje_i_rozliczanie_kolejnych_konwersji')) ?></span></div>
+            <label><span><?= e(t('admin.ai.haso_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
+            <button class="zs-btn-red" type="submit"><?= e(t('admin.payments.zapisz_centralny_kurs')) ?></button>
         </div>
     </form>
 </section>
 
-<section class="admin-panel-block zs-payment-admin-block">
-    <div class="admin-section-head">
-        <div>
-            <p class="kicker">Konfiguracja</p>
-            <h2>Klucze Stripe</h2>
-        </div>
-        <span class="zs-badge-info">Plik .env</span>
-    </div>
-    <details class="zs-operator-technical">
-      <summary>Instrukcja wdrożeniowa dla administratora technicznego</summary>
-      <div class="zs-admin-content-text">
-        <p>Klucze Stripe wpisuje się w pliku <code>.env</code> w katalogu głównym projektu:</p>
-        <pre class="zs-code-block">X:\zrodlo-slowa\.env</pre>
-        
-        <p>Przykład konfiguracji:</p>
-        <pre class="zs-code-block">
-STRIPE_ENABLED=true
-STRIPE_MODE=test
-STRIPE_PUBLIC_KEY=pk_test_...
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_CURRENCY=pln
-STRIPE_PAYMENT_METHODS=card,p24
-STRIPE_CHECKOUT_SUCCESS_URL=http://localhost:8080/wallet/topup/success?session_id={CHECKOUT_SESSION_ID}
-STRIPE_CHECKOUT_CANCEL_URL=http://localhost:8080/wallet/topup/cancel
-STRIPE_WEBHOOK_URL=http://localhost:8080/stripe/webhook
-        </pre>
-
-        <ul class="zs-instruction-list">
-            <li><code>pk_test</code> wpisujemy jako <strong>STRIPE_PUBLIC_KEY</strong></li>
-            <li><code>sk_test</code> wpisujemy jako <strong>STRIPE_SECRET_KEY</strong></li>
-            <li><code>whsec</code> wpisujemy jako <strong>STRIPE_WEBHOOK_SECRET</strong></li>
-            <li>Sekret webhooka ze Stripe CLI jest inny niż sekret webhooka z Dashboardu.</li>
-            <li>Po zmianie <code>.env</code> trzeba odświeżyć aplikację / zrestartować lokalny serwer PHP.</li>
-        </ul>
-      </div>
-    </details>
-</section>
-
-<section class="zs-payment-summary-grid" aria-label="Podsumowanie płatności">
+<section class="zs-payment-summary-grid" aria-label="<?= e(t('admin.payments.podsumowanie_patnosci')) ?>">
     <article class="zs-payment-summary-card">
-        <span>Zamówienia</span>
+        <span><?= e(t('admin.payments.zamowienia')) ?></span>
         <strong><?= (int)($payment_summary['orders_count'] ?? 0) ?></strong>
-        <small>lokalne payment_orders</small>
+        <small><?= e(t('admin.payments.lokalne_payment_orders')) ?></small>
     </article>
     <article class="zs-payment-summary-card">
-        <span>Zaksięgowano</span>
+        <span><?= e(t('admin.payments.zaksiegowano')) ?></span>
         <strong><?= $money($payment_summary['credited_sum'] ?? 0) ?></strong>
-        <small>do portfela PLN</small>
+        <small><?= e(t('admin.payments.do_portfela_pln')) ?></small>
     </article>
     <article class="zs-payment-summary-card">
-        <span>Webhooki</span>
+        <span><?= e(t('admin.payments.webhooki')) ?></span>
         <strong><?= (int)($payment_summary['events_count'] ?? 0) ?></strong>
-        <small><?= (int)($payment_summary['failed_events_count'] ?? 0) ?> błędów</small>
+        <small><?= e(str_replace('{count}', (string)(int)($payment_summary['failed_events_count'] ?? 0), t('admin.payments.errors_count'))) ?></small>
     </article>
     <article class="zs-payment-summary-card is-red">
-        <span>Prowizje konwersji</span>
+        <span><?= e(t('admin.payments.prowizje_konwersji')) ?></span>
         <strong><?= $money($payment_summary['transfer_fees_sum'] ?? 0) ?></strong>
-        <small><?= (int)($payment_summary['transfers_count'] ?? 0) ?> transferów</small>
+        <small><?= e(str_replace('{count}', (string)(int)($payment_summary['transfers_count'] ?? 0), t('admin.payments.transfers_count'))) ?></small>
     </article>
 </section>
 
 <section class="admin-panel-block zs-payment-admin-block">
     <div class="admin-section-head">
         <div>
-            <p class="kicker">Stripe / Przelewy24</p>
-            <h2>Zamówienia doładowania portfela</h2>
+            <p class="kicker"><?= e(t('admin.payments.stripe_przelewy24')) ?></p>
+            <h2><?= e(t('admin.payments.zamowienia_doadowania_portfela')) ?></h2>
         </div>
-        <span class="zs-badge-info">webhook = źródło prawdy</span>
+        <span class="zs-badge-info"><?= e(t('admin.payments.webhook_zrodo_prawdy')) ?></span>
     </div>
     <?php if (empty($payment_orders)): ?>
-        <div class="zs-empty-state"><h3>Brak zamówień.</h3><p>Po wejściu użytkownika w doładowanie i utworzeniu Stripe Checkout pojawią się tutaj lokalne zamówienia.</p></div>
+        <div class="zs-empty-state"><h3><?= e(t('admin.payments.brak_zamowien')) ?></h3><p><?= e(t('admin.payments.po_wejsciu_uzytkownika_w_doadowanie_i_utworzeniu_stripe_0c496daa')) ?></p></div>
     <?php else: ?>
         <div class="zs-admin-table-wrapper">
             <table class="zs-admin-table zs-payment-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Użytkownik</th>
-                        <th>Pakiet</th>
-                        <th>Status</th>
-                        <th>Operator płatności</th>
-                        <th>Session</th>
-                        <th class="text-right">Kwota</th>
-                        <th>Data</th>
+                        <th><?= e(t('wallet.orders.table.user')) ?></th>
+                        <th><?= e(t('wallet.orders.table.package')) ?></th>
+                        <th><?= e(t('wallet.history.table.status')) ?></th>
+                        <th><?= e(t('admin.payments.operator_patnosci')) ?></th>
+                        <th><?= e(t('admin.payments.session')) ?></th>
+                        <th class="text-right"><?= e(t('wallet.history.table.amount')) ?></th>
+                        <th><?= e(t('wallet.history.table.date')) ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -205,7 +166,7 @@ STRIPE_WEBHOOK_URL=http://localhost:8080/stripe/webhook
                         <?php $st = $getStatus($order['status']); ?>
                         <tr>
                             <td class="zs-id-cell">#<?= (int)$order['id'] ?></td>
-                            <td><strong><?= e($order['display_name'] ?: 'Użytkownik') ?></strong><small><?= e($order['email'] ?? '') ?></small></td>
+                            <td><strong><?= e($order['display_name'] ?: t('wallet.orders.table.user')) ?></strong><small><?= e($order['email'] ?? '') ?></small></td>
                             <td><?= e($order['package_name'] ?: $order['type']) ?><small><?= e($order['public_id']) ?></small></td>
                             <td><span class="zs-status-badge is-<?= e($st['class']) ?> <?= e($st['class']) ?>"><?= e($st['label']) ?></span></td>
                             <td><?= e($getProvider($order['provider'])) ?><small><?= e($order['method'] ?: 'checkout') ?></small></td>
@@ -223,25 +184,25 @@ STRIPE_WEBHOOK_URL=http://localhost:8080/stripe/webhook
 <section class="admin-panel-block zs-payment-admin-block">
     <div class="admin-section-head">
         <div>
-            <p class="kicker">Potwierdzenia operatora płatności</p>
-            <h2>Zdarzenia Stripe</h2>
+            <p class="kicker"><?= e(t('admin.payments.potwierdzenia_operatora_patnosci')) ?></p>
+            <h2><?= e(t('admin.payments.zdarzenia_stripe')) ?></h2>
         </div>
-        <span class="zs-badge-info">każde zdarzenie rozliczane raz</span>
+        <span class="zs-badge-info"><?= e(t('admin.payments.kazde_zdarzenie_rozliczane_raz')) ?></span>
     </div>
     <?php if (empty($gateway_events)): ?>
-        <div class="zs-empty-state"><h3>Nie odebrano jeszcze webhooków.</h3><p>Po uruchomieniu Stripe CLI albo endpointu produkcyjnego zdarzenia będą widoczne tutaj.</p></div>
+        <div class="zs-empty-state"><h3><?= e(t('admin.payments.nie_odebrano_jeszcze_webhookow')) ?></h3><p><?= e(t('admin.payments.po_uruchomieniu_stripe_cli_albo_endpointu_produkcyjnego_82b3ab8a')) ?></p></div>
     <?php else: ?>
         <div class="zs-admin-table-wrapper">
             <table class="zs-admin-table zs-payment-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Event</th>
-                        <th>Status</th>
-                        <th>Zamówienie</th>
-                        <th>Session</th>
-                        <th>Błąd / uwaga</th>
-                        <th>Odebrano</th>
+                        <th><?= e(t('admin.payments.event')) ?></th>
+                        <th><?= e(t('wallet.history.table.status')) ?></th>
+                        <th><?= e(t('admin.payments.zamowienie')) ?></th>
+                        <th><?= e(t('admin.payments.session')) ?></th>
+                        <th><?= e(t('admin.payments.bad_uwaga')) ?></th>
+                        <th><?= e(t('admin.payments.odebrano')) ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -266,27 +227,27 @@ STRIPE_WEBHOOK_URL=http://localhost:8080/stripe/webhook
 <section class="admin-panel-block zs-payment-admin-block">
     <div class="admin-section-head">
         <div>
-            <p class="kicker">Dwa portfele</p>
-            <h2>Konwersje Talent → PLN</h2>
+            <p class="kicker"><?= e(t('admin.payments.dwa_portfele')) ?></p>
+            <h2><?= e(t('admin.payments.konwersje_talent_pln')) ?></h2>
         </div>
-        <span class="zs-badge-info">prowizja systemu</span>
+        <span class="zs-badge-info"><?= e(t('admin.payments.prowizja_systemu')) ?></span>
     </div>
     <?php if (empty($wallet_transfers)): ?>
-        <div class="zs-empty-state"><h3>Brak transferów między portfelami.</h3><p>Po wykonaniu konwersji Talent → PLN system pokaże kwotę źródłową, kwotę netto i prowizję.</p></div>
+        <div class="zs-empty-state"><h3><?= e(t('admin.payments.brak_transferow_miedzy_portfelami')) ?></h3><p><?= e(t('admin.payments.po_wykonaniu_konwersji_talent_pln_system_pokaze_kwote_z_fb28c071')) ?></p></div>
     <?php else: ?>
         <div class="zs-admin-table-wrapper">
             <table class="zs-admin-table zs-payment-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Użytkownik</th>
-                        <th>Kierunek</th>
-                        <th>Status</th>
-                        <th>Źródło</th>
-                        <th>Cel</th>
-                        <th class="text-right">Prowizja</th>
-                        <th>Data</th>
-                        <th class="text-right">Akcja</th>
+                        <th><?= e(t('wallet.orders.table.user')) ?></th>
+                        <th><?= e(t('admin.payments.kierunek')) ?></th>
+                        <th><?= e(t('wallet.history.table.status')) ?></th>
+                        <th><?= e(t('admin.payments.zrodo')) ?></th>
+                        <th><?= e(t('admin.payments.cel')) ?></th>
+                        <th class="text-right"><?= e(t('wallet.conversion.fee')) ?></th>
+                        <th><?= e(t('wallet.history.table.date')) ?></th>
+                        <th class="text-right"><?= e(t('admin.anti_fraud.akcja')) ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -294,10 +255,10 @@ STRIPE_WEBHOOK_URL=http://localhost:8080/stripe/webhook
                         <?php $st = $getStatus($transfer['status']); ?>
                         <tr>
                             <td class="zs-id-cell">#<?= (int)$transfer['id'] ?></td>
-                            <td><strong><?= e($transfer['display_name'] ?: 'Użytkownik') ?></strong><small><?= e($transfer['email'] ?? '') ?></small></td>
+                            <td><strong><?= e($transfer['display_name'] ?: t('wallet.orders.table.user')) ?></strong><small><?= e($transfer['email'] ?? '') ?></small></td>
                             <td><?= e($transfer['direction']) ?></td>
                             <td><span class="zs-status-badge is-<?= e($st['class']) ?> <?= e($st['class']) ?>"><?= e($st['label']) ?></span></td>
-                            <td><?= number_format((int)$transfer['source_amount'], 0, ',', ' ') ?> Talentów</td>
+                            <td><?= e(str_replace('{points}', number_format((int)$transfer['source_amount'], 0, ',', ' '), t('admin.payments.talents_amount'))) ?></td>
                             <td><?= $money($transfer['target_amount']) ?></td>
                             <td class="text-right zs-amount-cell"><strong><?= $money($transfer['fee_amount']) ?></strong></td>
                             <td><?= date('d.m.Y H:i', strtotime($transfer['created_at'])) ?></td>
@@ -307,15 +268,15 @@ STRIPE_WEBHOOK_URL=http://localhost:8080/stripe/webhook
                                         <form method="post" action="/admin/payments/transfers/approve">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="transfer_id" value="<?= (int)$transfer['id'] ?>">
-                                            <input class="zs-admin-input-tiny" type="password" name="critical_password" placeholder="Hasło administratora" required autocomplete="current-password">
-                                            <button class="btn-red compact" type="submit">OK</button>
+                                            <input class="zs-admin-input-tiny" type="password" name="critical_password" placeholder="<?= e(t('admin.ai.haso_administratora')) ?>" required autocomplete="current-password">
+                                            <button class="btn-red compact" type="submit"><?= e(t('admin.payments.ok')) ?></button>
                                         </form>
                                         <form method="post" action="/admin/payments/transfers/reject">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="transfer_id" value="<?= (int)$transfer['id'] ?>">
-                                            <input class="zs-admin-input-tiny" type="password" name="critical_password" placeholder="Hasło administratora" required autocomplete="current-password">
-                                            <input class="zs-admin-input-tiny" name="reason" placeholder="powód">
-                                            <button class="btn-outline compact" type="submit">STOP</button>
+                                            <input class="zs-admin-input-tiny" type="password" name="critical_password" placeholder="<?= e(t('admin.ai.haso_administratora')) ?>" required autocomplete="current-password">
+                                            <input class="zs-admin-input-tiny" name="reason" placeholder="<?= e(t('admin.payments.powod')) ?>">
+                                            <button class="btn-outline compact" type="submit"><?= e(t('admin.payments.stop')) ?></button>
                                         </form>
                                     </div>
                                 <?php else: ?>
@@ -333,21 +294,21 @@ STRIPE_WEBHOOK_URL=http://localhost:8080/stripe/webhook
 <section class="admin-panel-block zs-payment-admin-block">
     <div class="admin-section-head">
         <div>
-            <p class="kicker">Moduł płatności</p>
-            <h2>Płatności bezpośrednie</h2>
+            <p class="kicker"><?= e(t('admin.payments.modu_patnosci')) ?></p>
+            <h2><?= e(t('admin.payments.patnosci_bezposrednie')) ?></h2>
         </div>
-        <span class="zs-badge-info">płatności</span>
+        <span class="zs-badge-info"><?= e(t('admin.payments.patnosci')) ?></span>
     </div>
     <div class="admin-table-wrap">
         <table class="admin-table zs-admin-table zs-payment-table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Typ transakcji</th>
-                    <th>Kwota</th>
-                    <th>Status</th>
-                    <th>Operator</th>
-                    <th style="text-align: right;">Akcja / Status</th>
+                    <th><?= e(t('admin.payments.typ_transakcji')) ?></th>
+                    <th><?= e(t('wallet.history.table.amount')) ?></th>
+                    <th><?= e(t('wallet.history.table.status')) ?></th>
+                    <th><?= e(t('wallet.orders.table.provider')) ?></th>
+                    <th style="text-align: right;"><?= e(t('admin.payments.akcja_status')) ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -366,22 +327,22 @@ STRIPE_WEBHOOK_URL=http://localhost:8080/stripe/webhook
                         <form class="zs-compact-action-form" method="post" action="/admin/payments/manual-paid">
                             <?= csrf_field() ?>
                             <input type="hidden" name="payment_id" value="<?= (int)$p['id'] ?>">
-                            <input class="zs-admin-input-tiny" type="password" name="critical_password" placeholder="Hasło administratora" required autocomplete="current-password">
+                            <input class="zs-admin-input-tiny" type="password" name="critical_password" placeholder="<?= e(t('admin.ai.haso_administratora')) ?>" required autocomplete="current-password">
                             <div class="zs-inline-action">
-                                <input name="external_id" placeholder="ID zewn." class="zs-admin-input-tiny">
-                                <button class="btn-red compact" type="submit" title="Potwierdź płatność">OK</button>
+                                <input name="external_id" placeholder="<?= e(t('admin.payments.id_zewn')) ?>" class="zs-admin-input-tiny">
+                                <button class="btn-red compact" type="submit" title="<?= e(t('admin.payments.potwierdz_patnosc')) ?>"><?= e(t('admin.payments.ok')) ?></button>
                             </div>
                         </form>
                         <?php elseif (strtolower($p['status']) === 'paid'): ?>
-                        <span class="zs-settled-text">Rozliczona</span>
+                        <span class="zs-settled-text"><?= e(t('admin.payments.rozliczona')) ?></span>
                         <?php else: ?>
-                        <span class="zs-settled-text">Potwierdza operator</span>
+                        <span class="zs-settled-text"><?= e(t('admin.payments.potwierdza_operator')) ?></span>
                         <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
                 <?php if (empty($payments)): ?>
-                    <tr><td colspan="6">Brak wpisów w module payments.</td></tr>
+                    <tr><td colspan="6"><?= e(t('admin.payments.brak_wpisow_w_module_payments')) ?></td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

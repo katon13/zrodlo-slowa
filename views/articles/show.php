@@ -140,7 +140,7 @@ if (trim($currencyInfo) === '') {
         <strong><?= e($article['author_name']) ?></strong>
         <?php if (!empty($article['published_at'])): ?><span>·</span><span><?= e($article['published_at']) ?></span><?php endif; ?>
         <?php if ($editorialLabel !== null): ?>
-          <span class="zs-public-article-label" aria-label="Etykieta artykułu: <?= e($editorialLabel) ?>"><?= e($editorialLabel) ?></span>
+          <span class="zs-public-article-label" aria-label="<?= e(str_replace('{label}', $editorialLabel, t('article.label.aria'))) ?>"><?= e($editorialLabel) ?></span>
         <?php elseif ($isPaid): ?>
           <span>·</span><span><?= e($label) ?></span>
         <?php endif; ?>
@@ -333,8 +333,8 @@ if (trim($currencyInfo) === '') {
 
     <section class="related">
       <h3><?= e(t('article.related.title', $uiLanguage)) ?></h3>
-      <article class="related-item"><div><div class="kicker">Analizy</div><strong>Budżet obywatelski: więcej niż konsultacje</strong></div><img src="/assets/img/articles/thumb-report.svg" alt=""></article>
-      <article class="related-item"><div><div class="kicker">Rozmowy</div><strong>O zaufaniu do instytucji</strong></div><img src="/assets/img/articles/thumb-society.svg" alt=""></article>
+      <article class="related-item"><div><div class="kicker"><?= e(t('ui.articles.show.analizy')) ?></div><strong><?= e(t('ui.articles.show.budzet_obywatelski_wiecej_niz_konsultacje')) ?></strong></div><img src="/assets/img/articles/thumb-report.svg" alt=""></article>
+      <article class="related-item"><div><div class="kicker"><?= e(t('ui.articles.show.rozmowy')) ?></div><strong><?= e(t('ui.articles.show.o_zaufaniu_do_instytucji')) ?></strong></div><img src="/assets/img/articles/thumb-society.svg" alt=""></article>
     </section>
   </aside>
 </div>

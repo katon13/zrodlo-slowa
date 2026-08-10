@@ -55,7 +55,7 @@ final class Dors3UiText
         if ($language === '' && function_exists('public_language')) {
             $language = (string)public_language();
         }
-        return in_array($language, ['pl', 'en'], true) ? $language : 'pl';
+        return in_array($language, ['pl', 'en', 'de', 'fr', 'it', 'es'], true) ? $language : 'pl';
     }
 
     /** @param list<string> $path */

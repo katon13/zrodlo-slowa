@@ -60,22 +60,24 @@ final class ResponsePublicationArchitectureTest extends TestCase
     {
         $root = dirname(__DIR__, 2);
         $settings = (string)file_get_contents($root . '/views/admin/settings.php');
+        $catalog = json_decode((string)file_get_contents($root . '/resources/lang/admin.json'), true, 512, JSON_THROW_ON_ERROR);
         self::assertStringContainsString('$ruleType === \'response_publication_bonus\'', $settings);
-        self::assertStringContainsString('Kaucja przy wysłaniu', $settings);
+        self::assertStringContainsString("t('admin.settings.kaucja_przy_wysaniu')", $settings);
+        self::assertSame('Kaucja przy wysłaniu', $catalog['admin.settings.kaucja_przy_wysaniu']['pl']);
         self::assertStringContainsString('submission_deposit_points', $settings);
-        self::assertStringContainsString('Pobieramy ją tylko raz przy wysłaniu', $settings);
-        self::assertStringContainsString('Nagroda i kaucja są wyłącznie w TT', $settings);
+        self::assertStringContainsString("t('admin.settings.0_wyacza_kaucje_pobieramy_ja_tylko_raz_przy_wysaniu_po_b36b5ad9')", $settings);
+        self::assertStringContainsString("t('admin.settings.nagroda_i_kaucja_sa_wyacznie_w_tt')", $settings);
         self::assertStringNotContainsString('$isSurveyRule', $settings);
 
         $editorial = (string)file_get_contents($root . '/views/admin/editorial_edit.php');
         self::assertStringContainsString('response_reward_qualified', $editorial);
         self::assertStringContainsString('response_reward_points', $editorial);
-        self::assertStringContainsString('response_reward_job_public_id', $editorial);
+        self::assertStringNotContainsString('response_reward_job_public_id', $editorial);
         self::assertStringContainsString('response_deposit_status', $editorial);
-        self::assertStringContainsString('response_deposit_debit_transaction_id', $editorial);
+        self::assertStringNotContainsString('response_deposit_debit_transaction_id', $editorial);
 
         $users = (string)file_get_contents($root . '/views/admin/users.php');
-        self::assertStringContainsString("'commentator' => 'komentator'", $users);
+        self::assertStringContainsString("'commentator' => t('admin.users.role_commentator')", $users);
         self::assertStringContainsString('$primaryRole === \'commentator\'', $users);
         self::assertStringContainsString("['can_write','payout_enabled']", $users);
     }

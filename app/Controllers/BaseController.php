@@ -134,11 +134,11 @@ abstract class BaseController
         ?array $after = null,
     ): string {
         if ($adminId !== (int)$this->app->session->userId()) {
-            throw new \RuntimeException('Operacja krytyczna wymaga aktywnej sesji uprawnionego aktora.');
+            throw new \RuntimeException(t('controller.base.operacja_krytyczna_wymaga_aktywnej_sesji_uprawnionego_aktora'));
         }
         $password = (string)($_POST['critical_password'] ?? '');
         if ($password === '') {
-            throw new \RuntimeException('Podaj aktualne hasło administratora, aby potwierdzić tę operację.');
+            throw new \RuntimeException(t('controller.base.podaj_aktualne_haso_administratora_aby_potwierdzic_te_operacje'));
         }
         $context = new \App\Security\Dors3\ApprovalContext(
             $operation,
@@ -153,7 +153,7 @@ abstract class BaseController
         $request = $authorizer->begin($context);
         $result = $authorizer->verify(new \App\Security\Dors3\ApprovalResponse($request, $password));
         if (!$result->approved) {
-            throw new \RuntimeException('Operacja krytyczna nie została zatwierdzona.');
+            throw new \RuntimeException(t('controller.base.operacja_krytyczna_nie_zostaa_zatwierdzona'));
         }
         return $result->authorizationPublicId;
     }
@@ -332,8 +332,8 @@ abstract class BaseController
         }
         http_response_code(403);
         echo $this->view('layouts/error', [
-            'title' => 'Brak uprawnień',
-            'message' => 'Ten kafelek SNAJPERA SŁOWA jest dostępny tylko dla przypisanej roli redakcyjnej albo administratora.',
+            'title' => t('controller.admin.brak_uprawnien'),
+            'message' => t('controller.base.ten_kafelek_snajpera_sowa_jest_dostepny_tylko_dla_przyp_dc8e5d46'),
         ]);
         exit;
     }
@@ -344,8 +344,8 @@ abstract class BaseController
         if (!PermissionCatalog::allows($this->currentUserRoles(), $permission)) {
             http_response_code(403);
             echo $this->view('layouts/error', [
-                'title' => 'Brak uprawnień',
-                'message' => 'Ta operacja wymaga szczegółowego uprawnienia: ' . $permission . '.',
+                'title' => t('controller.admin.brak_uprawnien'),
+                'message' => t('controller.base.ta_operacja_wymaga_szczegoowego_uprawnienia') . $permission . '.',
             ]);
             exit;
         }
@@ -366,8 +366,8 @@ abstract class BaseController
         } catch (\Throwable $e) {
             http_response_code(403);
             echo $this->view('layouts/error', [
-                'title' => 'Wymagane zabezpieczenia konta',
-                'message' => $this->safeError($e, 'Konto nie spełnia wymagań bezpieczeństwa tej roli.', 'high_role_security'),
+                'title' => t('controller.base.wymagane_zabezpieczenia_konta'),
+                'message' => $this->safeError($e, t('controller.base.konto_nie_spenia_wymagan_bezpieczenstwa_tej_roli'), 'high_role_security'),
             ]);
             exit;
         }
@@ -389,8 +389,8 @@ abstract class BaseController
         if ($this->app->session->role() !== 'admin') {
             http_response_code(403);
             echo $this->view('layouts/error', [
-                'title' => 'Brak uprawnień',
-                'message' => 'Ten ekran jest dostępny tylko dla administratora lub redakcji z odpowiednimi uprawnieniami.',
+                'title' => t('controller.admin.brak_uprawnien'),
+                'message' => t('controller.base.ten_ekran_jest_dostepny_tylko_dla_administratora_lub_re_f4fbd6d4'),
             ]);
             exit;
         }

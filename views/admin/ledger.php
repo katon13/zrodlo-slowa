@@ -1,7 +1,7 @@
 <section class="admin-page-head">
-    <p class="kicker">Finanse i Portfele</p>
-    <h1>Ledger portfeli</h1>
-    <p>Pełna historia operacji finansowych, bonusów i korekt w całym systemie.</p>
+    <p class="kicker"><?= e(t('admin.ledger.finanse_i_portfele')) ?></p>
+    <h1><?= e(t('admin.ledger.ledger_portfeli')) ?></h1>
+    <p><?= e(t('admin.ledger.pena_historia_operacji_finansowych_bonusow_i_korekt_w_c_def002f7')) ?></p>
 </section>
 
 <?php
@@ -16,8 +16,8 @@ use App\Services\ActivityUiHelper;
         $amountMinor = (int)$t['amount_minor'];
         $amount = $amountMinor / 100;
         $isZero = abs($amount) < 0.001;
-        $userName = $t['display_name'] ?? ('Usunięty użytkownik #' . ($t['user_id'] ?? '?'));
-        $isDeleted = !($t['display_name'] ?? null) || str_contains(mb_strtolower($userName), 'usunięty');
+        $userName = $t['display_name'] ?? str_replace('{id}', (string)($t['user_id'] ?? '?'), t('admin.ledger.deleted_user'));
+        $isDeleted = empty($t['display_name']);
         ?>
         <article class="wallet-ledger-row">
             <div class="wallet-ledger-left">
@@ -27,7 +27,7 @@ use App\Services\ActivityUiHelper;
                 <div class="wallet-ledger-info">
                     <div class="wallet-ledger-title">
                         <span class="wallet-ledger-user"><?= e($userName) ?></span>
-                        <?php if ($isDeleted): ?><span class="zs-user-deleted">Usunięty</span><?php endif; ?>
+                        <?php if ($isDeleted): ?><span class="zs-user-deleted"><?= e(t('admin.ledger.usuniety')) ?></span><?php endif; ?>
                         <span class="wallet-ledger-sep">·</span>
                         <span class="wallet-ledger-type"><?= e($humanType) ?></span>
                     </div>
@@ -42,7 +42,7 @@ use App\Services\ActivityUiHelper;
                     <?php if ((int)$t['points'] !== 0): ?>
                         <?= ((int)$t['points'] > 0 ? '+' : '') . (int)$t['points'] ?> TT
                     <?php else: ?>
-                        <span style="opacity: 0.4">bez TT</span>
+                        <span style="opacity: 0.4"><?= e(t('admin.ledger.bez_tt')) ?></span>
                     <?php endif; ?>
                 </div>
                 <div class="wallet-ledger-meta">

@@ -15,25 +15,25 @@ final class FinanceController extends BaseController
         $statusMap = $this->paymentStatusMap();
         $typeMap = [
             'article_payment' => 'Zakup tekstu',
-            'wallet_topup' => 'Doładowanie portfela',
-            'premium_access' => 'Dostęp premium',
+            'wallet_topup' => t('bonus.type.wallet_topup'),
+            'premium_access' => t('controller.finance.dostep_premium'),
             'donation' => 'Wsparcie',
-            'payout' => 'Wypłata',
-            'talent_purchase' => 'Zakup Talentów',
-            'manual_topup' => 'Ręczne doładowanie',
+            'payout' => t('bonus.type.payout'),
+            'talent_purchase' => t('controller.finance.zakup_talentow'),
+            'manual_topup' => t('controller.finance.reczne_doadowanie'),
         ];
 
         $providerMap = [
             'prelewy24_gateway' => 'Przelewy24',
             'przelewy24_gateway' => 'Przelewy24',
-            'manual' => 'Ręcznie',
+            'manual' => t('controller.finance.recznie'),
             'test' => 'Testowa',
             'stripe' => 'Stripe',
             'paypal' => 'PayPal',
         ];
 
         return $this->view('admin/payments', [
-            'title' => 'Płatności',
+            'title' => t('admin.finance_report.patnosci'),
             'payments' => $this->recentPayments(),
             'payment_orders' => $this->paymentOrders(),
             'gateway_events' => $this->gatewayEvents(),
@@ -80,7 +80,7 @@ final class FinanceController extends BaseController
                 );
             }
             if ($plannedUpdates === []) {
-                throw new \InvalidArgumentException('Brak ustawień płatności do zapisania.');
+                throw new \InvalidArgumentException(t('controller.finance.brak_ustawien_patnosci_do_zapisania'));
             }
             $beforeRows = $this->app->db->all(
                 'SELECT name,value FROM settings WHERE name IN ('
@@ -124,12 +124,12 @@ final class FinanceController extends BaseController
             }
 
             if ($updated > 0) {
-                $this->app->session->flash('success', 'Ustawienia płatności zostały zapisane.');
+                $this->app->session->flash('success', t('controller.finance.ustawienia_patnosci_zostay_zapisane'));
             } else {
-                $this->app->session->flash('info', 'Brak zmian do zapisania.');
+                $this->app->session->flash('info', t('controller.finance.brak_zmian_do_zapisania'));
             }
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zapisać ustawień płatności.', 'payment_settings'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.finance.nie_udao_sie_zapisac_ustawien_patnosci'), 'payment_settings'));
         }
 
         redirect('/admin/payments');
@@ -142,7 +142,7 @@ final class FinanceController extends BaseController
             $transferId = (int)($_POST['transfer_id'] ?? 0);
             $transfer = $this->app->db->one('SELECT * FROM wallet_transfers WHERE id=:id', ['id' => $transferId]);
             if ($transfer === null) {
-                throw new \RuntimeException('Nie znaleziono transferu portfela.');
+                throw new \RuntimeException(t('controller.finance.nie_znaleziono_transferu_portfela'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -159,9 +159,9 @@ final class FinanceController extends BaseController
                 ['status' => 'completed'],
             );
             (new WalletTransferService($this->app->db, new LedgerService($this->app->db, new \App\Services\FinancialService($this->app->db))))->approveTransfer($transferId, $adminId);
-            $this->app->session->flash('success', 'Transfer #' . $transferId . ' został zatwierdzony i zaksięgowany.');
+            $this->app->session->flash('success', str_replace('{id}', (string)$transferId, t('controller.finance.transfer_approved')));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zatwierdzić transferu.', 'wallet_transfer_approve'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.finance.nie_udao_sie_zatwierdzic_transferu'), 'wallet_transfer_approve'));
         }
         redirect('/admin/payments');
     }
@@ -171,10 +171,10 @@ final class FinanceController extends BaseController
         $adminId = $this->requireAdmin();
         try {
             $transferId = (int)($_POST['transfer_id'] ?? 0);
-            $reason = trim((string)($_POST['reason'] ?? 'Odrzucone przez administrację.'));
+            $reason = trim((string)($_POST['reason'] ?? t('controller.finance.odrzucone_przez_administracje')));
             $transfer = $this->app->db->one('SELECT * FROM wallet_transfers WHERE id=:id', ['id' => $transferId]);
             if ($transfer === null) {
-                throw new \RuntimeException('Nie znaleziono transferu portfela.');
+                throw new \RuntimeException(t('controller.finance.nie_znaleziono_transferu_portfela'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -186,9 +186,9 @@ final class FinanceController extends BaseController
                 ['status' => 'rejected'],
             );
             (new WalletTransferService($this->app->db, new LedgerService($this->app->db, new \App\Services\FinancialService($this->app->db))))->rejectTransfer($transferId, $adminId, $reason);
-            $this->app->session->flash('success', 'Transfer #' . $transferId . ' został odrzucony.');
+            $this->app->session->flash('success', str_replace('{id}', (string)$transferId, t('controller.finance.transfer_rejected')));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się odrzucić transferu.', 'wallet_transfer_reject'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.finance.nie_udao_sie_odrzucic_transferu'), 'wallet_transfer_reject'));
         }
         redirect('/admin/payments');
     }
@@ -200,7 +200,7 @@ final class FinanceController extends BaseController
         $rows = $this->app->db->all('SELECT wt.*, u.display_name, u.email FROM wallet_transactions wt LEFT JOIN users u ON u.id=wt.user_id ORDER BY wt.created_at DESC, wt.id DESC LIMIT 200');
 
         return $this->view('admin/ledger', [
-            'title' => 'Ledger portfeli',
+            'title' => t('admin.ledger.ledger_portfeli'),
             'transactions' => $rows,
             'typeMap' => \App\Services\LedgerService::typeMap(),
         ]);
@@ -213,7 +213,7 @@ final class FinanceController extends BaseController
         $approvals = $this->app->db->all('SELECT fa.*, u.display_name, u.email, rb.display_name as requester_name FROM financial_approvals fa LEFT JOIN users u ON u.id=fa.user_id LEFT JOIN users rb ON rb.id=fa.requested_by WHERE fa.status=\'pending\' ORDER BY fa.created_at DESC');
 
         return $this->view('admin/financial_approvals', [
-            'title' => 'Zlecenia finansowe do zatwierdzenia',
+            'title' => t('admin.financial_approvals.zlecenia_finansowe_do_zatwierdzenia'),
             'approvals' => $approvals,
             'current_user_id' => $_SESSION['user_id']
         ]);
@@ -228,7 +228,7 @@ final class FinanceController extends BaseController
         try {
             $approval = $this->app->db->one('SELECT * FROM financial_approvals WHERE id=:id', ['id' => $approvalId]);
             if ($approval === null) {
-                throw new \RuntimeException('Nie znaleziono zlecenia finansowego.');
+                throw new \RuntimeException(t('controller.finance.nie_znaleziono_zlecenia_finansowego'));
             }
             $this->authorizeCriticalOperation(
                 $actorId,
@@ -247,9 +247,9 @@ final class FinanceController extends BaseController
             );
             $service = new \App\Services\FinancialService($this->app->db);
             $service->approve($approvalId, $note);
-            $this->app->session->flash('success', 'Zlecenie zostało zatwierdzone i wykonane.');
+            $this->app->session->flash('success', t('controller.finance.zlecenie_zostao_zatwierdzone_i_wykonane'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się wykonać zlecenia finansowego.', 'financial_approval_execute'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.finance.nie_udao_sie_wykonac_zlecenia_finansowego'), 'financial_approval_execute'));
         }
 
         redirect('/admin/finance/approvals');
@@ -259,12 +259,12 @@ final class FinanceController extends BaseController
     {
         $actorId = $this->requireAdminOrRoles(['publisher', 'wydawca']);
         $approvalId = (int)($_POST['approval_id'] ?? 0);
-        $reason = trim((string)($_POST['reject_reason'] ?? 'Odrzucone przez administrację.'));
+        $reason = trim((string)($_POST['reject_reason'] ?? t('controller.finance.odrzucone_przez_administracje')));
 
         try {
             $approval = $this->app->db->one('SELECT * FROM financial_approvals WHERE id=:id', ['id' => $approvalId]);
             if ($approval === null) {
-                throw new \RuntimeException('Nie znaleziono zlecenia finansowego.');
+                throw new \RuntimeException(t('controller.finance.nie_znaleziono_zlecenia_finansowego'));
             }
             $this->authorizeCriticalOperation(
                 $actorId,
@@ -277,9 +277,9 @@ final class FinanceController extends BaseController
             );
             $service = new \App\Services\FinancialService($this->app->db);
             $service->reject($approvalId, $reason);
-            $this->app->session->flash('success', 'Zlecenie zostało odrzucone.');
+            $this->app->session->flash('success', t('controller.finance.zlecenie_zostao_odrzucone'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się odrzucić zlecenia finansowego.', 'financial_approval_reject'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.finance.nie_udao_sie_odrzucic_zlecenia_finansowego'), 'financial_approval_reject'));
         }
 
         redirect('/admin/finance/approvals');
@@ -305,16 +305,16 @@ final class FinanceController extends BaseController
         $accessStats = $db->one('SELECT COUNT(CASE WHEN status=\'active\' AND expires_at IS NOT NULL AND expires_at > NOW() THEN 1 END) as active_grants, COUNT(CASE WHEN expires_at <= NOW() THEN 1 END) as expired_grants FROM article_access_grants');
 
         $payoutStatusMap = [
-            'requested' => ['label' => 'Oczekuje', 'class' => 'pending'],
-            'pending' => ['label' => 'Oczekuje', 'class' => 'pending'],
-            'approved' => ['label' => 'Zatwierdzona', 'class' => 'paid'],
-            'paid' => ['label' => 'Wypłacona', 'class' => 'paid'],
-            'rejected' => ['label' => 'Odrzucona', 'class' => 'failed'],
-            'cancelled' => ['label' => 'Anulowana', 'class' => 'cancelled'],
+            'requested' => ['label' => t('wallet.status.pending'), 'class' => 'pending'],
+            'pending' => ['label' => t('wallet.status.pending'), 'class' => 'pending'],
+            'approved' => ['label' => t('wallet.status.approved'), 'class' => 'paid'],
+            'paid' => ['label' => t('wallet.status.paid'), 'class' => 'paid'],
+            'rejected' => ['label' => t('wallet.status.rejected'), 'class' => 'failed'],
+            'cancelled' => ['label' => t('wallet.status.cancelled'), 'class' => 'cancelled'],
         ];
 
         return $this->view('admin/finance_report', [
-            'title' => 'Raport finansowy',
+            'title' => t('admin.finance_report.raport_finansowy'),
             'wallets' => $wallets,
             'ledger' => $ledger,
             'payouts' => $payouts,
@@ -332,26 +332,26 @@ final class FinanceController extends BaseController
     private function paymentStatusMap(): array
     {
         return [
-            'paid' => ['label' => 'Opłacona', 'class' => 'paid'],
-            'PAID' => ['label' => 'Opłacona', 'class' => 'paid'],
-            'credited' => ['label' => 'Zaksięgowana', 'class' => 'paid'],
-            'redirected' => ['label' => 'Przekierowana', 'class' => 'pending'],
-            'pending' => ['label' => 'Oczekuje', 'class' => 'pending'],
-            'PENDING' => ['label' => 'Oczekuje', 'class' => 'pending'],
-            'received' => ['label' => 'Odebrana', 'class' => 'pending'],
-            'processed' => ['label' => 'Przetworzona', 'class' => 'paid'],
-            'ignored' => ['label' => 'Pominięta', 'class' => 'cancelled'],
-            'failed' => ['label' => 'Błąd', 'class' => 'failed'],
-            'FAILED' => ['label' => 'Błąd', 'class' => 'failed'],
-            'expired' => ['label' => 'Wygasła', 'class' => 'cancelled'],
-            'cancelled' => ['label' => 'Anulowana', 'class' => 'cancelled'],
-            'CANCELLED' => ['label' => 'Anulowana', 'class' => 'cancelled'],
-            'refunded' => ['label' => 'Zwrot', 'class' => 'refunded'],
-            'REFUNDED' => ['label' => 'Zwrot', 'class' => 'refunded'],
-            'approved' => ['label' => 'Zatwierdzona', 'class' => 'paid'],
-            'completed' => ['label' => 'Zakończona', 'class' => 'paid'],
-            'held' => ['label' => 'Wstrzymana', 'class' => 'pending'],
-            'rejected' => ['label' => 'Odrzucona', 'class' => 'failed'],
+            'paid' => ['label' => t('controller.finance.opacona'), 'class' => 'paid'],
+            'PAID' => ['label' => t('controller.finance.opacona'), 'class' => 'paid'],
+            'credited' => ['label' => t('controller.finance.zaksiegowana'), 'class' => 'paid'],
+            'redirected' => ['label' => t('controller.finance.przekierowana'), 'class' => 'pending'],
+            'pending' => ['label' => t('wallet.status.pending'), 'class' => 'pending'],
+            'PENDING' => ['label' => t('wallet.status.pending'), 'class' => 'pending'],
+            'received' => ['label' => t('controller.finance.odebrana'), 'class' => 'pending'],
+            'processed' => ['label' => t('controller.finance.przetworzona'), 'class' => 'paid'],
+            'ignored' => ['label' => t('controller.finance.pominieta'), 'class' => 'cancelled'],
+            'failed' => ['label' => t('controller.finance.bad'), 'class' => 'failed'],
+            'FAILED' => ['label' => t('controller.finance.bad'), 'class' => 'failed'],
+            'expired' => ['label' => t('safety_fund.status.expired'), 'class' => 'cancelled'],
+            'cancelled' => ['label' => t('wallet.status.cancelled'), 'class' => 'cancelled'],
+            'CANCELLED' => ['label' => t('wallet.status.cancelled'), 'class' => 'cancelled'],
+            'refunded' => ['label' => t('controller.finance.zwrot'), 'class' => 'refunded'],
+            'REFUNDED' => ['label' => t('controller.finance.zwrot'), 'class' => 'refunded'],
+            'approved' => ['label' => t('wallet.status.approved'), 'class' => 'paid'],
+            'completed' => ['label' => t('admin.partials.campaign_form.zakonczona'), 'class' => 'paid'],
+            'held' => ['label' => t('controller.finance.wstrzymana'), 'class' => 'pending'],
+            'rejected' => ['label' => t('wallet.status.rejected'), 'class' => 'failed'],
         ];
     }
 
@@ -426,7 +426,7 @@ final class FinanceController extends BaseController
     {
         return match ($rule['type']) {
             'bool' => in_array((string)$raw, ['1', 'true', 'yes', 'on'], true) ? '1' : '0',
-            'enum' => in_array((string)$raw, $rule['values'], true) ? (string)$raw : throw new \InvalidArgumentException('Nieprawidłowa wartość ustawienia: ' . $name),
+            'enum' => in_array((string)$raw, $rule['values'], true) ? (string)$raw : throw new \InvalidArgumentException(t('controller.finance.nieprawidowa_wartosc_ustawienia') . $name),
             'csv_methods' => $this->normalizePaymentMethods((string)$raw),
             'money_minor' => (string)$this->normalizeMoneyMinor($raw, (int)$rule['min'], (int)$rule['max'], $name),
             'text' => trim((string)$raw),
@@ -437,11 +437,11 @@ final class FinanceController extends BaseController
     private function normalizeInt(mixed $raw, int $min, int $max, string $name): int
     {
         if (!is_numeric($raw)) {
-            throw new \InvalidArgumentException('Ustawienie ' . $name . ' musi być liczbą.');
+            throw new \InvalidArgumentException(t('controller.admin.ustawienie') . $name . t('controller.admin.musi_byc_liczba'));
         }
         $value = (int)$raw;
         if ($value < $min || $value > $max) {
-            throw new \InvalidArgumentException('Ustawienie ' . $name . ' jest poza zakresem.');
+            throw new \InvalidArgumentException(t('controller.admin.ustawienie') . $name . t('controller.finance.jest_poza_zakresem'));
         }
         return $value;
     }
@@ -450,11 +450,11 @@ final class FinanceController extends BaseController
     {
         $text = str_replace(',', '.', trim((string)$raw));
         if (!is_numeric($text)) {
-            throw new \InvalidArgumentException('Ustawienie ' . $name . ' musi być kwotą.');
+            throw new \InvalidArgumentException(t('controller.admin.ustawienie') . $name . t('controller.finance.musi_byc_kwota'));
         }
         $value = (int)round(((float)$text) * 100);
         if ($value < $min || $value > $max) {
-            throw new \InvalidArgumentException('Ustawienie ' . $name . ' jest poza zakresem.');
+            throw new \InvalidArgumentException(t('controller.admin.ustawienie') . $name . t('controller.finance.jest_poza_zakresem'));
         }
         return $value;
     }

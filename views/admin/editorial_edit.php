@@ -24,13 +24,13 @@ foreach (($translations ?? []) as $t) {
 $canReviewTranslations = !empty($can_review_translations);
 $mainMedia = $media[0] ?? null;
 $translationStatusLabels = [
-    'draft' => 'szkic',
-    'ai_draft' => 'szkic AI',
-    'editor_review' => 'korekta',
-    'approved' => 'zatwierdzone',
-    'published' => 'opublikowane',
-    'rejected' => 'odrzucone',
-    'error' => 'błąd',
+    'draft' => t('article.status.draft'),
+    'ai_draft' => t('admin.editorial_edit.ai_draft'),
+    'editor_review' => t('admin.editorial_edit.proofreading'),
+    'approved' => t('article.status.approved'),
+    'published' => t('article.status.published'),
+    'rejected' => t('article.status.rejected'),
+    'error' => t('admin.editorial_edit.bad'),
 ];
 $translationInstructions = '';
 foreach ($langs as $l) {
@@ -42,8 +42,8 @@ foreach ($langs as $l) {
 ?>
 
 <section class="admin-page-head">
-  <p class="kicker">WYDAWCA</p>
-  <h1>Edycja tekstu i wersji językowych</h1>
+  <p class="kicker"><?= e(t('admin.dashboard.wydawca')) ?></p>
+  <h1><?= e(t('admin.editorial_edit.edycja_tekstu_i_wersji_jezykowych')) ?></h1>
   <p><?= e($article['title']) ?></p>
 </section>
 
@@ -57,18 +57,18 @@ foreach ($langs as $l) {
 </div>
 
 <?php if (!empty($article['response_to_article_id'])): ?>
-  <?php $depositStatusLabels = ['not_required' => 'niewymagana', 'held' => 'pobrana', 'forfeited' => 'przepadła na rzecz serwisu', 'refunded' => 'zwrócona użytkownikowi']; ?>
+  <?php $depositStatusLabels = ['not_required' => t('admin.editorial_edit.deposit_not_required'), 'held' => t('admin.editorial_edit.deposit_held'), 'forfeited' => t('admin.editorial_edit.deposit_forfeited'), 'refunded' => t('admin.editorial_edit.deposit_refunded')]; ?>
   <section class="admin-notice-info editorial-response-note">
-    <strong>OPINIA / POLEMIKA DO PUBLIKACJI #<?= (int)$article['response_to_article_id'] ?></strong>
-    <p>Ten tekst pozostaje bezpłatny. Talent może przyznać wyłącznie TT po pierwszej publikacji przez redakcję.</p>
-    <p>Snapshot: <?= $article['response_reward_qualified'] === null ? 'jeszcze nie powstał' : (!empty($article['response_reward_qualified']) ? ((int)$article['response_reward_points'] . ' TT') : '0 TT — reguła nie kwalifikowała przy publikacji') ?><?php if (!empty($article['response_reward_job_public_id'])): ?> · job <code><?= e((string)$article['response_reward_job_public_id']) ?></code><?php endif; ?></p>
-    <p>Kaucja: <?= $article['response_deposit_status'] === null ? 'jeszcze nie pobrana' : e($depositStatusLabels[(string)$article['response_deposit_status']] ?? (string)$article['response_deposit_status']) ?><?php if ($article['response_deposit_points'] !== null): ?> · <?= (int)$article['response_deposit_points'] ?> TT<?php endif; ?><?php if (!empty($article['response_deposit_debit_transaction_id'])): ?> · obciążenie #<?= (int)$article['response_deposit_debit_transaction_id'] ?><?php endif; ?><?php if (!empty($article['response_deposit_refund_transaction_id'])): ?> · zwrot #<?= (int)$article['response_deposit_refund_transaction_id'] ?><?php endif; ?><?php if (!empty($article['response_deposit_forfeit_transaction_id'])): ?> · przepadek #<?= (int)$article['response_deposit_forfeit_transaction_id'] ?><?php endif; ?></p>
+    <strong><?= e(str_replace('{id}', (string)(int)$article['response_to_article_id'], t('admin.editorial_edit.response_heading'))) ?></strong>
+    <p><?= e(t('admin.editorial_edit.ten_tekst_pozostaje_bezpatny_talent_moze_przyznac_wyacz_8ff82848')) ?></p>
+    <p><strong><?= e(t('admin.editorial_edit.talent_reward')) ?>:</strong> <?= e($article['response_reward_qualified'] === null ? t('admin.editorial_edit.reward_after_first_publication') : (!empty($article['response_reward_qualified']) ? str_replace('{points}', (string)(int)$article['response_reward_points'], t('admin.editorial_edit.reward_points_saved')) : t('admin.editorial_edit.reward_rule_inactive'))) ?></p>
+    <p><strong><?= e(t('admin.editorial_edit.deposit')) ?>:</strong> <?= e($article['response_deposit_status'] === null ? t('admin.editorial_edit.deposit_not_collected') : ($depositStatusLabels[(string)$article['response_deposit_status']] ?? t('admin.common.status_unknown'))) ?><?php if ($article['response_deposit_points'] !== null): ?> · <?= (int)$article['response_deposit_points'] ?> TT<?php endif; ?></p>
   </section>
 <?php endif; ?>
 
 <?php if (!empty($article['proofread_at'])): ?>
   <section class="admin-notice-info editorial-proofread-note">
-    <strong>KOREKTA</strong> — ostatnia korekta: <?= e(date('d.m.Y H:i', strtotime((string)$article['proofread_at']))) ?>
+    <strong><?= e(t('admin.dashboard.korekta')) ?></strong> — <?= e(str_replace('{date}', date('d.m.Y H:i', strtotime((string)$article['proofread_at'])), t('admin.editorial_edit.last_proofreading'))) ?>
   </section>
 <?php endif; ?>
 
@@ -87,13 +87,13 @@ foreach ($langs as $l) {
 
   <section id="content" class="editorial-section">
     <div class="section-head">
-      <h2>Pełna edycja tekstu</h2>
-      <p>Jedno miejsce edycji: wybierz język, popraw tytuł, lead i treść, a potem zapisz.</p>
+      <h2><?= e(t('admin.editorial_edit.pena_edycja_tekstu')) ?></h2>
+      <p><?= e(t('admin.editorial_edit.jedno_miejsce_edycji_wybierz_jezyk_popraw_tytu_lead_i_t_079676d1')) ?></p>
     </div>
 
     <?php require __DIR__ . '/../partials/translation_status_legend.php'; ?>
 
-    <div class="editorial-language-tabs" role="tablist" aria-label="Wersje językowe tekstu">
+    <div class="editorial-language-tabs" role="tablist" aria-label="<?= e(t('admin.editorial_edit.wersje_jezykowe_tekstu')) ?>">
       <?php foreach ($langs as $index => $l): ?>
         <?php
           $isSourceLanguage = $l === $currentSourceLang;
@@ -111,10 +111,10 @@ foreach ($langs as $l) {
               $tabStateClass = ' is-error';
           }
           $tabStatusLabel = $isSourceLanguage
-              ? 'oryginał'
+              ? t('ui.partials.translation_status_legend.orygina')
               : ($hasCompleteTranslation
-                  ? ($translationStatusLabels[$translationStatus] ?? 'tłumaczenie')
-                  : (is_array($translation) ? 'niekompletne' : 'brak'));
+                  ? ($translationStatusLabels[$translationStatus] ?? t('admin.editorial_edit.tumaczenie'))
+                  : (is_array($translation) ? t('admin.editorial_edit.incomplete') : t('admin.common.missing')));
         ?>
         <button type="button" class="editorial-language-tab<?= $l === $selectedLanguage ? ' is-active' : '' ?><?= e($tabStateClass) ?>" data-language-tab="<?= e($l) ?>" title="<?= e(strtoupper($l) . ': ' . $tabStatusLabel) ?>">
           <strong><?= e(strtoupper($l)) ?></strong>
@@ -153,51 +153,51 @@ foreach ($langs as $l) {
           <div>
             <h3><?= e(strtoupper($l)) ?></h3>
             <?php if ($isSourceLanguage): ?>
-              <span class="zs-status-badge zs-language-badge is-source">ORYGINAŁ</span>
+              <span class="zs-status-badge zs-language-badge is-source"><?= e(t('admin.editorial_edit.orygina')) ?></span>
             <?php elseif ($hasCompleteVersion): ?>
               <span class="zs-status-badge <?= e($workflowClass) ?> translation-workflow-status"><?= e($translationStatusLabels[$versionStatus] ?? $versionStatus) ?></span>
             <?php else: ?>
-              <span class="zs-status-badge">BRAK PEŁNEGO TŁUMACZENIA</span>
+              <span class="zs-status-badge"><?= e(t('admin.editorial_edit.brak_penego_tumaczenia')) ?></span>
             <?php endif; ?>
           </div>
           <div class="translation-review-actions">
             <?php if (!$isSourceLanguage && isset($translationsMap[$l])): ?>
-              <a href="/article?id=<?= (int)$article['id'] ?>&lang=<?= e($l) ?>&preview_lang=<?= e($l) ?>" target="_blank" rel="noopener" class="text-link">Podgląd <?= e(strtoupper($l)) ?></a>
+              <a href="/article?id=<?= (int)$article['id'] ?>&lang=<?= e($l) ?>&preview_lang=<?= e($l) ?>" target="_blank" rel="noopener" class="text-link"><?= e(str_replace('{language}', strtoupper($l), t('admin.editorial_edit.preview_language'))) ?></a>
             <?php endif; ?>
             <span class="translation-review-decision">
               <?php if ($canApproveVersion): ?>
                 <button type="submit" class="zs-btn-red zs-btn-compact" form="translation-approve-<?= (int)$version['id'] ?>">
-                  <?= $versionStatus === 'approved' ? 'OPUBLIKUJ' : 'ZATWIERDŹ I OPUBLIKUJ' ?>
+                  <?= e($versionStatus === 'approved' ? t('admin.editorial_edit.publish') : t('admin.editorial_edit.zatwierdz_i_opublikuj')) ?>
                 </button>
-                <button type="submit" class="zs-btn-outline zs-btn-compact is-danger" form="translation-reject-<?= (int)$version['id'] ?>">ODRZUĆ DO POPRAWY</button>
+                <button type="submit" class="zs-btn-outline zs-btn-compact is-danger" form="translation-reject-<?= (int)$version['id'] ?>"><?= e(t('admin.editorial_edit.odrzuc_do_poprawy')) ?></button>
               <?php elseif ($versionStatus === 'published'): ?>
-                <span class="translation-publisher-done">Sprawdzone i opublikowane przez Wydawcę</span>
+                <span class="translation-publisher-done"><?= e(t('admin.editorial_edit.sprawdzone_i_opublikowane_przez_wydawce')) ?></span>
               <?php elseif ($versionStatus === 'rejected'): ?>
-                <span class="translation-publisher-rejected">Odrzucone — popraw treść i zapisz wersję ponownie</span>
+                <span class="translation-publisher-rejected"><?= e(t('admin.editorial_edit.odrzucone_popraw_tresc_i_zapisz_wersje_ponownie')) ?></span>
               <?php elseif ($versionStatus === 'error'): ?>
-                <span class="translation-publisher-rejected">Błąd tłumaczenia — popraw lub wygeneruj wersję ponownie</span>
+                <span class="translation-publisher-rejected"><?= e(t('admin.editorial_edit.bad_tumaczenia_popraw_lub_wygeneruj_wersje_ponownie')) ?></span>
               <?php endif; ?>
             </span>
           </div>
         </div>
         <?php if ($canApproveVersion): ?>
           <div class="translation-publisher-note">
-            <strong>DECYZJA WYDAWCY</strong>
-            <span>Sprawdź podgląd, porównaj tłumaczenie z oryginałem, a następnie zaakceptuj i opublikuj albo odeślij wersję do poprawy.</span>
+            <strong><?= e(t('admin.editorial_edit.decyzja_wydawcy')) ?></strong>
+            <span><?= e(t('admin.editorial_edit.sprawdz_podglad_porownaj_tumaczenie_z_oryginaem_a_naste_3520c871')) ?></span>
           </div>
         <?php endif; ?>
         <div class="translation-review-feedback" aria-live="polite"></div>
         <div class="field-group">
           <label class="field">
-            <span>Tytuł</span>
+            <span><?= e(t('author.article.title')) ?></span>
             <input name="language_versions[<?= e($l) ?>][title]" value="<?= e($versionTitle) ?>" <?= $isSourceLanguage ? 'required' : '' ?>>
           </label>
           <label class="field">
-            <span>Lead</span>
+            <span><?= e(t('author.article.lead')) ?></span>
             <textarea name="language_versions[<?= e($l) ?>][lead]" rows="4"><?= e($versionLead) ?></textarea>
           </label>
           <label class="field">
-            <span>Treść</span>
+            <span><?= e(t('admin.editorial_edit.tresc')) ?></span>
             <textarea name="language_versions[<?= e($l) ?>][body]" rows="18" <?= $isSourceLanguage ? 'required' : '' ?>><?= e($versionBody) ?></textarea>
           </label>
         </div>
@@ -206,10 +206,10 @@ foreach ($langs as $l) {
   </section>
 
   <section id="settings" class="editorial-section u-mt-8">
-    <div class="section-head"><h2>Język oryginału i dyspozycja do tłumaczenia</h2></div>
+    <div class="section-head"><h2><?= e(t('admin.editorial_edit.jezyk_oryginau_i_dyspozycja_do_tumaczenia')) ?></h2></div>
     <div class="field-group">
       <label class="field">
-        <span>Język oryginału</span>
+        <span><?= e(t('editorial.editing.source_language')) ?></span>
         <select name="source_language" required>
           <?php foreach ($langs as $l): ?>
             <option value="<?= e($l) ?>" <?= $l === $currentSourceLang ? 'selected' : '' ?>><?= e(strtoupper($l)) ?></option>
@@ -217,15 +217,15 @@ foreach ($langs as $l) {
         </select>
       </label>
       <label class="field">
-        <span>Dyspozycja redakcyjna do tłumaczenia</span>
-        <textarea name="translation_instructions" rows="5" placeholder="Wpisz zalecenia dla tłumaczenia...\"><?= e($translationInstructions) ?></textarea>
-        <small class="field-help">Jeżeli artykuł ma własną dyspozycję, AI użyje jej zamiast głównej dyspozycji z Fundamentu AI.</small>
+        <span><?= e(t('admin.editorial_edit.dyspozycja_redakcyjna_do_tumaczenia')) ?></span>
+        <textarea name="translation_instructions" rows="5" placeholder="<?= e(t('admin.editorial_edit.wpisz_zalecenia_dla_tumaczenia')) ?>"><?= e($translationInstructions) ?></textarea>
+        <small class="field-help"><?= e(t('admin.editorial_edit.jezeli_artyku_ma_wasna_dyspozycje_ai_uzyje_jej_zamiast_3e7acdce')) ?></small>
       </label>
     </div>
   </section>
 
   <section id="image" class="editorial-section u-mt-8">
-    <div class="section-head"><h2>Zdjęcie wyróżniające</h2></div>
+    <div class="section-head"><h2><?= e(t('admin.editorial_edit.zdjecie_wyrozniajace')) ?></h2></div>
     <div class="zs-upload-module zs-article-image-editor editorial-image-module-wide" id="editorial-image-module">
       <input type="file" name="image" id="editorial-image-input" accept="image/jpeg,image/png,image/webp" hidden>
       <input type="hidden" name="image_data" id="editorial-image-data" value="">
@@ -235,25 +235,25 @@ foreach ($langs as $l) {
       <div class="zs-upload-dropzone zs-article-crop-frame <?= $mainMedia ? 'has-image has-current-image' : '' ?>" id="editorial-image-dropzone">
         <div class="zs-upload-placeholder">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="zs-upload-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <p>PRZECIĄGNIJ ZDJĘCIE ALBO WYBIERZ PLIK</p>
-          <button type="button" class="zs-btn-small" id="editorial-image-select">Zmień zdjęcie</button>
+          <p><?= e(t('admin.editorial_edit.przeciagnij_zdjecie_albo_wybierz_plik')) ?></p>
+          <button type="button" class="zs-btn-small" id="editorial-image-select"><?= e(t('response.form.image_change')) ?></button>
         </div>
         <?php if ($mainMedia): ?>
           <img src="<?= e($mainMedia['path']) ?>" alt="" class="zs-current-article-image" id="editorial-current-image">
         <?php else: ?>
           <img src="" alt="" class="zs-current-article-image" id="editorial-current-image" style="display:none">
         <?php endif; ?>
-        <canvas id="editorial-image-canvas" width="1600" height="900" aria-label="Edytor zdjęcia artykułu wydawcy"></canvas>
+        <canvas id="editorial-image-canvas" width="1600" height="900" aria-label="<?= e(t('admin.editorial_edit.edytor_zdjecia_artykuu_wydawcy')) ?>"></canvas>
       </div>
 
       <div class="zs-image-adjuster zs-image-editor-controls" id="editorial-image-adjuster" style="<?= $mainMedia ? '' : 'display:none' ?>">
-        <label>POWIĘKSZENIE / ZOOM</label>
+        <label><?= e(t('admin.editorial_edit.powiekszenie_zoom')) ?></label>
         <input type="range" min="1" max="5" step="0.01" value="1" class="zs-range" id="editorial-image-zoom">
         <div class="zs-image-editor-actions">
           <span class="file-name" id="editorial-image-file-name"><?= $mainMedia ? e($mainMedia['title'] ?? '') : '' ?></span>
-          <button type="button" class="zs-btn-mini" id="editorial-image-change">Zmień zdjęcie</button>
+          <button type="button" class="zs-btn-mini" id="editorial-image-change"><?= e(t('response.form.image_change')) ?></button>
         </div>
-        <p class="field-help">Ten ekran używa tego samego edytora co avatar i autor: drag/drop, przesuwanie kadru, zoom suwakiem, zapis jako WEBP.</p>
+        <p class="field-help"><?= e(t('admin.editorial_edit.ten_ekran_uzywa_tego_samego_edytora_co_avatar_i_autor_d_7a243076')) ?></p>
       </div>
 
       <div id="editorial-image-status" class="zs-upload-status"></div>
@@ -261,20 +261,20 @@ foreach ($langs as $l) {
   </section>
 
   <section id="ranking" class="editorial-section u-mt-8">
-    <div class="section-head"><h2>Kolejność i Ważność</h2></div>
+    <div class="section-head"><h2><?= e(t('admin.editorial_edit.kolejnosc_i_waznosc')) ?></h2></div>
     <div class="field-group">
-      <label class="field"><span>Kolejność wyświetlania</span><input type="number" name="display_order" value="<?= (int)($article['display_order'] ?? 0) ?>"></label>
-      <label class="field"><span>Waga redakcyjna</span><input type="number" name="editorial_weight" value="<?= (int)($article['editorial_weight'] ?? 0) ?>"></label>
+      <label class="field"><span><?= e(t('admin.editorial_edit.kolejnosc_wyswietlania')) ?></span><input type="number" name="display_order" value="<?= (int)($article['display_order'] ?? 0) ?>"></label>
+      <label class="field"><span><?= e(t('editorial.editing.editorial_weight')) ?></span><input type="number" name="editorial_weight" value="<?= (int)($article['editorial_weight'] ?? 0) ?>"></label>
       <label class="field-checkbox">
         <input type="checkbox" name="is_featured" value="1" <?= !empty($article['is_featured']) ? 'checked' : '' ?>>
-        <span>Oznacz jako ważne / promowane</span>
+        <span><?= e(t('admin.editorial_edit.oznacz_jako_wazne_promowane')) ?></span>
       </label>
     </div>
   </section>
 
   <div class="editorial-form-footer u-mt-10">
-    <button type="submit" class="zs-btn btn-large">Zapisz tekst i wersje językowe</button>
-    <a href="/admin/editorial" class="text-link">Powrót do listy</a>
+    <button type="submit" class="zs-btn btn-large"><?= e(t('admin.editorial_edit.zapisz_tekst_i_wersje_jezykowe')) ?></button>
+    <a href="/admin/editorial" class="text-link"><?= e(t('admin.editorial_edit.powrot_do_listy')) ?></a>
   </div>
 </form>
 
@@ -353,6 +353,24 @@ foreach ($langs as $l) {
 
 <script src="/assets/js/slowo-image-editor.js"></script>
 <script>
+  const editorialUi = <?= json_encode([
+    'invalidImage' => t('upload.image.invalid_type'),
+    'published' => t('admin.editorial_edit.sprawdzone_i_opublikowane_przez_wydawce'),
+    'rejected' => t('admin.editorial_edit.odrzucone_popraw_tresc_i_zapisz_wersje_ponownie'),
+    'statusPublished' => t('article.status.published'),
+    'statusRejected' => t('article.status.rejected'),
+    'decisionSaveError' => t('admin.editorial_edit.decision_save_error'),
+    'decisionSaved' => t('admin.editorial_edit.decision_saved'),
+    'connectionError' => t('common.connection_error'),
+    'saveError' => t('common.save_error'),
+    'saved' => t('common.saved'),
+    'saveButton' => t('admin.role_panel.save_button'),
+    'saving' => t('admin.role_panel.saving'),
+    'publisherDecisionSaving' => t('admin.editorial_edit.publisher_decision_saving'),
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+  const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;'
+  })[character]);
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.editorial-language-tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
@@ -385,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
       height: 900,
       outputType: 'image/webp',
       outputQuality: 0.88,
-      invalidTypeMessage: 'Plik musi być obrazem JPG, PNG albo WEBP.',
+      invalidTypeMessage: editorialUi.invalidImage,
       onReady: function () {
         if (adjuster) { adjuster.style.display = 'block'; }
         if (currentImage) { currentImage.style.display = 'none'; }
@@ -447,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const tab = document.querySelector('[data-language-tab="' + language + '"]');
 
     if (statusBadge) {
-      statusBadge.textContent = status === 'published' ? 'opublikowane' : 'odrzucone';
+      statusBadge.textContent = status === 'published' ? editorialUi.statusPublished : editorialUi.statusRejected;
       statusBadge.className = 'zs-status-badge translation-workflow-status ' + (status === 'published' ? 'paid' : 'failed');
     }
     if (tab) {
@@ -455,13 +473,13 @@ document.addEventListener('DOMContentLoaded', function () {
       tab.classList.add(status === 'published' ? 'has-version' : 'is-error');
       const label = tab.querySelector('span');
       if (label) {
-        label.textContent = status === 'published' ? 'opublikowane' : 'odrzucone';
+        label.textContent = status === 'published' ? editorialUi.statusPublished : editorialUi.statusRejected;
       }
     }
     if (decision) {
       decision.innerHTML = status === 'published'
-        ? '<span class="translation-publisher-done">Sprawdzone i opublikowane przez Wydawcę</span>'
-        : '<span class="translation-publisher-rejected">Odrzucone — popraw treść i zapisz wersję ponownie</span>';
+        ? '<span class="translation-publisher-done">' + escapeHtml(editorialUi.published) + '</span>'
+        : '<span class="translation-publisher-rejected">' + escapeHtml(editorialUi.rejected) + '</span>';
     }
     if (note) {
       note.remove();
@@ -481,9 +499,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       buttons.forEach(function (button) { button.disabled = true; });
       if (clickedButton) {
-        clickedButton.textContent = 'Zapisywanie...';
+        clickedButton.textContent = editorialUi.saving;
       }
-      showReviewMessage(panel, 'Zapisywanie decyzji Wydawcy...', 'success');
+      showReviewMessage(panel, editorialUi.publisherDecisionSaving, 'success');
 
       try {
         const response = await fetch(form.action, {
@@ -497,17 +515,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         const data = await response.json();
         if (!response.ok || !data.success) {
-          throw new Error(data.message || 'Nie udało się zapisać decyzji Wydawcy.');
+          throw new Error(data.message || editorialUi.decisionSaveError);
         }
 
         updateTranslationReviewState(panel, language, data.status || '');
-        showReviewMessage(panel, data.message || 'Decyzja została zapisana.', 'success');
+        showReviewMessage(panel, data.message || editorialUi.decisionSaved, 'success');
       } catch (error) {
         buttons.forEach(function (button) { button.disabled = false; });
         if (clickedButton) {
           clickedButton.textContent = originalText;
         }
-        showReviewMessage(panel, error.message || 'Błąd połączenia.', 'error');
+        showReviewMessage(panel, error.message || editorialUi.connectionError, 'error');
       }
     });
   });
@@ -517,11 +535,11 @@ document.addEventListener('DOMContentLoaded', function () {
     editorialForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const button = editorialForm.querySelector('button[type="submit"]');
-      const originalText = button ? button.textContent : 'Zapisz';
+      const originalText = button ? button.textContent : editorialUi.saveButton;
 
       if (button) {
         button.disabled = true;
-        button.textContent = 'Zapisywanie...';
+        button.textContent = editorialUi.saving;
       }
 
       try {
@@ -543,18 +561,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (data.success) {
-          showLocalMessage(button, data.message || 'Zapisano', 'success');
+          showLocalMessage(button, data.message || editorialUi.saved, 'success');
           if (data.redirect) {
             setTimeout(() => window.location.href = data.redirect, 1000);
           }
         } else {
-          showLocalMessage(button, data.message || 'Błąd zapisu', 'error');
+          showLocalMessage(button, data.message || editorialUi.saveError, 'error');
         }
       } catch (error) {
         if (button) {
           button.disabled = false;
           button.textContent = originalText;
-          showLocalMessage(button, 'Błąd połączenia', 'error');
+          showLocalMessage(button, editorialUi.connectionError, 'error');
         }
       }
     });

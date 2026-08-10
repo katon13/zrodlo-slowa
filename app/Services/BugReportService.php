@@ -38,8 +38,13 @@ final class BugReportService
         $pageUrl = mb_substr(trim($pageUrl), 0, 1000);
         $description = mb_substr(trim($description), 0, 5000);
         $details = mb_substr(trim((string)$details), 0, 10000) ?: null;
-        if ($pageUrl === '' || $description === '') {
-            throw new \InvalidArgumentException('Opisz błąd i wskaż stronę, na której się pojawił.');
+        $attachmentPath = trim((string)$attachmentPath) ?: null;
+        $attachmentMime = strtolower(trim((string)$attachmentMime)) ?: null;
+        if ($pageUrl === '' || $description === '' || $details === null) {
+            throw new \InvalidArgumentException('Opisz błąd, wskaż stronę i podaj kroki potrzebne do jego powtórzenia.');
+        }
+        if ($attachmentPath === null || !in_array($attachmentMime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            throw new \InvalidArgumentException('Dołącz zdjęcie ekranu w formacie JPG, PNG albo WEBP.');
         }
         return $this->db->insert(
             'INSERT INTO bug_reports(public_id,user_id,page_url,description,details,attachment_path,attachment_mime,status,created_at,updated_at)

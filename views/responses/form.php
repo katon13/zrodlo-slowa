@@ -31,7 +31,7 @@ $submissionDepositPoints = max(0, (int)($submission_deposit_points ?? 0));
     <label><span><?= e(t('response.form.lead_label', $language)) ?></span><textarea name="lead" rows="3" placeholder="<?= e(t('response.form.lead_placeholder', $language)) ?>"><?= e((string)($response['lead'] ?? '')) ?></textarea></label>
     <label><span><?= e(t('response.form.body_label', $language)) ?></span><textarea name="body" rows="18" required placeholder="<?= e(t('response.form.body_placeholder', $language)) ?>"><?= e((string)($response['body'] ?? '')) ?></textarea></label>
     <div class="zs-response-editor-row">
-      <label><span><?= e(t('response.form.source_language', $language)) ?></span><select name="source_language"><?php foreach (['pl'=>'Polski','en'=>'English','de'=>'Deutsch','fr'=>'Français','it'=>'Italiano','es'=>'Español'] as $code=>$label): ?><option value="<?= e($code) ?>" <?= (string)($response['source_language'] ?? 'pl') === $code ? 'selected' : '' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
+<label><span><?= e(t('response.form.source_language', $language)) ?></span><select name="source_language"><?php foreach (['pl','en','de','fr','it','es'] as $code): ?><option value="<?= e($code) ?>" <?= (string)($response['source_language'] ?? 'pl') === $code ? 'selected' : '' ?>><?= e(t('language.native.' . $code, $language)) ?></option><?php endforeach; ?></select></label>
       <div class="zs-response-image-field">
         <span class="zs-response-field-label"><?= e(t('response.form.image', $language)) ?></span>
         <input type="file" name="image" id="response-image-input" accept="image/jpeg,image/png,image/webp" hidden>

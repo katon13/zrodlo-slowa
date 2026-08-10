@@ -23,11 +23,11 @@
             <p><?= t('author.article.drag_drop') ?></p>
             <button type="button" class="zs-btn-small" id="select-image-btn"><?= t('author.article.select_image') ?></button>
           </div>
-          <canvas id="article-image-canvas" width="1600" height="900" aria-label="Edytor zdjęcia artykułu"></canvas>
+          <canvas id="article-image-canvas" width="1600" height="900" aria-label="<?= e(t('ui.author.create_article.edytor_zdjecia_artykuu')) ?>"></canvas>
         </div>
 
         <div class="zs-image-adjuster zs-image-editor-controls" id="image-adjuster" style="display:none">
-          <label>POWIĘKSZENIE / ZOOM</label>
+          <label><?= e(t('admin.editorial_edit.powiekszenie_zoom')) ?></label>
           <input type="range" min="1" max="5" step="0.01" value="1" class="zs-range" id="image-zoom">
           <div class="zs-image-editor-actions">
             <span class="file-name" id="image-file-name"></span>

@@ -60,7 +60,7 @@ final class Dors3MobileAdminController extends BaseController
     {
         $adminId = $this->requireAdmin();
         $enrollmentPublicId = trim((string)($_GET['enrollment_public_id'] ?? ''));
-        $reason = trim((string)($_POST['reason'] ?? 'Anulowanie przez administratora'));
+        $reason = trim((string)($_POST['reason'] ?? t('controller.dors3mobileadmin.anulowanie_przez_administratora')));
         try {
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -106,7 +106,7 @@ final class Dors3MobileAdminController extends BaseController
     {
         $adminId = $this->requireAdmin();
         $devicePublicId = trim((string)($_GET['device_public_id'] ?? ''));
-        $reason = trim((string)($_POST['reason'] ?? 'Decyzja administratora'));
+        $reason = trim((string)($_POST['reason'] ?? t('controller.dors3mobileadmin.decyzja_administratora')));
         try {
             $this->authorizeCriticalOperation(
                 $adminId,

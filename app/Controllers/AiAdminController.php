@@ -15,7 +15,7 @@ final class AiAdminController extends BaseController
         $this->requirePermission(PermissionCatalog::AI_VIEW);
         $service = new AiFoundationService($this->app->db);
         return $this->view('admin/ai', [
-            'title' => 'AI redakcyjne',
+            'title' => t('controller.aiadmin.ai_redakcyjne'),
             'ai_settings' => $service->settings(),
             'ai_summary' => $service->summary(),
             'ai_jobs' => $service->recentJobs(),
@@ -38,7 +38,7 @@ final class AiAdminController extends BaseController
             $this->slowoSnajper()->audit($actorId, 'ai.translation_instruction.update', [
                 'result' => 'success',
             ]);
-            $this->app->session->flash('success', 'Główna dyspozycja tłumaczeń została zapisana.');
+            $this->app->session->flash('success', t('controller.aiadmin.gowna_dyspozycja_tumaczen_zostaa_zapisana'));
         } catch (\Throwable $e) {
             $this->slowoSnajper()->audit($actorId, 'ai.translation_instruction.update', [
                 'result' => 'failure',
@@ -69,7 +69,7 @@ final class AiAdminController extends BaseController
                 'result' => 'success',
                 'keys' => array_keys($settingsInput),
             ]);
-            $this->app->session->flash('success', 'Założenia AI zostały zapisane.');
+            $this->app->session->flash('success', t('controller.aiadmin.zaozenia_ai_zostay_zapisane'));
         } catch (\Throwable $e) {
             $this->slowoSnajper()->audit($actorId, 'ai.settings.update', [
                 'result' => 'failure',
@@ -132,7 +132,7 @@ final class AiAdminController extends BaseController
         try {
             $adminId = $actorId;
             if ($adminId <= 0) {
-                throw new \RuntimeException('Brak użytkownika administracyjnego w sesji.');
+                throw new \RuntimeException(t('controller.aiadmin.brak_uzytkownika_administracyjnego_w_sesji'));
             }
             $settings = (new AiFoundationService($this->app->db))->settings();
             $model = trim((string)($_POST['model'] ?? ($settings['ai.openai.model'] ?? 'gpt-5.5')));
@@ -146,14 +146,14 @@ final class AiAdminController extends BaseController
                 'model' => $model,
                 'background_job_id' => (int)$job['id'],
             ]);
-            $this->app->session->flash('success', 'Test OpenAI trafił do izolowanej kolejki AI. Id zadania: ' . $job['public_id'] . '.');
+            $this->app->session->flash('success', t('controller.aiadmin.test_openai_trafi_do_izolowanej_kolejki_ai_id_zadania') . $job['public_id'] . '.');
         } catch (\Throwable $e) {
             $this->slowoSnajper()->audit($actorId, 'ai.provider.test', [
                 'result' => 'failure',
                 'provider' => 'openai',
                 'error_type' => $e::class,
             ]);
-            $this->app->session->flash('error', 'Test OpenAI nie powiódł się: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.aiadmin.test_openai_nie_powiod_sie') . $e->getMessage());
         }
         redirect('/admin/ai');
     }
@@ -164,14 +164,14 @@ final class AiAdminController extends BaseController
         try {
             $adminId = $actorId;
             if ($adminId <= 0) {
-                throw new \RuntimeException('Brak użytkownika administracyjnego w sesji.');
+                throw new \RuntimeException(t('controller.aiadmin.brak_uzytkownika_administracyjnego_w_sesji'));
             }
             $jobId = (new AiFoundationService($this->app->db))->createPlannedArticleJob($_POST, $adminId);
             $this->slowoSnajper()->audit($actorId, 'ai.job.plan', [
                 'result' => 'success',
                 'ai_job_id' => $jobId,
             ]);
-            $this->app->session->flash('success', 'Zaplanowano zadanie AI #' . $jobId . '. To jest tylko plan — bez tłumaczenia i bez wywołania OpenAI.');
+            $this->app->session->flash('success', str_replace('{id}', (string)$jobId, t('controller.aiadmin.ai_task_planned')));
         } catch (\Throwable $e) {
             $this->slowoSnajper()->audit($actorId, 'ai.job.plan', [
                 'result' => 'failure',

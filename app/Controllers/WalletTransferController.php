@@ -16,7 +16,7 @@ final class WalletTransferController extends BaseController
             $transferId = $service->convertTalentToPln($userId, $talentAmount);
             $this->app->session->flash('success', t('wallet.transfer.success_talent_to_pln', $lang) . ' (#' . $transferId . ')');
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się wykonać transferu.', 'wallet_transfer'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.wallettransfer.nie_udao_sie_wykonac_transferu'), 'wallet_transfer'));
         }
         redirect(public_language_url($lang, '/wallet'));
     }

@@ -130,7 +130,7 @@ $isActivity = static fn($type) => in_array($type, [
                 <small style="opacity: 0.8;"><?= t('wallet.rate.nbp_source', $lang) ?></small>
               <?php endif; ?>
             <?php else: ?>
-              <?= e($tt_rate_label ?? '10 TT = 1,0 PLN') ?>.
+          <?= e($tt_rate_label ?? t('wallet.rate.default_label', $lang)) ?>.
             <?php endif; ?>
           </p>
           <p><?= t('wallet.conversion_description', $lang) ?></p>
@@ -164,12 +164,12 @@ $isActivity = static fn($type) => in_array($type, [
           <?php if ($localApprox): ?>
             10 TT = <?= e($localApprox) ?>.
           <?php else: ?>
-            <?= e($tt_rate_label ?? '10 TT = 1,0 PLN') ?>.
+            <?= e($tt_rate_label ?? t('wallet.rate.default_label', $lang)) ?>.
           <?php endif; ?>
           <?= t('wallet.how_it_works.talent_description_full', $lang) ?>
         </p>
         <div class="zs-transfer-stats">
-          <small><?= t('wallet.conversion.rate', $lang) ?>: <?= e($localApprox ?: ($tt_rate_label ?? '10 TT = 1,0 PLN')) ?></small>
+          <small><?= t('wallet.conversion.rate', $lang) ?>: <?= e($localApprox ?: ($tt_rate_label ?? t('wallet.rate.default_label', $lang))) ?></small>
           <small><?= t('wallet.conversion.fee', $lang) ?>: <?= (int)($transferQuote['fee_percent'] ?? 5) ?>%</small>
           <small><?= t('wallet.conversion.control_active', $lang) ?></small>
         </div>

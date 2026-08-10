@@ -280,7 +280,10 @@ final class ArticleService
         $rawAccessMode = (string)($data['access_mode'] ?? 'free');
         $accessMode = in_array($rawAccessMode, ['free', 'paid'], true) ? $rawAccessMode : 'free';
         $priceMinor = max(0, (int)($data['price_minor'] ?? 0));
-        $sourceLanguage = in_array($data['source_language'] ?? 'pl', ['pl', 'en', 'de', 'fr', 'it', 'es'], true) ? $data['source_language'] : 'pl';
+        $requestedSourceLanguage = (string)($data['source_language'] ?? 'pl');
+        $sourceLanguage = in_array($requestedSourceLanguage, ['pl', 'en', 'de', 'fr', 'it', 'es'], true)
+            ? $requestedSourceLanguage
+            : 'pl';
 
         return $this->db->transaction(function(Database $db) use ($authorId, $data, $accessMode, $priceMinor, $sourceLanguage) {
             $id = $db->insert('INSERT INTO articles(author_id,title,slug,`lead`,body,status,access_mode,price_minor,source_language,created_at,updated_at) VALUES(:author,:title,:slug,:lead,:body,\'draft\',:access,:price,:source,NOW(),NOW())', [

@@ -287,7 +287,9 @@ final class CampaignService
 
     public function create(int $adminId, array $data): int
     {
-        return $this->save(null, $adminId, $data);
+        return $this->db->transaction(
+            fn(Database $_db): int => $this->save(null, $adminId, $data)
+        );
     }
 
     public function update(int $id, int $adminId, array $data): void
@@ -295,7 +297,9 @@ final class CampaignService
         if ($this->find($id) === null) {
             throw new \RuntimeException('Nie znaleziono kampanii.');
         }
-        $this->save($id, $adminId, $data);
+        $this->db->transaction(function (Database $_db) use ($id, $adminId, $data): void {
+            $this->save($id, $adminId, $data);
+        });
     }
 
     /** @return array<string,mixed>|null */
@@ -558,7 +562,7 @@ final class CampaignService
         }
 
         if ($id === null) {
-            return $this->db->insert(
+            $id = $this->db->insert(
                 'INSERT INTO campaigns(
                     client_name,client_email,order_reference,name,type,description,target_url,
                     budget_minor,cost_per_view_minor,cost_per_click_minor,cost_per_completed_survey_minor,
@@ -573,6 +577,8 @@ final class CampaignService
                  )',
                 $payload,
             );
+            $this->markSponsoredArticle($type, $linkedArticleId);
+            return $id;
         }
 
         $payload['id'] = $id;
@@ -589,7 +595,19 @@ final class CampaignService
              WHERE id=:id',
             $payload,
         );
+        $this->markSponsoredArticle($type, $linkedArticleId);
         return $id;
+    }
+
+    private function markSponsoredArticle(string $campaignType, ?int $articleId): void
+    {
+        if ($campaignType !== 'sponsored_article' || $articleId === null) {
+            return;
+        }
+        $this->db->query(
+            "UPDATE articles SET article_label='Sponsored',updated_at=NOW() WHERE id=:id",
+            ['id' => $articleId],
+        );
     }
 
     /** @return array<string,mixed>|null */

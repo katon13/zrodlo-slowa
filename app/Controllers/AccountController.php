@@ -69,7 +69,7 @@ final class AccountController extends BaseController
                 ]);
                 exit;
             }
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zapisać ustawień konta.', 'account_settings'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.account.nie_udao_sie_zapisac_ustawien_konta'), 'account_settings'));
             redirect(public_language_url($requestLang, '/account/settings'));
         }
     }
@@ -108,7 +108,7 @@ final class AccountController extends BaseController
         try {
             $data = json_decode(file_get_contents('php://input'), true);
             if (!is_array($data)) {
-                throw new \InvalidArgumentException('Nieprawidłowy format danych avatara.');
+                throw new \InvalidArgumentException(t('controller.account.nieprawidowy_format_danych_avatara'));
             }
             $lang = public_language((string)($data['_lang'] ?? $data['language'] ?? $data['lang'] ?? ''));
             $imageData = $data['image'] ?? null;
@@ -166,7 +166,7 @@ final class AccountController extends BaseController
                     $relativeUrl,
                     is_string($oldReferenceValue) ? $oldReferenceValue : null
                 )) {
-                    throw new \RuntimeException('Avatar został równolegle zmieniony; ponów operację.');
+                    throw new \RuntimeException(t('controller.account.avatar_zosta_rownolegle_zmieniony_ponow_operacje'));
                 }
             } catch (\Throwable $error) {
                 try {

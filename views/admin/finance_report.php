@@ -6,41 +6,41 @@ $statusBadge = function($status, $map) {
 };
 ?>
 <section class="admin-page-head zs-operator-page-head">
-    <p class="kicker">Finanse i Gospodarka</p>
-    <h1>Raport finansowy</h1>
-    <p>Mapa ekonomii systemu: przepływy, portfele, sprzedaż i rozliczenia w ujęciu redakcyjnym.</p>
+    <p class="kicker"><?= e(t('admin.finance_report.finanse_i_gospodarka')) ?></p>
+    <h1><?= e(t('admin.finance_report.raport_finansowy')) ?></h1>
+    <p><?= e(t('admin.finance_report.mapa_ekonomii_systemu_przepywy_portfele_sprzedaz_i_rozl_8c943c80')) ?></p>
 </section>
 
 <section class="settlement-grid">
     <div class="settlement-card">
-        <span>PORTFELE</span>
+        <span><?= e(t('admin.finance_report.portfele')) ?></span>
         <strong><?= (int)$wallets['cnt'] ?></strong>
-        <small><?= $money($wallets['sum_available'] ?? 0) ?> dostępne</small>
+        <small><?= e(str_replace('{amount}', $money($wallets['sum_available'] ?? 0), t('admin.finance_report.available_amount'))) ?></small>
     </div>
     <div class="settlement-card is-red">
-        <span>REZERWACJE</span>
+        <span><?= e(t('admin.finance_report.rezerwacje')) ?></span>
         <strong><?= $money($wallets['sum_reserved'] ?? 0) ?></strong>
-        <small>wypłaty w toku</small>
+        <small><?= e(t('admin.finance_report.wypaty_w_toku')) ?></small>
     </div>
     <div class="settlement-card">
-        <span>ZDARZENIA KSIĘGOWE</span>
+        <span><?= e(t('admin.finance_report.zdarzenia_ksiegowe')) ?></span>
         <strong><?= number_format((int)($economy_summary['transactions']['cnt'] ?? 0), 0, ',', ' ') ?></strong>
-        <small>zdarzeń finansowych</small>
+        <small><?= e(t('admin.finance_report.zdarzen_finansowych')) ?></small>
     </div>
     <div class="settlement-card">
-        <span>PUNKTY TALENT</span>
+        <span><?= e(t('admin.finance_report.punkty_talent')) ?></span>
         <strong><?= number_format((int)($wallets['sum_points'] ?? 0), 0, ',', ' ') ?></strong>
-        <small>kapitał społeczny</small>
+        <small><?= e(t('admin.finance_report.kapita_spoeczny')) ?></small>
     </div>
 </section>
 
 <section class="admin-panel-block zs-money-map-section">
     <div class="admin-section-head">
         <div>
-            <p class="kicker">Ekonomia ŹRÓDŁA SŁOWA</p>
-            <h2>Mapa przepływu pieniędzy</h2>
+            <p class="kicker"><?= e(t('admin.finance_report.ekonomia_zroda_sowa')) ?></p>
+            <h2><?= e(t('admin.finance_report.mapa_przepywu_pieniedzy')) ?></h2>
         </div>
-        <a class="text-link" href="/admin/ledger">Otwórz dziennik finansowy</a>
+        <a class="text-link" href="/admin/ledger"><?= e(t('admin.finance_report.otworz_dziennik_finansowy')) ?></a>
     </div>
 
     <div class="zs-money-flow-grid">
@@ -56,23 +56,23 @@ $statusBadge = function($status, $map) {
 
                 <div class="zs-flow-path">
                     <div class="zs-flow-step">
-                        <span class="zs-step-label">Płatnik</span>
+                        <span class="zs-step-label"><?= e(t('admin.finance_report.patnik')) ?></span>
                         <b class="zs-step-value"><?= e($flow['payer']) ?></b>
                     </div>
                     <div class="zs-flow-arrow"><?= zs_icon('arrow-right') ?></div>
                     <div class="zs-flow-step is-action">
-                        <span class="zs-step-label">Akcja</span>
+                        <span class="zs-step-label"><?= e(t('admin.anti_fraud.akcja')) ?></span>
                         <b class="zs-step-value"><?= e($flow['action']) ?></b>
                     </div>
                     <div class="zs-flow-arrow"><?= zs_icon('arrow-right') ?></div>
                     <div class="zs-flow-step">
-                        <span class="zs-step-label">Odbiorca</span>
+                        <span class="zs-step-label"><?= e(t('admin.finance_report.odbiorca')) ?></span>
                         <b class="zs-step-value"><?= e($flow['receiver']) ?></b>
                     </div>
                 </div>
 
                 <div class="zs-flow-ledger">
-                    <span class="zs-ledger-label">Zapisy w systemie:</span>
+                    <span class="zs-ledger-label"><?= e(t('admin.finance_report.zapisy_w_systemie')) ?></span>
                     <div class="zs-ledger-tags">
                         <?php foreach ($flow['wallet'] as $tech => $human): ?>
                             <span class="zs-ledger-tag" title="<?= e($tech) ?>"><?= e($human) ?></span>
@@ -88,34 +88,34 @@ $statusBadge = function($status, $map) {
     <div class="admin-panel-block">
         <div class="admin-section-head">
             <div>
-                <p class="kicker">Sprzedaż treści</p>
-                <h2>Artykuły Premium — Autor / Serwis / Safety Fund</h2>
+                <p class="kicker"><?= e(t('admin.finance_report.sprzedaz_tresci')) ?></p>
+                <h2><?= e(t('admin.finance_report.artykuy_premium_autor_serwis_safety_fund')) ?></h2>
             </div>
         </div>
         <ul class="zs-report-stats">
             <li>
-                <span class="label">Suma sprzedaży</span>
+                <span class="label"><?= e(t('admin.finance_report.suma_sprzedazy')) ?></span>
                 <span class="value"><?= $money($premium['total_revenue'] ?? 0) ?></span>
-                <small><?= (int)$premium['total_sales'] ?> zakupów</small>
+                <small><?= e(str_replace('{count}', (string)(int)$premium['total_sales'], t('admin.finance_report.purchases_count'))) ?></small>
             </li>
             <li class="zs-stat-split">
                 <div class="split-item">
-                    <span class="label">Dla Autorów</span>
+                    <span class="label"><?= e(t('admin.finance_report.dla_autorow')) ?></span>
                     <span class="value is-positive"><?= $money($premium['total_author_income'] ?? 0) ?></span>
                 </div>
                 <div class="split-item">
-                    <span class="label">Dla Serwisu</span>
+                    <span class="label"><?= e(t('admin.finance_report.dla_serwisu')) ?></span>
                     <span class="value"><?= $money($premium['total_publisher_fee'] ?? 0) ?></span>
                 </div>
                 <div class="split-item">
-                    <span class="label">Safety Fund</span>
+                    <span class="label"><?= e(t('article.premium.safety_fund_share')) ?></span>
                     <span class="value is-positive"><?= $money($premium['total_safety_fund'] ?? 0) ?></span>
                 </div>
             </li>
             <li>
-                <span class="label">Aktywne dostępy</span>
+                <span class="label"><?= e(t('admin.finance_report.aktywne_dostepy')) ?></span>
                 <span class="value"><?= (int)$access['active_grants'] ?></span>
-                <small>ważne czasowo</small>
+                <small><?= e(t('admin.finance_report.wazne_czasowo')) ?></small>
             </li>
         </ul>
     </div>
@@ -123,25 +123,25 @@ $statusBadge = function($status, $map) {
     <div class="admin-panel-block">
         <div class="admin-section-head">
             <div>
-                <p class="kicker">Zaangażowanie</p>
-                <h2>Bonusy i nagrody</h2>
+                <p class="kicker"><?= e(t('admin.finance_report.zaangazowanie')) ?></p>
+                <h2><?= e(t('admin.finance_report.bonusy_i_nagrody')) ?></h2>
             </div>
         </div>
         <ul class="zs-report-stats">
             <li>
-                <span class="label">Bonusy aktywności</span>
+                <span class="label"><?= e(t('admin.finance_report.bonusy_aktywnosci')) ?></span>
                 <span class="value"><?= $money($economy_summary['bonuses']['total'] ?? 0) ?></span>
                 <small><?= number_format((int)($economy_summary['bonuses']['points'] ?? 0), 0, ',', ' ') ?> TT</small>
             </li>
             <li>
-                <span class="label">Ankiety i badania</span>
+                <span class="label"><?= e(t('admin.finance_report.ankiety_i_badania')) ?></span>
                 <span class="value"><?= $money($economy_summary['surveys']['rewards'] ?? 0) ?></span>
                 <small><?= (int)($economy_summary['surveys']['cnt'] ?? 0) ?> odpowiedzi</small>
             </li>
             <li>
-                <span class="label">Kampanie reklamowe</span>
+                <span class="label"><?= e(t('admin.finance_report.kampanie_reklamowe')) ?></span>
                 <span class="value"><?= $money($economy_summary['campaigns']['cost'] ?? 0) ?></span>
-                <small>naliczony przychód · użytkownicy: <?= number_format((int)($economy_summary['campaigns']['reward_points'] ?? 0), 0, ',', ' ') ?> TT</small>
+                <small><?= e(str_replace('{points}', number_format((int)($economy_summary['campaigns']['reward_points'] ?? 0), 0, ',', ' '), t('admin.finance_report.accrued_income_and_user_rewards'))) ?></small>
             </li>
         </ul>
     </div>
@@ -150,8 +150,8 @@ $statusBadge = function($status, $map) {
 <section class="admin-form-grid">
     <div class="admin-panel-block">
         <div class="admin-section-head">
-            <div><p class="kicker">Płatności</p><h2>Statusy transakcji</h2></div>
-            <a class="text-link" href="/admin/payments">Szczegóły</a>
+            <div><p class="kicker"><?= e(t('admin.finance_report.patnosci')) ?></p><h2><?= e(t('admin.finance_report.statusy_transakcji')) ?></h2></div>
+            <a class="text-link" href="/admin/payments"><?= e(t('admin.finance_report.szczegoy')) ?></a>
         </div>
         <div class="zs-status-summary">
             <?php foreach ($payments as $p): ?>
@@ -166,8 +166,8 @@ $statusBadge = function($status, $map) {
     
     <div class="admin-panel-block">
         <div class="admin-section-head">
-            <div><p class="kicker">Wypłaty</p><h2>Realizacja środków</h2></div>
-            <a class="text-link" href="/admin/payouts">Zarządzaj</a>
+            <div><p class="kicker"><?= e(t('wallet.payout_active')) ?></p><h2><?= e(t('admin.finance_report.realizacja_srodkow')) ?></h2></div>
+            <a class="text-link" href="/admin/payouts"><?= e(t('admin.finance_report.zarzadzaj')) ?></a>
         </div>
         <div class="zs-status-summary">
             <?php foreach ($payouts as $p): ?>

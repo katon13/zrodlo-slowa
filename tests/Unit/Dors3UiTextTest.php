@@ -7,12 +7,12 @@ use PHPUnit\Framework\TestCase;
 
 final class Dors3UiTextTest extends TestCase
 {
-    public function testPolishAndEnglishCatalogsHaveTheSameStructure(): void
+    public function testAllSupportedLanguageCatalogsHaveTheSameStructure(): void
     {
         $polish = Dors3UiText::languageCatalog('pl');
-        $english = Dors3UiText::languageCatalog('en');
-
-        self::assertSame($this->leafKeys($polish), $this->leafKeys($english));
+        foreach (['en', 'de', 'fr', 'it', 'es'] as $language) {
+            self::assertSame($this->leafKeys($polish), $this->leafKeys(Dors3UiText::languageCatalog($language)), $language);
+        }
     }
 
     public function testEveryRoutedOperationHasAVisibleLabelInBothLanguages(): void
@@ -23,8 +23,9 @@ final class Dors3UiTextTest extends TestCase
 
         foreach ($operations as $variantOperations) {
             foreach ($variantOperations as $actionType) {
-                self::assertNotSame($actionType, Dors3UiText::option('operations', $actionType, 'pl'));
-                self::assertNotSame($actionType, Dors3UiText::option('operations', $actionType, 'en'));
+                foreach (['pl', 'en', 'de', 'fr', 'it', 'es'] as $language) {
+                    self::assertNotSame($actionType, Dors3UiText::option('operations', $actionType, $language));
+                }
             }
         }
     }

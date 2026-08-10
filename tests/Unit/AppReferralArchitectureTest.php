@@ -59,9 +59,16 @@ final class AppReferralArchitectureTest extends TestCase
     {
         $root = dirname(__DIR__, 2);
         $controller = (string)file_get_contents($root . '/app/Controllers/AppReferralController.php');
+        $catalog = json_decode(
+            (string)file_get_contents($root . '/resources/lang/public.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
 
         self::assertStringContainsString('PRIVATE_ELIGIBILITY_REJECTION', $controller);
-        self::assertStringContainsString('adres kwalifikuje się do promocji', $controller);
+        self::assertStringContainsString("t('controller.appreferral.jezeli_adres_kwalifikuje_sie_do_promocji_zaproszenie_zo_8e26b5ed')", $controller);
+        self::assertStringContainsString('adres kwalifikuje się do promocji', mb_strtolower((string)$catalog['controller.appreferral.jezeli_adres_kwalifikuje_sie_do_promocji_zaproszenie_zo_8e26b5ed']['pl']));
         self::assertStringContainsString('http_response_code(202)', $controller);
     }
 

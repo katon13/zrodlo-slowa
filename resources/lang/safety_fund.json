@@ -312,12 +312,12 @@
     "es": "Cambios aprobados mediante 3DORS Admin"
   },
   "economy.map.kicker": {
-    "pl": "Pozostałe źródła wartości",
-    "en": "Other sources of value",
-    "de": "Weitere Wertquellen",
-    "fr": "Autres sources de valeur",
-    "it": "Altre fonti di valore",
-    "es": "Otras fuentes de valor"
+    "pl": "Przejrzysty obieg wartości",
+    "en": "Transparent flow of value",
+    "de": "Transparenter Wertfluss",
+    "fr": "Circulation transparente de la valeur",
+    "it": "Flusso trasparente del valore",
+    "es": "Flujo transparente del valor"
   },
   "economy.map.title": {
     "pl": "Jak przepływa wartość w serwisie",
@@ -471,6 +471,126 @@
     "it": "Autore o utente autorizzato",
     "es": "Autor o usuario autorizado"
   },
+  "economy.actor.response_funders": {
+    "pl": "Użytkownik i Program Talent",
+    "en": "User and Talent Program",
+    "de": "Nutzer und Talent-Programm",
+    "fr": "Utilisateur et Programme Talent",
+    "it": "Utente e Programma Talent",
+    "es": "Usuario y Programa Talent"
+  },
+  "economy.actor.response_receiver": {
+    "pl": "Twórca polemiki lub serwis po odrzuceniu",
+    "en": "Response creator or the service after rejection",
+    "de": "Verfasser der Replik oder Dienst nach Ablehnung",
+    "fr": "Auteur de la réponse ou service après rejet",
+    "it": "Autore della replica o servizio dopo il rifiuto",
+    "es": "Autor de la respuesta o servicio tras el rechazo"
+  },
+  "economy.actor.talent_promotion_budget": {
+    "pl": "Budżet promocji Programu Talent",
+    "en": "Talent Program promotion budget",
+    "de": "Aktionsbudget des Talent-Programms",
+    "fr": "Budget promotionnel du Programme Talent",
+    "it": "Budget promozionale del Programma Talent",
+    "es": "Presupuesto promocional del Programa Talent"
+  },
+  "economy.actor.talent_budget": {
+    "pl": "Budżet Programu Talent",
+    "en": "Talent Program budget",
+    "de": "Budget des Talent-Programms",
+    "fr": "Budget du Programme Talent",
+    "it": "Budget del Programma Talent",
+    "es": "Presupuesto del Programa Talent"
+  },
+  "economy.actor.referral_parties": {
+    "pl": "Polecający i nowy użytkownik",
+    "en": "Referrer and new user",
+    "de": "Empfehlender und neuer Nutzer",
+    "fr": "Parrain et nouvel utilisateur",
+    "it": "Invitante e nuovo utente",
+    "es": "Recomendante y nuevo usuario"
+  },
+  "economy.actor.reporter": {
+    "pl": "Osoba zgłaszająca błąd",
+    "en": "Bug reporter",
+    "de": "Fehlermelder",
+    "fr": "Personne signalant l’erreur",
+    "it": "Persona che segnala l’errore",
+    "es": "Persona que informa del error"
+  },
+  "economy.flow.response.label": {
+    "pl": "Opinie i polemiki",
+    "en": "Opinions and responses",
+    "de": "Meinungen und Repliken",
+    "fr": "Opinions et réponses",
+    "it": "Opinioni e repliche",
+    "es": "Opiniones y réplicas"
+  },
+  "economy.flow.response.action": {
+    "pl": "Kaucja przy wysłaniu; po publikacji wraca i Talent przyznaje TT",
+    "en": "Deposit on submission; publication returns it and Talent awards TT",
+    "de": "Kaution bei Einreichung; bei Veröffentlichung Rückgabe und TT-Prämie",
+    "fr": "Dépôt à l’envoi ; la publication le restitue et Talent attribue des TT",
+    "it": "Deposito all’invio; con la pubblicazione viene restituito e Talent assegna TT",
+    "es": "Depósito al enviar; con la publicación se devuelve y Talent concede TT"
+  },
+  "economy.flow.response.note": {
+    "pl": "Jedna polemika ma jedną kaucję i najwyżej jedną nagrodę po pierwszej publikacji.",
+    "en": "One response has one deposit and at most one reward after its first publication.",
+    "de": "Eine Replik hat eine Kaution und höchstens eine Prämie nach der ersten Veröffentlichung.",
+    "fr": "Une réponse a un seul dépôt et au plus une récompense après sa première publication.",
+    "it": "Una replica ha un solo deposito e al massimo un premio dopo la prima pubblicazione.",
+    "es": "Una réplica tiene un depósito y como máximo una recompensa tras su primera publicación."
+  },
+  "economy.flow.referral.label": {
+    "pl": "Polecenie aplikacji",
+    "en": "App referral",
+    "de": "App-Empfehlung",
+    "fr": "Parrainage de l’application",
+    "it": "Invito all’app",
+    "es": "Recomendación de la aplicación"
+  },
+  "economy.flow.referral.action": {
+    "pl": "Nagradza skuteczne polecenie po instalacji, rejestracji i pierwszej sesji",
+    "en": "Rewards a successful referral after installation, registration and the first session",
+    "de": "Belohnt eine erfolgreiche Empfehlung nach Installation, Registrierung und erster Sitzung",
+    "fr": "Récompense un parrainage réussi après installation, inscription et première session",
+    "it": "Premia un invito riuscito dopo installazione, registrazione e prima sessione",
+    "es": "Premia una recomendación válida tras instalación, registro y primera sesión"
+  },
+  "economy.flow.referral.note": {
+    "pl": "Kwota TT jest zapisana w zaproszeniu i nie zmienia się po zmianie promocji.",
+    "en": "The TT amount is stored with the invitation and does not change when the promotion changes.",
+    "de": "Der TT-Betrag wird in der Einladung gespeichert und ändert sich bei einer Aktionsänderung nicht.",
+    "fr": "Le montant de TT est enregistré avec l’invitation et ne change pas si la promotion évolue.",
+    "it": "L’importo TT è salvato nell’invito e non cambia quando cambia la promozione.",
+    "es": "La cantidad de TT se guarda en la invitación y no cambia al modificar la promoción."
+  },
+  "economy.flow.bug.label": {
+    "pl": "Potwierdzony błąd",
+    "en": "Verified bug",
+    "de": "Bestätigter Fehler",
+    "fr": "Erreur confirmée",
+    "it": "Errore confermato",
+    "es": "Error confirmado"
+  },
+  "economy.flow.bug.action": {
+    "pl": "Nagradza błąd potwierdzony przez redakcję",
+    "en": "Rewards a bug verified by the newsroom",
+    "de": "Belohnt einen von der Redaktion bestätigten Fehler",
+    "fr": "Récompense une erreur confirmée par la rédaction",
+    "it": "Premia un errore confermato dalla redazione",
+    "es": "Premia un error confirmado por la redacción"
+  },
+  "economy.flow.bug.note": {
+    "pl": "Kwota TT jest widoczna w formularzu, a nagroda trafia do ledgera po akceptacji.",
+    "en": "The TT amount is shown in the form and the reward reaches the ledger after approval.",
+    "de": "Der TT-Betrag steht im Formular; nach Freigabe wird die Prämie im Ledger verbucht.",
+    "fr": "Le montant de TT est affiché dans le formulaire et la récompense est inscrite au registre après acceptation.",
+    "it": "L’importo TT è mostrato nel modulo e il premio entra nel ledger dopo l’approvazione.",
+    "es": "La cantidad de TT aparece en el formulario y la recompensa entra en el ledger tras la aceptación."
+  },
   "economy.flow.article.label": {
     "pl": "Płatny tekst",
     "en": "Paid article",
@@ -560,20 +680,20 @@
     "es": "Publicidad y campañas"
   },
   "economy.flow.campaign.action": {
-    "pl": "Finansuje uzgodniony zasięg lub działanie",
-    "en": "Funds an agreed reach or action",
-    "de": "Finanziert vereinbarte Reichweite oder Aktion",
-    "fr": "Finance une portée ou une action convenue",
-    "it": "Finanzia una portata o un’azione concordata",
-    "es": "Financia un alcance o una acción acordados"
+    "pl": "Płaci tylko za potwierdzone działanie użytkownika",
+    "en": "Pays only for a verified user action",
+    "de": "Zahlt nur für eine bestätigte Nutzeraktion",
+    "fr": "Paie uniquement pour une action utilisateur confirmée",
+    "it": "Paga solo per un’azione utente verificata",
+    "es": "Paga solo por una acción verificada del usuario"
   },
   "economy.flow.campaign.note": {
-    "pl": "Każde nagradzane działanie jest zapisane jako osobne zdarzenie.",
-    "en": "Every rewarded action is recorded as a separate event.",
-    "de": "Jede vergütete Aktion wird als separates Ereignis erfasst.",
-    "fr": "Chaque action récompensée est enregistrée comme un événement distinct.",
-    "it": "Ogni azione premiata è registrata come evento separato.",
-    "es": "Cada acción premiada se registra como un evento separado."
+    "pl": "Odrzucenie i duplikat kosztują 0 PLN; przyjęty efekt ma dowód, stawkę i zapis w historii.",
+    "en": "Rejections and duplicates cost PLN 0; an accepted result has proof, a rate and a history record.",
+    "de": "Ablehnungen und Duplikate kosten 0 PLN; ein akzeptiertes Ergebnis hat Nachweis, Preis und Historie.",
+    "fr": "Les rejets et doublons coûtent 0 PLN ; un résultat accepté possède une preuve, un tarif et un historique.",
+    "it": "Rifiuti e duplicati costano 0 PLN; un risultato accettato ha prova, tariffa e storico.",
+    "es": "Los rechazos y duplicados cuestan 0 PLN; un resultado aceptado tiene prueba, tarifa e historial."
   },
   "economy.flow.live.label": {
     "pl": "PPV i wydarzenia live",
@@ -753,370 +873,786 @@
   },
   "safety_fund.admin.page_title": {
     "pl": "Safety Fund — panel redakcji",
-    "en": "Safety Fund — newsroom panel"
+    "en": "Safety Fund — newsroom panel",
+    "de": "Safety Fund — Redaktionspanel",
+    "fr": "Safety Fund — panneau de salle de nouvelles",
+    "it": "Safety Fund — newsroom panel",
+    "es": "Safety Fund — newsroom panel"
   },
   "safety_fund.admin.dashboard_title": {
     "pl": "SAFETY FUND",
-    "en": "SAFETY FUND"
+    "en": "SAFETY FUND",
+    "de": "SICHERHEITSFONDS",
+    "fr": "FONDS DE SÉCURITÉ",
+    "it": "FONDO DI SICUREZZA",
+    "es": "SAFETY FUND"
   },
   "safety_fund.admin.dashboard_description": {
     "pl": "Podział 40/40/20, saldo ochrony autorów i pełny audyt",
-    "en": "40/40/20 split, author-protection balance and full audit"
+    "en": "40/40/20 split, author-protection balance and full audit",
+    "de": "40/40/20 Split, Autor-Schutz-Balance und vollständiges Audit",
+    "fr": "40/40/20 fractionnement, solde de la protection des auteurs et vérification complète",
+    "it": "40/40/20 split, equilibrio di protezione dell'autore e audit completo",
+    "es": "40/40/20 división, saldo de protección de los autores y auditoría completa"
   },
   "safety_fund.admin.kicker": {
     "pl": "Zasada finansowania redakcji",
-    "en": "Newsroom funding rule"
+    "en": "Newsroom funding rule",
+    "de": "Newsroom Finanzierungsregel",
+    "fr": "Règlement de financement de la Salle de presse",
+    "it": "Regola di finanziamento delle newsroom",
+    "es": "Regla de financiación de Newsroom"
   },
   "safety_fund.admin.title": {
     "pl": "Safety Fund — ochrona autorów",
-    "en": "Safety Fund — author protection"
+    "en": "Safety Fund — author protection",
+    "de": "Safety Fund — Urheberschutz",
+    "fr": "Safety Fund — protection de l'auteur",
+    "it": "Safety Fund — Protezione degli autori",
+    "es": "Safety Fund - protección del autor"
   },
   "safety_fund.admin.description": {
     "pl": "Wewnętrzny fundusz redakcji tworzony automatycznie przy podziale wpływów z płatnych tekstów.",
-    "en": "Internal newsroom fund created automatically when paid-article revenue is split."
+    "en": "Internal newsroom fund created automatically when paid-article revenue is split.",
+    "de": "Interner Newsroom-Fonds, der automatisch erstellt wird, wenn die Einnahmen aus bezahlten Artikeln aufgeteilt werden.",
+    "fr": "Fonds interne de la salle de presse créé automatiquement lorsque les recettes des articles payés sont fractionnées.",
+    "it": "Fondo di redazione interna creato automaticamente quando le entrate dell'articolo a pagamento sono divise.",
+    "es": "Fondo interno de redacción creado automáticamente cuando los ingresos de partículas pagadas se dividen."
   },
   "safety_fund.admin.balance": {
     "pl": "Saldo Safety Fund",
-    "en": "Safety Fund balance"
+    "en": "Safety Fund balance",
+    "de": "Safety Fund-Saldo",
+    "fr": "Solde Safety Fund",
+    "it": "Bilancio Safety Fund",
+    "es": "Saldo Safety Fund"
   },
   "safety_fund.admin.balance_note": {
     "pl": "Środki wydzielone w istniejącej księdze",
-    "en": "Resources separated in the existing ledger"
+    "en": "Resources separated in the existing ledger",
+    "de": "Ressourcen im vorhandenen Ledger getrennt",
+    "fr": "Ressources séparées dans le grand livre existant",
+    "it": "Risorse separate nel registro principale esistente",
+    "es": "Recursos separados en el libro mayor existente"
   },
   "safety_fund.admin.total_inflow": {
     "pl": "Łączne wpływy",
-    "en": "Total inflows"
+    "en": "Total inflows",
+    "de": "Zuflüsse insgesamt",
+    "fr": "Total des entrées",
+    "it": "Flussi totali",
+    "es": "Total de entradas"
   },
   "safety_fund.admin.total_outflow": {
     "pl": "Łączne wydatki",
-    "en": "Total expenses"
+    "en": "Total expenses",
+    "de": "Gesamtkosten",
+    "fr": "Total des dépenses",
+    "it": "Spese totali",
+    "es": "Total de gastos"
   },
   "safety_fund.admin.operations": {
     "pl": "operacji",
-    "en": "operations"
+    "en": "operations",
+    "de": "Betrieb",
+    "fr": "opérations",
+    "it": "operazioni",
+    "es": "operaciones"
   },
   "safety_fund.admin.current_policy": {
     "pl": "Aktualny podział",
-    "en": "Current split"
+    "en": "Current split",
+    "de": "Aktueller Split",
+    "fr": "Répartition actuelle",
+    "it": "Corrente divisione",
+    "es": "Partida actual"
   },
   "safety_fund.admin.policy_version": {
     "pl": "Wersja zasady",
-    "en": "Rule version"
+    "en": "Rule version",
+    "de": "Regelversion",
+    "fr": "Version des règles",
+    "it": "Versione della regola",
+    "es": "Versión de reglas"
   },
   "safety_fund.admin.policy_kicker": {
     "pl": "Ustawienia podziału",
-    "en": "Split settings"
+    "en": "Split settings",
+    "de": "Geteilte Einstellungen",
+    "fr": "Séparer les paramètres",
+    "it": "Impostazioni divise",
+    "es": "Ajustes de separación"
   },
   "safety_fund.admin.policy_title": {
     "pl": "Zmień proporcje dla nowych wpływów",
-    "en": "Change proportions for new inflows"
+    "en": "Change proportions for new inflows",
+    "de": "Änderungsproportionen für neue Zuflüsse",
+    "fr": "Variation des proportions des nouveaux apports",
+    "it": "Cambiare le proporzioni per nuovi flussi",
+    "es": "Proporciones de cambio para nuevas entradas"
   },
   "safety_fund.admin.dors3_required": {
     "pl": "Wymaga 3DORS Admin",
-    "en": "Requires 3DORS Admin"
+    "en": "Requires 3DORS Admin",
+    "de": "Erfordert 3DORS Admin",
+    "fr": "Nécessite 3DORS Admin",
+    "it": "Richiede 3DORS Admin",
+    "es": "Requiere 3DORS Admin"
   },
   "safety_fund.admin.policy_explanation": {
     "pl": "Zmiana tworzy nową wersję zasady. Historia nie jest przeliczana, a aktywacja następuje dopiero po zatwierdzeniu na telefonie.",
-    "en": "A change creates a new rule version. History is not recalculated and activation occurs only after phone approval."
+    "en": "A change creates a new rule version. History is not recalculated and activation occurs only after phone approval.",
+    "de": "Eine Änderung erzeugt eine neue Regelversion. Die Geschichte wird nicht neu berechnet und die Aktivierung erfolgt erst nach der Genehmigung des Telefons.",
+    "fr": "Un changement crée une nouvelle version de règle. L'historique n'est pas recalculé et l'activation se produit seulement après approbation du téléphone.",
+    "it": "Una modifica crea una nuova versione di regola. La storia non è ricalcolata e l'attivazione avviene solo dopo l'approvazione del telefono.",
+    "es": "Un cambio crea una nueva versión de reglas. La historia no es recalculada y la activación ocurre sólo después de la aprobación del teléfono."
   },
   "safety_fund.admin.author_percent": {
     "pl": "Autor %",
-    "en": "Author %"
+    "en": "Author %",
+    "de": "Autor %",
+    "fr": "Auteur %",
+    "it": "Autore",
+    "es": "Porcentaje"
   },
   "safety_fund.admin.platform_percent": {
     "pl": "Serwis %",
-    "en": "Service %"
+    "en": "Service %",
+    "de": "Service %",
+    "fr": "Service %",
+    "it": "Servizio in %",
+    "es": "Porcentaje"
   },
   "safety_fund.admin.fund_percent": {
     "pl": "Safety Fund %",
-    "en": "Safety Fund %"
+    "en": "Safety Fund %",
+    "de": "Safety Fund %",
+    "fr": "Safety Fund %",
+    "it": "Safety Fund %",
+    "es": "Safety Fund %"
   },
   "safety_fund.admin.request_policy_change": {
     "pl": "PRZEKAŻ DO 3DORS ADMIN",
-    "en": "SEND TO 3DORS ADMIN"
+    "en": "SEND TO 3DORS ADMIN",
+    "de": "SENDUNG AN 3DORS ADMIN",
+    "fr": "Envoyer à 3DORS ADMIN",
+    "it": "FINE a 3DORS ADMIN",
+    "es": "FIN A 3DORS ADMIN"
   },
   "safety_fund.admin.disbursement_kicker": {
     "pl": "Wykorzystanie środków",
-    "en": "Use of resources"
+    "en": "Use of resources",
+    "de": "Einsatz von Ressourcen",
+    "fr": "Utilisation des ressources",
+    "it": "Utilizzo delle risorse",
+    "es": "Utilización de los recursos"
   },
   "safety_fund.admin.disbursement_title": {
     "pl": "Zleć wydatek Safety Fund",
-    "en": "Request a Safety Fund expense"
+    "en": "Request a Safety Fund expense",
+    "de": "Fordern Sie eine Safety Fund-Ausgabe an",
+    "fr": "Demander une dépense Safety Fund",
+    "it": "Richiedi una spesa Safety Fund",
+    "es": "Solicitar un gasto Safety Fund"
   },
   "safety_fund.admin.disbursement_explanation": {
     "pl": "Podaj kwotę, cel, uzasadnienie i referencję dowodową. Saldo jest sprawdzane ponownie podczas wykonania podpisanej decyzji.",
-    "en": "Provide the amount, purpose, reason and evidence reference. The balance is checked again when the signed decision is executed."
+    "en": "Provide the amount, purpose, reason and evidence reference. The balance is checked again when the signed decision is executed.",
+    "de": "Geben Sie den Betrag, Zweck, Grund und Beweisreferenz an. Der Saldo wird erneut überprüft, wenn die unterzeichnete Entscheidung ausgeführt wird.",
+    "fr": "Indiquer le montant, le but, la raison et la référence de la preuve. Le solde est à nouveau vérifié lorsque la décision signée est exécutée.",
+    "it": "Fornire l'importo, lo scopo, la ragione e la prova di riferimento. Il saldo viene ricontrollato quando la decisione firmata viene eseguita.",
+    "es": "Proporcionar la cantidad, propósito, razón y referencia de pruebas. El saldo se revisa de nuevo cuando se ejecuta la decisión firmada."
   },
   "safety_fund.admin.amount": {
     "pl": "Kwota",
-    "en": "Amount"
+    "en": "Amount",
+    "de": "Betrag",
+    "fr": "Montant",
+    "it": "Importo",
+    "es": "Monto"
   },
   "safety_fund.admin.category": {
     "pl": "Cel wydatku",
-    "en": "Expense purpose"
+    "en": "Expense purpose",
+    "de": "Ausgabenzweck",
+    "fr": "Objet de dépense",
+    "it": "Spese",
+    "es": "Objetivo de gastos"
   },
   "safety_fund.admin.expense_description": {
     "pl": "Uzasadnienie",
-    "en": "Reason"
+    "en": "Reason",
+    "de": "Grund",
+    "fr": "Motifs",
+    "it": "Motivazione",
+    "es": "Razón"
   },
   "safety_fund.admin.evidence_reference": {
     "pl": "Referencja dowodowa",
-    "en": "Evidence reference"
+    "en": "Evidence reference",
+    "de": "Nachweisreferenz",
+    "fr": "Référence des preuves",
+    "it": "Riferimento delle prove",
+    "es": "Referencia sobre pruebas"
   },
   "safety_fund.admin.evidence_placeholder": {
     "pl": "Numer sprawy, dokumentu lub wewnętrzna referencja",
-    "en": "Case, document or internal reference"
+    "en": "Case, document or internal reference",
+    "de": "Fall, Dokument oder interne Referenz",
+    "fr": "Cas, document ou référence interne",
+    "it": "Caso, documento o riferimento interno",
+    "es": "Caso, documento o referencia interna"
   },
   "safety_fund.admin.request_disbursement": {
     "pl": "PRZEKAŻ DO 3DORS ADMIN",
-    "en": "SEND TO 3DORS ADMIN"
+    "en": "SEND TO 3DORS ADMIN",
+    "de": "SENDUNG AN 3DORS ADMIN",
+    "fr": "Envoyer à 3DORS ADMIN",
+    "it": "FINE a 3DORS ADMIN",
+    "es": "FIN A 3DORS ADMIN"
   },
   "safety_fund.admin.inflow_kicker": {
     "pl": "Wpływy",
-    "en": "Inflows"
+    "en": "Inflows",
+    "de": "Zuflüsse",
+    "fr": "Entrées",
+    "it": "Flussi",
+    "es": "Inflows"
   },
   "safety_fund.admin.inflow_history": {
     "pl": "Historia udziałów Safety Fund",
-    "en": "Safety Fund allocation history"
+    "en": "Safety Fund allocation history",
+    "de": "Safety Fund-Zuweisungshistorie",
+    "fr": "Historique de l'allocation de Safety Fund",
+    "it": "Safety Fund storia di allocazione",
+    "es": "Historial de asignación Safety Fund"
   },
   "safety_fund.admin.no_inflows": {
     "pl": "Nie zaksięgowano jeszcze wpływów Safety Fund.",
-    "en": "No Safety Fund inflows have been recorded yet."
+    "en": "No Safety Fund inflows have been recorded yet.",
+    "de": "Es wurden noch keine Safety Fund-Zuflüsse registriert.",
+    "fr": "Aucune entrée de Safety Fund n'a encore été enregistrée.",
+    "it": "Nessun flusso Safety Fund è stato ancora registrato.",
+    "es": "Todavía no se han registrado entradas Safety Fund."
   },
   "safety_fund.admin.outflow_kicker": {
     "pl": "Wydatki",
-    "en": "Expenses"
+    "en": "Expenses",
+    "de": "Ausgaben",
+    "fr": "Dépenses",
+    "it": "Spese",
+    "es": "Gastos"
   },
   "safety_fund.admin.outflow_history": {
     "pl": "Historia zatwierdzonych wydatków",
-    "en": "Approved expense history"
+    "en": "Approved expense history",
+    "de": "Genehmigte Kostenhistorie",
+    "fr": "Historique des dépenses approuvées",
+    "it": "Storia delle spese approvate",
+    "es": "Historial de gastos aprobado"
   },
   "safety_fund.admin.no_outflows": {
     "pl": "Nie zaksięgowano jeszcze wydatków Safety Fund.",
-    "en": "No Safety Fund expenses have been recorded yet."
+    "en": "No Safety Fund expenses have been recorded yet.",
+    "de": "Es wurden noch keine Safety Fund-Ausgaben erfasst.",
+    "fr": "Aucune dépense Safety Fund n'a encore été enregistrée.",
+    "it": "Non sono ancora state registrate spese Safety Fund.",
+    "es": "Todavía no se han registrado gastos de Safety Fund."
   },
   "safety_fund.admin.date": {
     "pl": "Data",
-    "en": "Date"
+    "en": "Date",
+    "de": "Datum",
+    "fr": "Date",
+    "it": "Data",
+    "es": "Fecha"
   },
   "safety_fund.admin.article": {
     "pl": "Tekst",
-    "en": "Article"
+    "en": "Article",
+    "de": "Artikel",
+    "fr": "Le président",
+    "it": "Articolo",
+    "es": "Artículo"
   },
   "safety_fund.admin.base_amount": {
     "pl": "Kwota zakupu",
-    "en": "Purchase amount"
+    "en": "Purchase amount",
+    "de": "Kaufbetrag",
+    "fr": "Montant de l'achat",
+    "it": "Importo di acquisto",
+    "es": "Cantidad de compra"
   },
   "safety_fund.admin.fund_share": {
     "pl": "Udział Safety Fund",
-    "en": "Safety Fund share"
+    "en": "Safety Fund share",
+    "de": "Safety Fund-Anteil",
+    "fr": "Part de Safety Fund",
+    "it": "Condividi Safety Fund",
+    "es": "compartir Safety Fund"
   },
   "safety_fund.admin.ledger_reference": {
     "pl": "Referencja księgi",
-    "en": "Ledger reference"
+    "en": "Ledger reference",
+    "de": "Ledgernummer",
+    "fr": "Référence du grand livre",
+    "it": "Riferimento Ledger",
+    "es": "Ledger reference"
   },
   "safety_fund.admin.administrator": {
     "pl": "Administrator",
-    "en": "Administrator"
+    "en": "Administrator",
+    "de": "Administrator",
+    "fr": "Administrateur",
+    "it": "Amministratore",
+    "es": "Administrador"
   },
   "safety_fund.admin.policy_history_kicker": {
     "pl": "Historia zasad",
-    "en": "Rule history"
+    "en": "Rule history",
+    "de": "Regelgeschichte",
+    "fr": "Historique des règles",
+    "it": "Storia della regola",
+    "es": "Historia de la regla"
   },
   "safety_fund.admin.policy_history": {
     "pl": "Wersje podziału przychodu",
-    "en": "Revenue split versions"
+    "en": "Revenue split versions",
+    "de": "Einnahmen Split-Versionen",
+    "fr": "Version fractionnée des recettes",
+    "it": "Revenue split versioni",
+    "es": "Versiones divididas en ingresos"
   },
   "safety_fund.admin.split": {
     "pl": "Autor / Serwis / Safety Fund",
-    "en": "Author / Service / Safety Fund"
+    "en": "Author / Service / Safety Fund",
+    "de": "Autor / Service / Safety Fund",
+    "fr": "Auteur / Service / Safety Fund",
+    "it": "Autore / Servizio / Safety Fund",
+    "es": "Autor / Servicio / Safety Fund"
   },
   "safety_fund.admin.status": {
     "pl": "Status",
-    "en": "Status"
+    "en": "Status",
+    "de": "Status",
+    "fr": "État",
+    "it": "Stato",
+    "es": "Situación"
   },
   "safety_fund.admin.effective_from": {
     "pl": "Obowiązuje od",
-    "en": "Effective from"
+    "en": "Effective from",
+    "de": "Wirksam vom",
+    "fr": "Efficace",
+    "it": "Efficace da",
+    "es": "Efectivo desde"
   },
   "safety_fund.admin.audit_kicker": {
     "pl": "Audyt",
-    "en": "Audit"
+    "en": "Audit",
+    "de": "Audit",
+    "fr": "Vérification des comptes",
+    "it": "Audit",
+    "es": "Auditoría"
   },
   "safety_fund.admin.audit_title": {
     "pl": "Decyzje 3DORS i zdarzenia księgowe",
-    "en": "3DORS decisions and ledger events"
+    "en": "3DORS decisions and ledger events",
+    "de": "3DORS Entscheidungen und Ledger Events",
+    "fr": "3DORS décisions et événements du grand livre",
+    "it": "3DORS decisioni e eventi principali",
+    "es": "3DORS decisiones y eventos de libro mayor"
   },
   "safety_fund.admin.operation": {
     "pl": "Operacja",
-    "en": "Operation"
+    "en": "Operation",
+    "de": "Betrieb",
+    "fr": "Fonctionnement",
+    "it": "Operazione",
+    "es": "Operación"
   },
   "safety_fund.admin.resource": {
     "pl": "Zakres",
-    "en": "Scope"
+    "en": "Scope",
+    "de": "Anwendungsbereich",
+    "fr": "Portée",
+    "it": "Ambito",
+    "es": "Ámbito"
   },
   "safety_fund.admin.correlation": {
     "pl": "Identyfikator audytu",
-    "en": "Audit identifier"
+    "en": "Audit identifier",
+    "de": "Prüfnummer",
+    "fr": "identificateur de vérification",
+    "it": "Identificatore di controllo",
+    "es": "Identificador de auditoría"
   },
   "safety_fund.admin.policy_waiting": {
     "pl": "Zmiana podziału oczekuje na decyzję w 3DORS Admin ({id}).",
-    "en": "The split change is waiting for a decision in 3DORS Admin ({id})."
+    "en": "The split change is waiting for a decision in 3DORS Admin ({id}).",
+    "de": "Der Split-Wechsel wartet auf eine Entscheidung in 3DORS Admin ({id}).",
+    "fr": "Le changement fractionné attend une décision dans 3DORS Admin ({id}).",
+    "it": "Il cambiamento di divisione è in attesa di una decisione in 3DORS Admin ({id}).",
+    "es": "El cambio de división está esperando una decisión en 3DORS Admin ({id})."
   },
   "safety_fund.admin.disbursement_waiting": {
     "pl": "Wydatek Safety Fund oczekuje na decyzję w 3DORS Admin ({id}).",
-    "en": "The Safety Fund expense is waiting for a decision in 3DORS Admin ({id})."
+    "en": "The Safety Fund expense is waiting for a decision in 3DORS Admin ({id}).",
+    "de": "Die Kosten für Safety Fund warten auf eine Entscheidung in 3DORS Admin ({id}).",
+    "fr": "La dépense Safety Fund attend une décision dans 3DORS Admin ({id}).",
+    "it": "La spesa Safety Fund sta aspettando una decisione in 3DORS Admin ({id}).",
+    "es": "El gasto Safety Fund está esperando una decisión en 3DORS Admin ({id})."
   },
   "safety_fund.category.legal_help": {
     "pl": "Pomoc prawna",
-    "en": "Legal assistance"
+    "en": "Legal assistance",
+    "de": "Rechtsbeistand",
+    "fr": "Assistance juridique",
+    "it": "Assistenza legale",
+    "es": "Asistencia jurídica"
   },
   "safety_fund.category.proceedings": {
     "pl": "Koszty postępowań",
-    "en": "Proceedings costs"
+    "en": "Proceedings costs",
+    "de": "Verfahrenskosten",
+    "fr": "Frais de procédure",
+    "it": "Costi di approvvigionamento",
+    "es": "Gastos de tramitación"
   },
   "safety_fund.category.expertise": {
     "pl": "Ekspertyzy",
-    "en": "Expert opinions"
+    "en": "Expert opinions",
+    "de": "Gutachten",
+    "fr": "Opinions d'experts",
+    "it": "Opinioni di esperti",
+    "es": "Opiniones de expertos"
   },
   "safety_fund.category.materials_protection": {
     "pl": "Ochrona materiałów",
-    "en": "Protection of materials"
+    "en": "Protection of materials",
+    "de": "Materialschutz",
+    "fr": "Protection des matériaux",
+    "it": "Protezione dei materiali",
+    "es": "Protección de materiales"
   },
   "safety_fund.category.other": {
     "pl": "Inny cel ochrony autora",
-    "en": "Other author-protection purpose"
+    "en": "Other author-protection purpose",
+    "de": "Sonstige Urheberschutzzwecke",
+    "fr": "Autres fins de protection des auteurs",
+    "it": "Altri scopi di protezione dell'autore",
+    "es": "Otros fines de protección del autor"
   },
   "safety_fund.status.active": {
     "pl": "Aktywna",
-    "en": "Active"
+    "en": "Active",
+    "de": "Aktiv",
+    "fr": "Activité",
+    "it": "Attivo",
+    "es": "Activo"
   },
   "safety_fund.status.retired": {
     "pl": "Historyczna",
-    "en": "Historical"
+    "en": "Historical",
+    "de": "Historisch",
+    "fr": "Historique",
+    "it": "Storia",
+    "es": "Histórico"
   },
   "safety_fund.status.pending": {
     "pl": "Oczekuje",
-    "en": "Pending"
+    "en": "Pending",
+    "de": "Ausstehend",
+    "fr": "En attente",
+    "it": "Finanziamenti",
+    "es": "Pendiente"
   },
   "safety_fund.status.approved": {
     "pl": "Zatwierdzona",
-    "en": "Approved"
+    "en": "Approved",
+    "de": "Zugelassen",
+    "fr": "Approuvé",
+    "it": "Approvazione",
+    "es": "Aprobado"
   },
   "safety_fund.status.rejected": {
     "pl": "Odrzucona",
-    "en": "Rejected"
+    "en": "Rejected",
+    "de": "abgelehnt",
+    "fr": "Rejeté",
+    "it": "Rifiuti",
+    "es": "Rechazado"
   },
   "safety_fund.status.expired": {
     "pl": "Wygasła",
-    "en": "Expired"
+    "en": "Expired",
+    "de": "Abgelaufen",
+    "fr": "Expiré",
+    "it": "Scadenza",
+    "es": "Gastos"
   },
   "safety_fund.resource.revenue_split_policy": {
     "pl": "Zasada podziału przychodu",
-    "en": "Revenue split rule"
+    "en": "Revenue split rule",
+    "de": "Revenue Split Regel",
+    "fr": "Règle de répartition des recettes",
+    "it": "Regola di divisione delle entrate",
+    "es": "Regla de división de ingresos"
   },
   "safety_fund.resource.safety_fund_disbursement": {
     "pl": "Wydatek Safety Fund",
-    "en": "Safety Fund expense"
+    "en": "Safety Fund expense",
+    "de": "Safety Fund Kosten",
+    "fr": "Dépenses Safety Fund",
+    "it": "Safety Fund spese",
+    "es": "Gastos de Safety Fund"
   },
   "safety_fund.result.success": {
     "pl": "Wykonano",
-    "en": "Completed"
+    "en": "Completed",
+    "de": "Abgeschlossen",
+    "fr": "Achevé",
+    "it": "Completato",
+    "es": "Completado"
   },
   "safety_fund.result.blocked": {
     "pl": "Zablokowano",
-    "en": "Blocked"
+    "en": "Blocked",
+    "de": "Blockiert",
+    "fr": "Bloqué",
+    "it": "Bloccato",
+    "es": "Bloqueados"
   },
   "safety_fund.result.rejected": {
     "pl": "Odrzucono",
-    "en": "Rejected"
+    "en": "Rejected",
+    "de": "abgelehnt",
+    "fr": "Rejeté",
+    "it": "Rifiuti",
+    "es": "Rechazado"
   },
   "safety_fund.result.failure": {
     "pl": "Niepowodzenie",
-    "en": "Failed"
+    "en": "Failed",
+    "de": "Fehlgeschlagen",
+    "fr": "Échec",
+    "it": "Sfigato",
+    "es": "Failed"
   },
   "safety_fund.operation.financial_settings.change": {
     "pl": "Zmiana podziału przychodu",
-    "en": "Change revenue split"
+    "en": "Change revenue split",
+    "de": "Change Revenue Split",
+    "fr": "Répartition des recettes",
+    "it": "Variazione delle entrate",
+    "es": "Variación de los ingresos"
   },
   "safety_fund.operation.safety_fund.disbursement": {
     "pl": "Wydatek Safety Fund",
-    "en": "Safety Fund expense"
+    "en": "Safety Fund expense",
+    "de": "Safety Fund Kosten",
+    "fr": "Dépenses Safety Fund",
+    "it": "Safety Fund spese",
+    "es": "Gastos de Safety Fund"
   },
   "safety_fund.event.safety_fund.policy.activated": {
     "pl": "Aktywowano nową zasadę podziału",
-    "en": "New revenue split activated"
+    "en": "New revenue split activated",
+    "de": "Neuer Revenue Split aktiviert",
+    "fr": "Nouveau partage des revenus activé",
+    "it": "Nuovo fatturato diviso",
+    "es": "Nueva división de ingresos activada"
   },
   "safety_fund.event.safety_fund.disbursement.executed": {
     "pl": "Zaksięgowano wydatek Safety Fund",
-    "en": "Safety Fund expense recorded"
+    "en": "Safety Fund expense recorded",
+    "de": "Safety Fund Kosten aufgezeichnet",
+    "fr": "Safety Fund charges comptabilisées",
+    "it": "Safety Fund spesa registrata",
+    "es": "Gastos de Safety Fund registrados"
   },
   "safety_fund.event.safety_fund.disbursement.blocked": {
     "pl": "Zablokowano wydatek ponad saldo",
-    "en": "Expense exceeding the balance blocked"
+    "en": "Expense exceeding the balance blocked",
+    "de": "Ausgaben, die den blockierten Restbetrag überschreiten",
+    "fr": "Dépenses dépassant le solde bloqué",
+    "it": "Spese superiore al saldo bloccato",
+    "es": "Gastos superiores al saldo bloqueado"
   },
   "safety_fund.error.active_policy_missing": {
     "pl": "Brak aktywnej zasady podziału. Uruchom migracje bazy.",
-    "en": "No active revenue split rule. Run database migrations."
+    "en": "No active revenue split rule. Run database migrations.",
+    "de": "Keine aktive Revenue Split Regel. Führen Sie Datenbankmigrationen aus.",
+    "fr": "Pas de règle de partage des revenus actifs. Exécuter des migrations de bases de données.",
+    "it": "Nessuna regola di divisione dei ricavi attiva. Eseguire le migrazioni di database.",
+    "es": "Ninguna regla de división de ingresos activos. Ejecutar las migraciones de bases de datos."
   },
   "safety_fund.error.amount_positive": {
     "pl": "Kwota musi być większa od zera.",
-    "en": "The amount must be greater than zero."
+    "en": "The amount must be greater than zero.",
+    "de": "Der Betrag muss größer als Null sein.",
+    "fr": "Le montant doit être supérieur à zéro.",
+    "it": "L'importo deve essere maggiore di zero.",
+    "es": "La cantidad debe ser mayor que cero."
   },
   "safety_fund.error.invalid_split_value": {
     "pl": "Każda proporcja musi być liczbą od 0 do 100 z maksymalnie dwoma miejscami po przecinku.",
-    "en": "Each proportion must be between 0 and 100 with at most two decimal places."
+    "en": "Each proportion must be between 0 and 100 with at most two decimal places.",
+    "de": "Jeder Anteil muss zwischen 0 und 100 mit höchstens zwei Dezimalstellen liegen.",
+    "fr": "Chaque proportion doit être comprise entre 0 et 100 avec au plus deux décimales.",
+    "it": "Ogni proporzione deve essere compresa tra 0 e 100 con al massimo due punti decimali.",
+    "es": "Cada proporción debe estar entre 0 y 100 con en la mayoría de dos lugares decimales."
   },
   "safety_fund.error.invalid_split_total": {
     "pl": "Suma udziałów Autora, Serwisu i Safety Fund musi wynosić dokładnie 100%.",
-    "en": "Author, Service and Safety Fund shares must total exactly 100%."
+    "en": "Author, Service and Safety Fund shares must total exactly 100%.",
+    "de": "Autoren-, Service- und Safety Fund-Aktien müssen genau 100% betragen.",
+    "fr": "Les actions Auteur, Service et Safety Fund doivent totaliser exactement 100%.",
+    "it": "Le azioni di Autore, Servizio e Safety Fund devono essere totali esattamente al 100%.",
+    "es": "Las acciones de autor, servicio y Safety Fund deben totalizar exactamente 100%."
   },
   "safety_fund.error.policy_unchanged": {
     "pl": "Podano takie same proporcje jak w aktywnej zasadzie.",
-    "en": "The submitted proportions match the active rule."
+    "en": "The submitted proportions match the active rule.",
+    "de": "Die eingereichten Proportionen entsprechen der aktiven Regel.",
+    "fr": "Les proportions présentées correspondent à la règle active.",
+    "it": "Le proporzioni presentate corrispondono alla regola attiva.",
+    "es": "Las proporciones presentadas coinciden con la regla activa."
   },
   "safety_fund.error.invalid_category": {
     "pl": "Wybierz prawidłowy cel wydatku Safety Fund.",
-    "en": "Select a valid Safety Fund expense purpose."
+    "en": "Select a valid Safety Fund expense purpose.",
+    "de": "Wählen Sie einen gültigen Safety Fund Kostenzweck.",
+    "fr": "Sélectionnez un objectif de dépenses Safety Fund valide.",
+    "it": "Selezionare uno scopo di spesa Safety Fund valido.",
+    "es": "Seleccione un propósito válido de gastos Safety Fund."
   },
   "safety_fund.error.description_required": {
     "pl": "Uzasadnienie jest wymagane i może mieć maksymalnie 500 znaków.",
-    "en": "A reason is required and may contain up to 500 characters."
+    "en": "A reason is required and may contain up to 500 characters.",
+    "de": "Ein Grund ist erforderlich und kann bis zu 500 Zeichen enthalten.",
+    "fr": "Une raison est requise et peut contenir jusqu'à 500 caractères.",
+    "it": "È richiesto un motivo e può contenere fino a 500 caratteri.",
+    "es": "Se requiere una razón y puede contener hasta 500 caracteres."
   },
   "safety_fund.error.reference_required": {
     "pl": "Referencja dowodowa jest wymagana i może mieć maksymalnie 255 znaków.",
-    "en": "An evidence reference is required and may contain up to 255 characters."
+    "en": "An evidence reference is required and may contain up to 255 characters.",
+    "de": "Eine Beweisreferenz ist erforderlich und kann bis zu 255 Zeichen enthalten.",
+    "fr": "Une référence à la preuve est requise et peut contenir jusqu'à 255 caractères.",
+    "it": "È richiesto un riferimento di prova e può contenere fino a 255 caratteri.",
+    "es": "Se requiere una referencia de evidencia y puede contener hasta 255 caracteres."
   },
   "safety_fund.error.invalid_amount": {
     "pl": "Podaj prawidłową kwotę z maksymalnie dwoma miejscami po przecinku.",
-    "en": "Enter a valid amount with at most two decimal places."
+    "en": "Enter a valid amount with at most two decimal places.",
+    "de": "Geben Sie einen gültigen Betrag mit höchstens zwei Dezimalstellen an.",
+    "fr": "Entrez un montant valide avec au plus deux décimales.",
+    "it": "Inserisci un importo valido con la maggior parte di due punti decimali.",
+    "es": "Introduzca una cantidad válida con en la mayoría de dos lugares decimales."
   },
   "safety_fund.error.insufficient_balance": {
     "pl": "Saldo Safety Fund jest zbyt niskie dla tego wydatku.",
-    "en": "The Safety Fund balance is too low for this expense."
+    "en": "The Safety Fund balance is too low for this expense.",
+    "de": "Der Safety Fund-Saldo ist für diesen Aufwand zu niedrig.",
+    "fr": "Le solde Safety Fund est trop faible pour cette dépense.",
+    "it": "L'equilibrio Safety Fund è troppo basso per questa spesa.",
+    "es": "El saldo Safety Fund es demasiado bajo para este gasto."
   },
   "safety_fund.error.account_missing": {
     "pl": "Nie udało się odczytać wydzielonego salda Safety Fund.",
-    "en": "The separated Safety Fund balance could not be read."
+    "en": "The separated Safety Fund balance could not be read.",
+    "de": "Die getrennte Safety Fund-Bilanz konnte nicht gelesen werden.",
+    "fr": "L'équilibre Safety Fund séparé n'a pas pu être lu.",
+    "it": "Il saldo Safety Fund separato non poteva essere letto.",
+    "es": "El saldo Safety Fund separado no se podía leer."
   },
   "safety_fund.error.invalid_disbursement": {
     "pl": "Dane wydatku Safety Fund są nieprawidłowe.",
-    "en": "The Safety Fund expense data is invalid."
+    "en": "The Safety Fund expense data is invalid.",
+    "de": "Die Kostendaten von Safety Fund sind ungültig.",
+    "fr": "Les données de dépenses Safety Fund sont invalides.",
+    "it": "I dati di spesa Safety Fund non sono validi.",
+    "es": "Los datos de gastos Safety Fund son inválidos."
   },
   "safety_fund.error.actor_mismatch": {
     "pl": "Administrator nie odpowiada aktorowi podpisanej operacji.",
-    "en": "The administrator does not match the actor of the signed operation."
+    "en": "The administrator does not match the actor of the signed operation.",
+    "de": "Der Administrator stimmt nicht mit dem Akteur der signierten Operation überein.",
+    "fr": "L'administrateur ne correspond pas à l'acteur de l'opération signée.",
+    "it": "L'amministratore non corrisponde all'attore dell'operazione firmata.",
+    "es": "El administrador no coincide con el actor de la operación firmada."
   },
-  "economy.response.badge": {"pl":"ZASADA ŹRÓDŁA SŁOWA","en":"THE SOURCE OF WORDS RULE","de":"REGEL DER QUELLE DER WORTE","fr":"RÈGLE DE LA SOURCE DES MOTS","it":"REGOLA DELLA FONTE DELLE PAROLE","es":"REGLA DE LA FUENTE DE LAS PALABRAS"},
-  "economy.response.kicker": {"pl":"Opinie zamiast komentarzy","en":"Opinions instead of comments","de":"Meinungen statt Kommentare","fr":"Des opinions plutôt que des commentaires","it":"Opinioni invece di commenti","es":"Opiniones en vez de comentarios"},
-  "economy.response.title": {"pl":"Odpowiedź jest publikacją","en":"A response is a publication","de":"Eine Erwiderung ist eine Publikation","fr":"Une réponse est une publication","it":"Una replica è una pubblicazione","es":"Una réplica es una publicación"},
-  "economy.response.description": {"pl":"Czytelna, podpisana opinia lub polemika przechodzi przez redakcję i staje się osobną publikacją. Po publikacji Talent przyznaje TT.","en":"A clear, signed opinion or response goes through editorial review and becomes a separate publication. Talent awards TT after publication.","de":"Eine klare, signierte Meinung oder Erwiderung durchläuft die Redaktion und wird zu einer eigenen Publikation. Talent vergibt TT nach der Veröffentlichung.","fr":"Une opinion ou réponse claire et signée passe par la rédaction et devient une publication distincte. Talent attribue les TT après publication.","it":"Un’opinione o replica chiara e firmata passa dalla redazione e diventa una pubblicazione autonoma. Talent assegna i TT dopo la pubblicazione.","es":"Una opinión o réplica clara y firmada pasa por la redacción y se convierte en una publicación independiente. Talent concede TT tras la publicación."},
-  "economy.response.draft": {"pl":"szkic, wysłanie i odrzucenie","en":"draft, submission and rejection","de":"Entwurf, Einreichung und Ablehnung","fr":"brouillon, envoi et rejet","it":"bozza, invio e rifiuto","es":"borrador, envío y rechazo"},
-  "economy.response.published": {"pl":"dopiero po publikacji redakcyjnej","en":"only after editorial publication","de":"erst nach redaktioneller Veröffentlichung","fr":"seulement après publication éditoriale","it":"solo dopo la pubblicazione redazionale","es":"solo tras la publicación editorial"},
-  "economy.response.once": {"pl":"jedna publikacja, jedna nagroda","en":"one publication, one reward","de":"eine Veröffentlichung, eine Belohnung","fr":"une publication, une récompense","it":"una pubblicazione, un premio","es":"una publicación, una recompensa"},
-  "economy.response.snapshot": {"pl":"Aktywność reguły i liczba TT są zapisywane w chwili pierwszej publikacji. Późniejsza zmiana ustawień nie zmienia już tej należności.","en":"Rule eligibility and the TT amount are stored at first publication. Later settings changes do not alter that entitlement.","de":"Regelberechtigung und TT-Wert werden bei der ersten Veröffentlichung gespeichert. Spätere Änderungen wirken nicht rückwirkend.","fr":"L’éligibilité et le montant TT sont enregistrés lors de la première publication. Les changements ultérieurs ne sont pas rétroactifs.","it":"Idoneità e valore TT vengono salvati alla prima pubblicazione. Le modifiche successive non sono retroattive.","es":"La elegibilidad y el valor TT se guardan en la primera publicación. Los cambios posteriores no son retroactivos."},
+  "economy.response.badge": {
+    "pl": "ZASADA ŹRÓDŁA SŁOWA",
+    "en": "THE SOURCE OF WORDS RULE",
+    "de": "REGEL DER QUELLE DER WORTE",
+    "fr": "RÈGLE DE LA SOURCE DES MOTS",
+    "it": "REGOLA DELLA FONTE DELLE PAROLE",
+    "es": "REGLA DE LA FUENTE DE LAS PALABRAS"
+  },
+  "economy.response.kicker": {
+    "pl": "Opinie zamiast komentarzy",
+    "en": "Opinions instead of comments",
+    "de": "Meinungen statt Kommentare",
+    "fr": "Des opinions plutôt que des commentaires",
+    "it": "Opinioni invece di commenti",
+    "es": "Opiniones en vez de comentarios"
+  },
+  "economy.response.title": {
+    "pl": "Odpowiedź jest publikacją",
+    "en": "A response is a publication",
+    "de": "Eine Erwiderung ist eine Publikation",
+    "fr": "Une réponse est une publication",
+    "it": "Una replica è una pubblicazione",
+    "es": "Una réplica es una publicación"
+  },
+  "economy.response.description": {
+    "pl": "Czytelna, podpisana opinia lub polemika przechodzi przez redakcję i staje się osobną publikacją. Po publikacji Talent przyznaje TT.",
+    "en": "A clear, signed opinion or response goes through editorial review and becomes a separate publication. Talent awards TT after publication.",
+    "de": "Eine klare, signierte Meinung oder Erwiderung durchläuft die Redaktion und wird zu einer eigenen Publikation. Talent vergibt TT nach der Veröffentlichung.",
+    "fr": "Une opinion ou réponse claire et signée passe par la rédaction et devient une publication distincte. Talent attribue les TT après publication.",
+    "it": "Un’opinione o replica chiara e firmata passa dalla redazione e diventa una pubblicazione autonoma. Talent assegna i TT dopo la pubblicazione.",
+    "es": "Una opinión o réplica clara y firmada pasa por la redacción y se convierte en una publicación independiente. Talent concede TT tras la publicación."
+  },
+  "economy.response.draft": {
+    "pl": "szkic, wysłanie i odrzucenie",
+    "en": "draft, submission and rejection",
+    "de": "Entwurf, Einreichung und Ablehnung",
+    "fr": "brouillon, envoi et rejet",
+    "it": "bozza, invio e rifiuto",
+    "es": "borrador, envío y rechazo"
+  },
+  "economy.response.published": {
+    "pl": "dopiero po publikacji redakcyjnej",
+    "en": "only after editorial publication",
+    "de": "erst nach redaktioneller Veröffentlichung",
+    "fr": "seulement après publication éditoriale",
+    "it": "solo dopo la pubblicazione redazionale",
+    "es": "solo tras la publicación editorial"
+  },
+  "economy.response.once": {
+    "pl": "jedna publikacja, jedna nagroda",
+    "en": "one publication, one reward",
+    "de": "eine Veröffentlichung, eine Belohnung",
+    "fr": "une publication, une récompense",
+    "it": "una pubblicazione, un premio",
+    "es": "una publicación, una recompensa"
+  },
+  "economy.response.snapshot": {
+    "pl": "Aktywność reguły i liczba TT są zapisywane w chwili pierwszej publikacji. Późniejsza zmiana ustawień nie zmienia już tej należności.",
+    "en": "Rule eligibility and the TT amount are stored at first publication. Later settings changes do not alter that entitlement.",
+    "de": "Regelberechtigung und TT-Wert werden bei der ersten Veröffentlichung gespeichert. Spätere Änderungen wirken nicht rückwirkend.",
+    "fr": "L’éligibilité et le montant TT sont enregistrés lors de la première publication. Les changements ultérieurs ne sont pas rétroactifs.",
+    "it": "Idoneità e valore TT vengono salvati alla prima pubblicazione. Le modifiche successive non sono retroattive.",
+    "es": "La elegibilidad y el valor TT se guardan en la primera publicación. Los cambios posteriores no son retroactivos."
+  },
   "safety_fund.error.operation_failed": {
     "pl": "Nie udało się wykonać operacji Safety Fund.",
-    "en": "The Safety Fund operation could not be completed."
+    "en": "The Safety Fund operation could not be completed.",
+    "de": "Die Operation Safety Fund konnte nicht abgeschlossen werden.",
+    "fr": "L'opération Safety Fund n'a pas pu être achevée.",
+    "it": "L'operazione Safety Fund non poteva essere completata.",
+    "es": "La operación Safety Fund no pudo completarse."
   }
 }

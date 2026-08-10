@@ -6,97 +6,97 @@ $isModerator = ($panel_code ?? '') === 'moderator';
 $isPublisher = ($panel_code ?? '') === 'publisher';
 $isEditorialPanel = $isChiefEditor || $isEditor;
 
-$displayDescription = $panel['description'] ?? 'Precyzyjny zakres danych dla przypisanej roli.';
+$displayDescription = $panel['description'] ?? t('admin.role_panel.default_description');
 $publicLanguages = $languages['public_enabled'] ?? ['pl', 'en', 'de', 'fr', 'it', 'es'];
 $shortLanguageLabels = $languages['short_labels'] ?? [];
 $articleTranslationsMap = $article_translations_map ?? [];
 $articleLabelOptions = [
-    'Hot News' => ['label' => 'Pilne', 'color' => '#ef4444'],
-    'Important' => ['label' => 'Ważne', 'color' => '#f59e0b'],
-    'Discussion' => ['label' => 'Dyskusja', 'color' => '#3b82f6'],
-    'Opinion' => ['label' => 'Opinia', 'color' => '#8b5cf6'],
-    'Analysis' => ['label' => 'Analiza', 'color' => '#10b981'],
-    'Exclusive' => ['label' => 'Ekskluzywne', 'color' => '#ec4899'],
-    'Interview' => ['label' => 'Wywiad', 'color' => '#6366f1'],
-    'Reportage' => ['label' => 'Reportaż', 'color' => '#14b8a6'],
-    'Sponsored' => ['label' => 'Sponsorowane', 'color' => '#6b7280'],
-    'Breaking' => ['label' => 'Ostatnia chwila', 'color' => '#dc2626'],
-    'Editor\'s Pick' => ['label' => 'Wybór redakcji', 'color' => '#f97316'],
+    'Hot News' => ['label' => t('admin.role_panel.label_urgent'), 'color' => '#ef4444'],
+    'Important' => ['label' => t('admin.role_panel.wazne'), 'color' => '#f59e0b'],
+    'Discussion' => ['label' => t('admin.role_panel.label_discussion'), 'color' => '#3b82f6'],
+    'Opinion' => ['label' => t('admin.role_panel.label_opinion'), 'color' => '#8b5cf6'],
+    'Analysis' => ['label' => t('admin.role_panel.label_analysis'), 'color' => '#10b981'],
+    'Exclusive' => ['label' => t('admin.role_panel.label_exclusive'), 'color' => '#ec4899'],
+    'Interview' => ['label' => t('admin.role_panel.label_interview'), 'color' => '#6366f1'],
+    'Reportage' => ['label' => t('admin.role_panel.reportaz'), 'color' => '#14b8a6'],
+    'Sponsored' => ['label' => t('admin.role_panel.label_sponsored'), 'color' => '#6b7280'],
+    'Breaking' => ['label' => t('admin.role_panel.label_breaking'), 'color' => '#dc2626'],
+    'Editor\'s Pick' => ['label' => t('admin.role_panel.wybor_redakcji'), 'color' => '#f97316'],
 ];
 ?>
 
 <section class="admin-page-head zs-operator-page-head">
-  <p class="kicker">PANEL PRACY</p>
-  <h1><?php echo e($panel['title'] ?? 'Panel roli'); ?></h1>
+  <p class="kicker"><?= e(t('admin.role_panel.panel_pracy')) ?></p>
+  <h1><?php echo e($panel['title'] ?? t('admin.role_panel.default_title')); ?></h1>
   <p><?php echo e($displayDescription); ?></p>
-  <?php if ($isChiefEditor || $isEditor || $isModerator || $isPublisher): ?><p><a class="btn-line compact" href="/admin/bug-reports">Sprawdź zgłoszenia błędów</a></p><?php endif; ?>
+  <?php if ($isChiefEditor || $isEditor || $isModerator || $isPublisher): ?><p><a class="btn-line compact" href="/admin/bug-reports"><?= e(t('admin.editorial_list.sprawdz_zgoszenia_bedow')) ?></a></p><?php endif; ?>
 </section>
 
 <section class="admin-section zs-operator-panel zs-role-operator-panel">
   <div class="zs-role-info-grid">
     <div class="zs-info-item">
-        <label>Zakres pracy</label>
-        <span><?php echo ($panel['target'] ?? '') === 'articles' ? 'Teksty redakcyjne' : 'Wypłaty finansowe'; ?></span>
+        <label><?= e(t('admin.role_panel.zakres_pracy')) ?></label>
+        <span><?php echo ($panel['target'] ?? '') === 'articles' ? e(t('admin.role_panel.editorial_articles')) : e(t('admin.role_panel.wypaty_finansowe')); ?></span>
     </div>
     <div class="zs-info-item">
-        <label>Pozycji na stronie</label>
-        <span><?php echo (int)($snajper_limit ?? 50); ?> pozycji</span>
+        <label><?= e(t('admin.role_panel.pozycji_na_stronie')) ?></label>
+        <span><?php echo e(str_replace('{count}', (string)(int)($snajper_limit ?? 50), t('admin.common.items_count'))); ?></span>
     </div>
     <div class="zs-info-item">
-        <label>Stan panelu</label>
-        <span>Gotowy do pracy</span>
+        <label><?= e(t('admin.role_panel.stan_panelu')) ?></label>
+        <span><?= e(t('admin.role_panel.gotowy_do_pracy')) ?></span>
     </div>
   </div>
 
   <?php 
     $articleStatusMap = [
-        'draft' => 'Roboczy',
-        'submitted' => 'Tekst przyszedł od autora',
-        'review' => 'Redaktor pracuje nad tekstem',
-        'approved' => 'Zaakceptowany przez redakcję',
-        'published' => 'Opublikowany',
-        'rejected' => 'Odrzucony',
-        'archived' => 'Niepubliczny',
+        'draft' => t('article.status.draft'),
+        'submitted' => t('admin.role_panel.tekst_przyszed_od_autora'),
+        'review' => t('article.status.review'),
+        'approved' => t('admin.role_panel.zaakceptowany_przez_redakcje'),
+        'published' => t('article.status.published'),
+        'rejected' => t('article.status.rejected'),
+        'archived' => t('article.status.archived'),
     ];
     $payoutStatusMap = [
-        'pending' => 'Oczekuje',
-        'paid' => 'Wypłacono',
-        'failed' => 'Błąd',
-        'cancelled' => 'Anulowano',
+        'pending' => t('admin.users.status_pending'),
+        'paid' => t('admin.role_panel.wypacono'),
+        'failed' => t('admin.user_delete.bad'),
+        'cancelled' => t('admin.role_panel.status_cancelled'),
     ];
     $accessLabels = [
-        'free' => 'bezpłatny',
-        'paid' => 'płatny',
+        'free' => t('admin.role_panel.bezpatny'),
+        'paid' => t('admin.role_panel.patny'),
     ];
     $pricingLabels = [
-        'not_priced' => 'bez wyceny',
-        'priced' => 'wyceniony',
-        'free' => 'darmowy',
-        'blocked' => 'wstrzymany',
+        'not_priced' => t('admin.role_panel.pricing_not_priced'),
+        'priced' => t('admin.role_panel.pricing_priced'),
+        'free' => t('admin.role_panel.pricing_free'),
+        'blocked' => t('admin.role_panel.pricing_blocked'),
     ];
   ?>
 
   <?php if (empty($rows)): ?>
     <div class="zs-empty-state">
         <?php if ($isChiefEditor): ?>
-            <p class="zs-empty-title">Brak tekstów oczekujących na decyzję redakcji.</p>
-            <p class="zs-empty-desc">Kiedy autorzy dodadzą teksty do oceny, pojawią się tutaj.</p>
+            <p class="zs-empty-title"><?= e(t('admin.role_panel.brak_tekstow_oczekujacych_na_decyzje_redakcji')) ?></p>
+            <p class="zs-empty-desc"><?= e(t('admin.role_panel.kiedy_autorzy_dodadza_teksty_do_oceny_pojawia_sie_tutaj')) ?></p>
         <?php elseif ($isEditor): ?>
-            <p class="zs-empty-title">Obecnie nie ma żadnych tekstów do edycji.</p>
-            <p class="zs-empty-desc">Gdy pojawią się treści wymagające pracy redakcyjnej, zobaczysz je tutaj.</p>
+            <p class="zs-empty-title"><?= e(t('admin.role_panel.obecnie_nie_ma_zadnych_tekstow_do_edycji')) ?></p>
+            <p class="zs-empty-desc"><?= e(t('admin.role_panel.gdy_pojawia_sie_tresci_wymagajace_pracy_redakcyjnej_zob_c85d387e')) ?></p>
         <?php elseif ($isModerator): ?>
-            <p class="zs-empty-title">Brak tekstów w moderacji.</p>
-            <p class="zs-empty-desc">Lista artykułów pojawi się tutaj, gdy w systemie będą teksty.</p>
+            <p class="zs-empty-title"><?= e(t('admin.role_panel.brak_tekstow_w_moderacji')) ?></p>
+            <p class="zs-empty-desc"><?= e(t('admin.role_panel.lista_artykuow_pojawi_sie_tutaj_gdy_w_systemie_beda_teksty')) ?></p>
         <?php else: ?>
-            <p class="zs-empty-title">Brak danych do wyświetlenia.</p>
-            <p class="zs-empty-desc">Obecnie nie ma żadnych pozycji w tej sekcji.</p>
+            <p class="zs-empty-title"><?= e(t('admin.role_panel.brak_danych_do_wyswietlenia')) ?></p>
+            <p class="zs-empty-desc"><?= e(t('admin.role_panel.obecnie_nie_ma_zadnych_pozycji_w_tej_sekcji')) ?></p>
         <?php endif; ?>
     </div>
   <?php else: ?>
     <?php if (($panel['target'] ?? '') === 'payouts'): ?>
         <table class="zs-admin-table">
           <thead>
-            <tr><th>ID</th><th>Użytkownik</th><th>Kwota</th><th>Status</th><th>Data</th></tr>
+            <tr><th>ID</th><th><?= e(t('wallet.orders.table.user')) ?></th><th><?= e(t('wallet.history.table.amount')) ?></th><th><?= e(t('wallet.history.table.status')) ?></th><th><?= e(t('wallet.history.table.date')) ?></th></tr>
           </thead>
           <tbody>
             <?php foreach (($rows ?? []) as $row): ?>
@@ -119,14 +119,14 @@ $articleLabelOptions = [
           <thead>
             <?php if ($isModerator): ?>
               <tr>
-                <th style="width: 15%;">ARTYKUŁ</th>
-                <th style="width: 15%;">MODERACJA</th>
-                <th style="width: 70%;">WYCENA / ETYKIETA</th>
+                <th style="width: 15%;"><?= e(t('admin.role_panel.artyku')) ?></th>
+                <th style="width: 15%;"><?= e(t('admin.role_panel.moderacja')) ?></th>
+                <th style="width: 70%;"><?= e(t('admin.role_panel.wycena_etykieta')) ?></th>
               </tr>
             <?php elseif ($isProofreader): ?>
-              <tr><th>ID</th><th>Tytuł i autor</th><th>Status tekstu</th><th>Status korekty</th><th>Aktualizacja</th><th>Akcja</th></tr>
+              <tr><th>ID</th><th><?= e(t('admin.role_panel.tytu_i_autor')) ?></th><th><?= e(t('admin.role_panel.status_tekstu')) ?></th><th><?= e(t('admin.role_panel.status_korekty')) ?></th><th><?= e(t('admin.role_panel.aktualizacja')) ?></th><th><?= e(t('admin.anti_fraud.akcja')) ?></th></tr>
             <?php else: ?>
-              <tr><th>ID</th><th>Tytuł i Autor</th><th>Status</th><th><?php echo $isChiefEditor ? 'Blokada autora' : 'Premium'; ?></th><th>Aktualizacja</th></tr>
+        <tr><th>ID</th><th><?= e(t('admin.role_panel.tytu_i_autor_2')) ?></th><th><?= e(t('wallet.history.table.status')) ?></th><th><?php echo e($isChiefEditor ? t('admin.role_panel.author_block') : t('admin.role_panel.premium')); ?></th><th><?= e(t('admin.role_panel.aktualizacja')) ?></th></tr>
             <?php endif; ?>
           </thead>
           <tbody>
@@ -143,7 +143,7 @@ $articleLabelOptions = [
                         <strong><?php echo e($row['title'] ?? ''); ?></strong>
                         <div class="zs-subtitle"><?php echo e($row['author_name'] ?? ''); ?> | <?php echo !empty($row['created_at']) ? date('d.m.Y', strtotime($row['created_at'])) : '--.--.----'; ?></div>
                         <div class="zs-actions u-mt-2">
-                           <a href="/article?id=<?php echo (int)$row['id']; ?>" class="zs-btn-mini btn-outline" target="_blank">Podgląd</a>
+                           <a href="/article?id=<?php echo (int)$row['id']; ?>" class="zs-btn-mini btn-outline" target="_blank"><?= e(t('editorial.editing.preview')) ?></a>
                         </div>
                     </div>
                 </td>
@@ -153,14 +153,14 @@ $articleLabelOptions = [
                   </td>
                   <td>
                     <?php if (!empty($row['proofread_at'])): ?>
-                      <span class="zs-status-badge review">KOREKTA</span>
+                      <span class="zs-status-badge review"><?= e(t('admin.dashboard.korekta')) ?></span>
                       <small class="zs-date-human"><?php echo date('d.m.Y H:i', strtotime($row['proofread_at'])); ?></small>
                     <?php else: ?>
-                      <span class="zs-status-badge submitted">DO KOREKTY</span>
+                      <span class="zs-status-badge submitted"><?= e(t('admin.proofreader_edit.do_korekty')) ?></span>
                     <?php endif; ?>
                   </td>
                   <td><small class="zs-date-human"><?php echo !empty($row['updated_at']) ? date('d.m.Y H:i', strtotime($row['updated_at'])) : '--.--.---- --:--'; ?></small></td>
-                  <td><a class="zs-btn-small" href="/admin/proofreader/edit?id=<?php echo (int)$row['id']; ?>">KORYGUJ</a></td>
+                  <td><a class="zs-btn-small" href="/admin/proofreader/edit?id=<?php echo (int)$row['id']; ?>"><?= e(t('admin.role_panel.koryguj')) ?></a></td>
                 <?php elseif ($isModerator): ?>
                   <td>
                     <?php $articleId = (int)($row['id'] ?? 0); ?>
@@ -168,17 +168,17 @@ $articleLabelOptions = [
                       $currentStatus = (string)($row['status'] ?? 'approved');
                       $moderatorStatusOptions = match ($currentStatus) {
                           'approved' => [
-                              'approved' => 'Zaakceptowany przez redakcję',
-                              'published' => 'Opublikowany',
-                              'archived' => 'Archiwum',
+                              'approved' => t('admin.role_panel.zaakceptowany_przez_redakcje'),
+                              'published' => t('article.status.published'),
+                              'archived' => t('admin.role_panel.archive'),
                           ],
                           'published' => [
-                              'published' => 'Opublikowany',
-                              'archived' => 'Archiwum',
+                              'published' => t('article.status.published'),
+                              'archived' => t('admin.role_panel.archive'),
                           ],
                           'archived' => [
-                              'archived' => 'Archiwum',
-                              'draft' => 'Przywróć jako szkic',
+                              'archived' => t('admin.role_panel.archive'),
+                              'draft' => t('admin.role_panel.przywroc_jako_szkic'),
                           ],
                           default => [$currentStatus => $currentStatus],
                       };
@@ -187,16 +187,16 @@ $articleLabelOptions = [
                       <?php echo csrf_field(); ?>
                       <input type="hidden" name="id" value="<?php echo $articleId; ?>">
                       <input type="hidden" name="return_to" value="moderator">
-                      <label class="zs-moderator-label" for="article-status-<?php echo $articleId; ?>">Status tekstu</label>
+                      <label class="zs-moderator-label" for="article-status-<?php echo $articleId; ?>"><?= e(t('admin.role_panel.status_tekstu')) ?></label>
                       <select id="article-status-<?php echo $articleId; ?>" name="status" class="zs-status-select">
                         <?php foreach ($moderatorStatusOptions as $value => $label): ?>
                           <option value="<?php echo e($value); ?>" <?php echo $currentStatus === $value ? 'selected' : ''; ?>><?php echo e($label); ?></option>
                         <?php endforeach; ?>
                       </select>
-                      <button type="submit" class="zs-btn-red zs-btn-compact">ZATWIERDŹ STATUS</button>
+                      <button type="submit" class="zs-btn-red zs-btn-compact"><?= e(t('admin.role_panel.zatwierdz_status')) ?></button>
                     </form>
                     <div class="zs-update-info">
-                        <small class="zs-date-human">Aktualizacja: <?php echo !empty($row['updated_at']) ? date('d.m.Y H:i', strtotime($row['updated_at'])) : '--.--.---- --:--'; ?></small>
+                    <small class="zs-date-human"><?= e(t('admin.role_panel.updated_prefix')) ?> <?php echo !empty($row['updated_at']) ? date('d.m.Y H:i', strtotime($row['updated_at'])) : '--.--.---- --:--'; ?></small>
                     </div>
                   </td>
                   <td>
@@ -214,7 +214,7 @@ $articleLabelOptions = [
                     ?>
                     <div class="zs-moderator-workspace">
                       <div class="zs-moderator-line zs-moderator-pricing-line">
-                        <div class="zs-moderator-line-label">WYCENA I ETYKIETA ARTYKUŁU</div>
+                        <div class="zs-moderator-line-label"><?= e(t('admin.role_panel.wycena_i_etykieta_artykuu')) ?></div>
                         <div class="zs-moderator-valuation-summary" id="valuation-summary-<?php echo $articleId; ?>">
                           <span class="zs-status-badge zs-access-badge <?php echo e($accessMode); ?>"><?php echo e($accessLabels[$accessMode] ?? $accessMode); ?></span>
                           <span class="zs-status-badge zs-pricing-badge <?php echo e($pricingStatus); ?>"><?php echo e($pricingLabels[$pricingStatus] ?? $pricingStatus); ?></span>
@@ -231,7 +231,7 @@ $articleLabelOptions = [
                             style="--article-label-color: <?php echo e((string)$savedLabelMeta['color']); ?>"
                           ><?php echo e((string)$savedLabelMeta['label']); ?></span>
                           <strong class="zs-valuation-price<?php echo $accessMode !== 'paid' || $priceMinor <= 0 ? ' is-hidden' : ''; ?>" id="valuation-price-<?php echo $articleId; ?>"><?php echo e($priceDisplay); ?> <?php echo e($row['currency'] ?? 'PLN'); ?></strong>
-                          <small class="zs-valuation-share" id="valuation-share-<?php echo $articleId; ?>">Autor <?php echo number_format($authorShare, 0); ?>% / Serwis <?php echo number_format($platformShare, 0); ?>% / Safety Fund <?php echo number_format($safetyFundShare, 0); ?>%</small>
+                          <small class="zs-valuation-share" id="valuation-share-<?php echo $articleId; ?>"><?php echo e(str_replace(['{author}','{service}','{fund}'], [number_format($authorShare, 0),number_format($platformShare, 0),number_format($safetyFundShare, 0)], t('admin.role_panel.revenue_split'))); ?></small>
                         </div>
                         <form id="valuation-form-<?php echo $articleId; ?>" method="post" action="/admin/articles/valuation" class="zs-moderator-valuation-form ajax-form" data-article-id="<?php echo $articleId; ?>">
                           <?php echo csrf_field(); ?>
@@ -239,9 +239,9 @@ $articleLabelOptions = [
                           <input type="hidden" name="return_to" value="moderator">
                           <input type="hidden" name="currency" value="PLN">
                           <label>
-                            <span>Etykieta artykułu</span>
+                            <span><?= e(t('admin.role_panel.etykieta_artykuu')) ?></span>
                             <select name="article_label" class="zs-article-label-select" data-article-id="<?php echo $articleId; ?>">
-                              <option value="">-- wybierz --</option>
+                              <option value=""><?= e(t('admin.role_panel.wybierz')) ?></option>
                               <?php foreach ($articleLabelOptions as $labelValue => $labelMeta): ?>
                                 <option
                                   value="<?php echo e($labelValue); ?>"
@@ -254,50 +254,50 @@ $articleLabelOptions = [
                           </label>
 
                           <label>
-                            <span>Dostęp</span>
+                            <span><?= e(t('admin.role_panel.dostep')) ?></span>
                             <select name="access_mode">
-                              <option value="free" <?php echo $accessMode === 'free' ? 'selected' : ''; ?>>darmowy</option>
-                              <option value="paid" <?php echo $accessMode === 'paid' ? 'selected' : ''; ?>>płatny</option>
+                              <option value="free" <?php echo $accessMode === 'free' ? 'selected' : ''; ?>><?= e(t('admin.role_panel.darmowy')) ?></option>
+                              <option value="paid" <?php echo $accessMode === 'paid' ? 'selected' : ''; ?>><?= e(t('admin.role_panel.patny')) ?></option>
                             </select>
                           </label>
                           <label>
-                            <span>Cena PLN</span>
+                            <span><?= e(t('admin.role_panel.cena_pln')) ?></span>
                             <input type="text" name="price" value="<?php echo e($priceValue); ?>" placeholder="9,90" inputmode="decimal">
                           </label>
-                          <div class="zs-setting-description">Podział ustala globalna polityka Safety Fund. Zmiana wymaga zatwierdzenia w 3DORS Admin.</div>
+                          <div class="zs-setting-description"><?= e(t('admin.role_panel.podzia_ustala_globalna_polityka_safety_fund_zmiana_wyma_582c1904')) ?></div>
                           <div class="zs-moderator-flags">
                             <label class="zs-check-inline">
-                              <input type="checkbox" name="is_premium" value="1" <?php echo !empty($row['is_premium']) ? 'checked' : ''; ?>> Premium
+                              <input type="checkbox" name="is_premium" value="1" <?php echo !empty($row['is_premium']) ? 'checked' : ''; ?>> <?= e(t('admin.role_panel.premium')) ?>
                             </label>
                             <label class="zs-check-inline">
-                              <input type="checkbox" name="is_unique" value="1" <?php echo !empty($row['is_unique']) ? 'checked' : ''; ?>> Unikalny
+                              <input type="checkbox" name="is_unique" value="1" <?php echo !empty($row['is_unique']) ? 'checked' : ''; ?>> <?= e(t('admin.role_panel.unikalny')) ?>
                             </label>
                           </div>
                           <label class="zs-moderator-note-field">
-                            <span>Notatka moderatora</span>
+                            <span><?= e(t('admin.role_panel.notatka_moderatora')) ?></span>
                             <textarea name="editor_valuation_note" rows="2"><?php echo e((string)($row['editor_valuation_note'] ?? '')); ?></textarea>
                           </label>
                           <div class="zs-moderator-update-action">
-                            <button type="submit" class="zs-btn-outline zs-btn-compact">AKTUALIZUJ DANE</button>
-                            <small>Aktualizacja bez zmiany statusu.</small>
+                            <button type="submit" class="zs-btn-outline zs-btn-compact"><?= e(t('admin.role_panel.aktualizuj_dane')) ?></button>
+                            <small><?= e(t('admin.role_panel.aktualizacja_bez_zmiany_statusu')) ?></small>
                           </div>
                         </form>
                       </div>
 
                       <div class="zs-moderator-line zs-moderator-translation-line">
-                        <div class="zs-moderator-line-label">TŁUMACZENIA</div>
+                        <div class="zs-moderator-line-label"><?= e(t('admin.role_panel.tumaczenia')) ?></div>
                         <div class="zs-language-status-block">
-                          <div class="zs-language-statuses" aria-label="Status wersji językowych">
+                          <div class="zs-language-statuses" aria-label="<?= e(t('admin.editorial_list.status_wersji_jezykowych')) ?>">
                             <?php
                               $sourceLanguage = strtolower(trim((string)($row['source_language'] ?? 'pl')));
                               $translationStatusLabels = [
-                                  'draft' => 'szkic',
-                                  'ai_draft' => 'szkic AI — wymaga sprawdzenia',
-                                  'editor_review' => 'w korekcie',
-                                  'approved' => 'zatwierdzone',
-                                  'published' => 'opublikowane',
-                                  'rejected' => 'odrzucone',
-                                  'error' => 'błąd',
+                    'draft' => t('article.status.draft'),
+                    'ai_draft' => t('admin.editorial_edit.ai_draft'),
+                    'editor_review' => t('admin.editorial_edit.proofreading'),
+                    'approved' => t('article.status.approved'),
+                    'published' => t('article.status.published'),
+                    'rejected' => t('article.status.rejected'),
+                                  'error' => t('admin.editorial_edit.bad'),
                               ];
                             ?>
                             <?php foreach ($publicLanguages as $language): ?>
@@ -319,7 +319,7 @@ $articleLabelOptions = [
                               ?>
 
                               <?php if ($isSourceLanguage): ?>
-                                <a class="zs-status-badge zs-language-badge is-source" href="/article?id=<?php echo (int)$row['id']; ?>&lang=<?php echo e($sourceLanguage); ?>" target="_blank" rel="noopener" title="Oryginalny tekst: <?php echo e($label); ?>">
+                                <a class="zs-status-badge zs-language-badge is-source" href="/article?id=<?php echo (int)$row['id']; ?>&lang=<?php echo e($sourceLanguage); ?>" target="_blank" rel="noopener" title="<?php echo e(str_replace('{language}', $label, t('admin.role_panel.original_text'))); ?>">
                                   <?php echo e($label); ?>
                                 </a>
                               <?php elseif (in_array($translationStatus, ['error', 'rejected'], true)): ?>
@@ -327,16 +327,16 @@ $articleLabelOptions = [
                                   <?php echo e($label); ?>
                                 </span>
                               <?php elseif ($hasCompleteTranslation): ?>
-                                <a class="zs-status-badge zs-language-badge is-translated<?php echo $requiresReview ? ' needs-review' : ''; ?>" href="/article?id=<?php echo (int)$row['id']; ?>&lang=<?php echo e($lang); ?>&preview_lang=<?php echo e($lang); ?>" target="_blank" rel="noopener" title="<?php echo e($label); ?>: tłumaczenie zapisane (<?php echo e($translationStatusLabels[$translationStatus] ?? $translationStatus); ?>)">
+                                <a class="zs-status-badge zs-language-badge is-translated<?php echo $requiresReview ? ' needs-review' : ''; ?>" href="/article?id=<?php echo (int)$row['id']; ?>&lang=<?php echo e($lang); ?>&preview_lang=<?php echo e($lang); ?>" target="_blank" rel="noopener" title="<?php echo e(str_replace(['{language}','{status}'], [$label, $translationStatusLabels[$translationStatus] ?? $translationStatus], t('admin.role_panel.translation_saved'))); ?>">
                                   <?php echo e($label); ?>
                                   <?php if ($requiresReview): ?><span class="zs-language-review-dot" aria-hidden="true"></span><?php endif; ?>
                                 </a>
                               <?php elseif (is_array($translation)): ?>
-                                <span class="zs-status-badge zs-language-badge is-incomplete" title="<?php echo e($label); ?>: niekompletne tłumaczenie">
+                                <span class="zs-status-badge zs-language-badge is-incomplete" title="<?php echo e(str_replace('{language}', $label, t('admin.role_panel.translation_incomplete'))); ?>">
                                   <?php echo e($label); ?>
                                 </span>
                               <?php else: ?>
-                                <span class="zs-status-badge zs-language-badge is-missing" title="<?php echo e($label); ?>: brak tłumaczenia">
+                                <span class="zs-status-badge zs-language-badge is-missing" title="<?php echo e(str_replace('{language}', $label, t('admin.role_panel.translation_missing'))); ?>">
                                   <?php echo e($label); ?>
                                 </span>
                               <?php endif; ?>
@@ -348,7 +348,7 @@ $articleLabelOptions = [
                           <?php echo csrf_field(); ?>
                           <input type="hidden" name="article_id" value="<?php echo (int)$row['id']; ?>">
                           <input type="hidden" name="translation_instructions" value="">
-                          <button type="submit" class="zs-btn-outline zs-btn-compact zs-ai-translate-btn">GENERUJ TŁUMACZENIA</button>
+                          <button type="submit" class="zs-btn-outline zs-btn-compact zs-ai-translate-btn"><?= e(t('admin.role_panel.generuj_tumaczenia')) ?></button>
                           <small class="zs-ai-translate-status" aria-live="polite"></small>
                         </form>
                       </div>
@@ -368,37 +368,37 @@ $articleLabelOptions = [
                         ?>
                         <div class="zs-author-block-box">
                           <?php if ($blockActive): ?>
-                            <div class="zs-author-block-active">Zablokowany do: <?php echo date('d.m.Y H:i', strtotime($blockUntilRaw)); ?></div>
+                            <div class="zs-author-block-active"><?php echo e(str_replace('{date}', date('d.m.Y H:i', strtotime($blockUntilRaw)), t('admin.role_panel.blocked_until'))); ?></div>
                             <?php if (!empty($row['article_submit_block_reason'])): ?>
                               <small class="zs-muted"><?php echo e((string)$row['article_submit_block_reason']); ?></small>
                             <?php endif; ?>
                           <?php else: ?>
-                            <small class="zs-muted">Autor może przesyłać teksty.</small>
+                            <small class="zs-muted"><?= e(t('admin.role_panel.autor_moze_przesyac_teksty')) ?></small>
                           <?php endif; ?>
                           <form method="post" action="/admin/authors/submit-block" class="ajax-form">
                             <?php echo csrf_field(); ?>
                             <input type="hidden" name="author_id" value="<?php echo (int)($row['author_id'] ?? 0); ?>">
-                            <select name="duration" aria-label="Czas blokady przesyłania tekstów">
-                              <option value="24h">24h</option>
-                              <option value="7d">7 dni</option>
-                              <option value="30d">30 dni</option>
+                            <select name="duration" aria-label="<?= e(t('admin.role_panel.czas_blokady_przesyania_tekstow')) ?>">
+                              <option value="24h"><?= e(t('admin.articles.24h')) ?></option>
+                              <option value="7d"><?= e(t('admin.articles.7_dni')) ?></option>
+                              <option value="30d"><?= e(t('admin.articles.30_dni')) ?></option>
                             </select>
-                            <input type="text" name="reason" placeholder="Powód, opcjonalnie">
-                            <button class="zs-btn-small" type="submit">Zablokuj</button>
+                            <input type="text" name="reason" placeholder="<?= e(t('admin.role_panel.powod_opcjonalnie')) ?>">
+                            <button class="zs-btn-small" type="submit"><?= e(t('admin.role_panel.zablokuj')) ?></button>
                           </form>
                           <?php if ($blockActive): ?>
                             <form method="post" action="/admin/authors/submit-block">
                               <?php echo csrf_field(); ?>
                               <input type="hidden" name="author_id" value="<?php echo (int)($row['author_id'] ?? 0); ?>">
                               <input type="hidden" name="duration" value="clear">
-                              <button class="zs-btn-small" type="submit">Zdejmij blokadę</button>
+                              <button class="zs-btn-small" type="submit"><?= e(t('admin.role_panel.zdejmij_blokade')) ?></button>
                             </form>
                           <?php endif; ?>
                         </div>
                       <?php elseif (($row['access_mode'] ?? 'free') === 'paid' || !empty($row['is_premium'])): ?>
-                          <span class="zs-status-badge paid">PŁATNY</span>
+                          <span class="zs-status-badge paid"><?= e(t('admin.role_panel.patny_2')) ?></span>
                       <?php else: ?>
-                          <span class="zs-status-badge">DARMOWY</span>
+                          <span class="zs-status-badge"><?= e(t('admin.role_panel.darmowy_2')) ?></span>
                       <?php endif; ?>
                   </td>
                   <td><small class="zs-date-human"><?php echo date('d.m.Y H:i', strtotime($row['updated_at'] ?? 'now')); ?></small></td>
@@ -412,21 +412,33 @@ $articleLabelOptions = [
 
   <div class="zs-pagination-bar">
     <?php $prev = max(1, (int)($snajper_page ?? 1) - 1); $next = (int)($snajper_page ?? 1) + 1; ?>
-    <a class="zs-btn-small" href="/admin/role-panel?panel=<?php echo e($panel_code ?? ''); ?>&page=<?php echo $prev; ?>">&laquo; Poprzednia strona</a>
-    <span class="zs-pagination-info">Strona <?php echo (int)($snajper_page ?? 1); ?></span>
-    <a class="zs-btn-small" href="/admin/role-panel?panel=<?php echo e($panel_code ?? ''); ?>&page=<?php echo $next; ?>">Następna strona &raquo;</a>
+    <a class="zs-btn-small" href="/admin/role-panel?panel=<?php echo e($panel_code ?? ''); ?>&page=<?php echo $prev; ?>"><?= e(t('admin.articles.laquo_poprzednia_strona')) ?></a>
+    <span class="zs-pagination-info"><?php echo e(str_replace('{page}', (string)(int)($snajper_page ?? 1), t('admin.common.page_number'))); ?></span>
+    <a class="zs-btn-small" href="/admin/role-panel?panel=<?php echo e($panel_code ?? ''); ?>&page=<?php echo $next; ?>"><?= e(t('admin.articles.nastepna_strona_raquo')) ?></a>
   </div>
 </section>
 
 <div class="zs-panel-footer">
-  <a href="/admin" class="zs-link-aux">Powrót do dashboardu</a>
+  <a href="/admin" class="zs-link-aux"><?= e(t('admin.role_panel.powrot_do_dashboardu')) ?></a>
   <span class="zs-sep">|</span>
-  <a href="/admin/roles" class="zs-link-aux">Role i uprawnienia</a>
+  <a href="/admin/roles" class="zs-link-aux"><?= e(t('admin.role_panel.role_i_uprawnienia')) ?></a>
 </div>
 
 
 
 <script>
+const rolePanelUi = <?= json_encode([
+    'saved' => t('common.saved'),
+    'paid' => t('article.access.paid'),
+    'free' => t('article.access.free'),
+    'saveError' => t('common.save_error'),
+    'connectionError' => t('common.connection_error'),
+    'shareTemplate' => t('admin.role_panel.revenue_split'),
+    'saveButton' => t('admin.role_panel.save_button'),
+    'saving' => t('admin.role_panel.saving'),
+    'updatedPrefix' => t('admin.role_panel.updated_prefix'),
+    'priced' => t('admin.role_panel.pricing_priced'),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 document.addEventListener('DOMContentLoaded', function() {
   function showLocalMessage(element, text, type, preferredContainer = null) {
     const container = preferredContainer || element.parentNode;
@@ -450,11 +462,11 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const button = form.querySelector('button[type="submit"], .zs-btn-small, .zs-ai-translate-btn');
-      const originalText = button ? button.textContent : 'Zapisz';
+        const originalText = button ? button.textContent : rolePanelUi.saveButton;
 
       if (button) {
         button.disabled = true;
-        button.textContent = 'Zapisywanie...';
+            button.textContent = rolePanelUi.saving;
       }
 
       try {
@@ -478,20 +490,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (data.success) {
           const messageContainer = form.classList.contains('zs-moderator-valuation-form') ? form : null;
-          showLocalMessage(button || form, data.message || 'Zapisano', 'success', messageContainer);
+          showLocalMessage(button || form, data.message || rolePanelUi.saved, 'success', messageContainer);
 
           // Update last update date if exists in the same row
           const row = form.closest('tr');
           if (row) {
             const dateEl = row.querySelector('.zs-date-human');
-            if (dateEl && dateEl.textContent.includes('Aktualizacja:')) {
+                if (dateEl && dateEl.textContent.includes(rolePanelUi.updatedPrefix)) {
                 const now = new Date();
                 const formatted = now.getDate().toString().padStart(2, '0') + '.' +
                                 (now.getMonth() + 1).toString().padStart(2, '0') + '.' +
                                 now.getFullYear() + ' ' +
                                 now.getHours().toString().padStart(2, '0') + ':' +
                                 now.getMinutes().toString().padStart(2, '0');
-                dateEl.textContent = 'Aktualizacja: ' + formatted;
+                    dateEl.textContent = rolePanelUi.updatedPrefix + ' ' + formatted;
             }
           }
 
@@ -505,11 +517,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const share = document.getElementById('valuation-share-' + form.dataset.articleId);
 
             if (accessBadge) {
-              accessBadge.textContent = accessMode === 'paid' ? 'płatny' : 'bezpłatny';
+              accessBadge.textContent = accessMode === 'paid' ? rolePanelUi.paid : rolePanelUi.free;
               accessBadge.className = 'zs-status-badge zs-access-badge ' + accessMode;
             }
             if (pricingBadge) {
-              pricingBadge.textContent = accessMode === 'paid' ? 'wyceniony' : 'darmowy';
+                        pricingBadge.textContent = accessMode === 'paid' ? rolePanelUi.priced : rolePanelUi.free;
               pricingBadge.className = 'zs-status-badge zs-pricing-badge ' + (accessMode === 'paid' ? 'priced' : 'free');
             }
             if (price) {
@@ -517,12 +529,15 @@ document.addEventListener('DOMContentLoaded', function() {
               price.classList.toggle('is-hidden', accessMode !== 'paid');
             }
             if (share) {
-              share.textContent = 'Autor <?= e(number_format(((int)($revenue_split_policy['author_basis_points'] ?? 4000)) / 100, 0)) ?>% / Serwis <?= e(number_format(((int)($revenue_split_policy['platform_basis_points'] ?? 4000)) / 100, 0)) ?>% / Safety Fund <?= e(number_format(((int)($revenue_split_policy['safety_fund_basis_points'] ?? 2000)) / 100, 0)) ?>%';
+              share.textContent = rolePanelUi.shareTemplate
+                .replace('{author}', '<?= e(number_format(((int)($revenue_split_policy['author_basis_points'] ?? 4000)) / 100, 0)) ?>')
+                .replace('{service}', '<?= e(number_format(((int)($revenue_split_policy['platform_basis_points'] ?? 4000)) / 100, 0)) ?>')
+                .replace('{fund}', '<?= e(number_format(((int)($revenue_split_policy['safety_fund_basis_points'] ?? 2000)) / 100, 0)) ?>');
             }
           }
         } else {
           const messageContainer = form.classList.contains('zs-moderator-valuation-form') ? form : null;
-          showLocalMessage(button || form, data.message || 'Błąd zapisu', 'error', messageContainer);
+          showLocalMessage(button || form, data.message || rolePanelUi.saveError, 'error', messageContainer);
         }
       } catch (error) {
         if (button) {
@@ -530,7 +545,7 @@ document.addEventListener('DOMContentLoaded', function() {
           button.textContent = originalText;
         }
         const messageContainer = form.classList.contains('zs-moderator-valuation-form') ? form : null;
-        showLocalMessage(button || form, 'Błąd połączenia', 'error', messageContainer);
+        showLocalMessage(button || form, rolePanelUi.connectionError, 'error', messageContainer);
       }
     });
   });

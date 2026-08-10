@@ -167,7 +167,7 @@ final class CampaignController extends BaseController
     {
         $token = trim((string)($_POST['proof_token'] ?? ''));
         if (preg_match('/^[a-f0-9]{48}$/D', $token) !== 1) {
-            throw new \RuntimeException('Dowód obejrzenia wygasł. Otwórz kampanię ponownie.');
+            throw new \RuntimeException(t('controller.campaign.dowod_obejrzenia_wygas_otworz_kampanie_ponownie'));
         }
         $proofs = $this->app->session->get(self::VIEW_PROOF_SESSION_KEY, []);
         $proofs = is_array($proofs) ? $proofs : [];
@@ -180,14 +180,14 @@ final class CampaignController extends BaseController
             || (int)($proof['campaign_id'] ?? 0) !== $campaignId
             || (int)($proof['expires_at'] ?? 0) < $now
         ) {
-            throw new \RuntimeException('Dowód obejrzenia jest nieprawidłowy albo wygasł.');
+            throw new \RuntimeException(t('controller.campaign.dowod_obejrzenia_jest_nieprawidowy_albo_wygas'));
         }
         $elapsed = max(0, $now - (int)($proof['issued_at'] ?? $now));
         $minimum = max(1, min(600, (int)($proof['minimum_seconds'] ?? 15)));
         $clientVisibleSeconds = max(0, (int)($_POST['visible_seconds'] ?? 0));
         $visible = in_array((string)($_POST['visible'] ?? ''), ['1', 'true', 'visible'], true);
         if ($elapsed < $minimum || $clientVisibleSeconds < $minimum || !$visible) {
-            throw new \RuntimeException('Obejrzyj reklamę w widocznym oknie przez wymagany czas.');
+            throw new \RuntimeException(t('controller.campaign.obejrzyj_reklame_w_widocznym_oknie_przez_wymagany_czas'));
         }
         return [
             'elapsed_seconds' => min($elapsed, self::VIEW_PROOF_TTL_SECONDS),

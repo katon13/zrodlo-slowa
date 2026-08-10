@@ -40,7 +40,7 @@ final class AdminController extends BaseController
             : 0;
 
         return $this->view('admin/dashboard', [
-            'title' => 'Admin',
+            'title' => t('layout.menu.admin'),
             'slowo_snajper' => $this->slowoSnajperConfig()->all(),
             'pending_authors_count' => (new UserService($this->app->db))->pendingAuthorsCount(),
             'role_panels' => $roleService->panelsForRoles($roles, in_array('admin', $roles, true)),
@@ -66,7 +66,7 @@ final class AdminController extends BaseController
         }
 
         if ($ajax) {
-            $this->json(['success' => true, 'message' => 'Cache strony wyczyszczony.']);
+            $this->json(['success' => true, 'message' => t('controller.admin.cache_strony_wyczyszczony')]);
         }
         $_SESSION['flash_success'] = 'Cache strony wyczyszczony.';
 
@@ -77,9 +77,9 @@ final class AdminController extends BaseController
     private function cacheClearFailure(bool $ajax, \Throwable $error): never
     {
         if ($ajax) {
-            $this->json(['success' => false, 'message' => 'Nie udało się wyczyścić cache.']);
+            $this->json(['success' => false, 'message' => t('controller.admin.nie_udao_sie_wyczyscic_cache')]);
         }
-        $_SESSION['flash_error'] = $this->safeError($error, 'Nie udało się wyczyścić cache.', 'admin_cache');
+        $_SESSION['flash_error'] = $this->safeError($error, t('controller.admin.nie_udao_sie_wyczyscic_cache'), 'admin_cache');
         header('Location: /admin');
         exit;
     }
@@ -91,7 +91,7 @@ final class AdminController extends BaseController
         $articles = (new ArticleService($this->app->db))->allForAdmin($limit, $offset, 'submitted');
 
         return $this->view('admin/articles', [
-            'title' => 'Redakcja Główna',
+            'title' => t('controller.admin.redakcja_gowna'),
             'articles' => $articles,
             'snajper_page' => $page,
             'snajper_limit' => $limit,
@@ -110,7 +110,7 @@ final class AdminController extends BaseController
         $translationMap = (new ArticleTranslationService($this->app->db, $languages))->mapForArticles($articleIds, false);
 
         return $this->view('admin/editorial_list', [
-            'title' => 'Wydawca',
+            'title' => t('controller.admin.wydawca'),
             'articles' => $articles,
             'languages' => $languages,
             'article_translations_map' => $translationMap,
@@ -128,14 +128,14 @@ final class AdminController extends BaseController
         
         if (!$article) {
             http_response_code(404);
-            return $this->view('layouts/error', ['title' => '404', 'message' => 'Nie znaleziono tekstu.']);
+            return $this->view('layouts/error', ['title' => '404', 'message' => t('controller.admin.nie_znaleziono_tekstu')]);
         }
 
         $translationService = new ArticleTranslationService($this->app->db, $this->app->config['languages'] ?? []);
         $currentRoles = $this->currentUserRoles();
 
         return $this->view('admin/editorial_edit', [
-            'title' => 'Edycja tekstu: ' . $article['title'],
+            'title' => t('controller.admin.edycja_tekstu') . $article['title'],
             'article' => $article,
             'media' => $articleService->getMedia($id),
             'translations' => $translationService->allForArticle($id),
@@ -160,7 +160,7 @@ final class AdminController extends BaseController
             )));
             $sourceLanguage = strtolower(trim((string)($_POST['source_language'] ?? ($languageConfig['default'] ?? 'pl'))));
             if (!in_array($sourceLanguage, $enabledLanguages, true)) {
-                throw new \InvalidArgumentException('Nieprawidłowy język oryginału.');
+                throw new \InvalidArgumentException(t('controller.admin.nieprawidowy_jezyk_oryginau'));
             }
 
             $languageVersions = isset($_POST['language_versions']) && is_array($_POST['language_versions'])
@@ -170,14 +170,14 @@ final class AdminController extends BaseController
             if ($languageVersions !== []) {
                 $sourceVersion = $languageVersions[$sourceLanguage] ?? null;
                 if (!is_array($sourceVersion)) {
-                    throw new \InvalidArgumentException('Brak treści dla wybranego języka oryginału.');
+                    throw new \InvalidArgumentException(t('controller.admin.brak_tresci_dla_wybranego_jezyka_oryginau'));
                 }
 
                 $sourceTitle = trim(is_scalar($sourceVersion['title'] ?? null) ? (string)$sourceVersion['title'] : '');
                 $sourceLead = trim(is_scalar($sourceVersion['lead'] ?? null) ? (string)$sourceVersion['lead'] : '');
                 $sourceBody = trim(is_scalar($sourceVersion['body'] ?? null) ? (string)$sourceVersion['body'] : '');
                 if ($sourceTitle === '' || $sourceBody === '') {
-                    throw new \InvalidArgumentException('Tytuł i treść w języku oryginału są wymagane.');
+                    throw new \InvalidArgumentException(t('controller.admin.tytu_i_tresc_w_jezyku_oryginau_sa_wymagane'));
                 }
 
                 $editorialData['title'] = $sourceTitle;
@@ -219,7 +219,7 @@ final class AdminController extends BaseController
                     }
                     if ($title === '' || $body === '') {
                         throw new \InvalidArgumentException(
-                            'Wersja ' . strtoupper($language) . ' jest niekompletna. Wpisz tytuł i treść albo pozostaw całą wersję pustą.'
+                            str_replace('{language}', strtoupper($language), t('controller.admin.translation_incomplete'))
                         );
                     }
 
@@ -288,7 +288,7 @@ final class AdminController extends BaseController
             $articleService = new ArticleService($this->app->db);
             $article = $articleService->findForAdmin($articleId);
             if (!$article) {
-                throw new \RuntimeException('Nie znaleziono tekstu.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_tekstu'));
             }
 
             $translationService = new ArticleTranslationService($this->app->db, $this->app->config['languages'] ?? []);
@@ -300,9 +300,9 @@ final class AdminController extends BaseController
                 'translation_instructions' => (string)($_POST['translation_instructions'] ?? ''),
             ], $adminId);
 
-            $this->app->session->flash('success', 'Wersja językowa ' . strtoupper($language) . ' została zapisana.');
+            $this->app->session->flash('success', t('admin.main_banner.wersja_jezykowa') . strtoupper($language) . t('controller.admin.zostaa_zapisana'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Błąd zapisu wersji językowej: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.bad_zapisu_wersji_jezykowej') . $e->getMessage());
         }
 
         redirect('/admin/editorial/edit?id=' . $articleId . '#translations');
@@ -314,19 +314,19 @@ final class AdminController extends BaseController
         $order = $_POST['order'] ?? []; // Array of article IDs in order
         if (!is_array($order) || $order === []) {
             if ($this->isAjax()) { header('Content-Type: application/json'); }
-            return json_encode(['success' => false, 'message' => 'Brak tekstów do zapisania kolejności.']);
+            return json_encode(['success' => false, 'message' => t('controller.admin.brak_tekstow_do_zapisania_kolejnosci')]);
         }
 
         try {
             $db = $this->app->db;
             $order = array_map('intval', $order);
             if (in_array(0, $order, true) || count($order) !== count(array_unique($order))) {
-                throw new \InvalidArgumentException('Lista kolejności zawiera nieprawidłowe albo powtórzone identyfikatory.');
+                throw new \InvalidArgumentException(t('controller.admin.lista_kolejnosci_zawiera_nieprawidowe_albo_powtorzone_i_82af7f0e'));
             }
             $idsSql = implode(',', $order);
             $existingCount = (int)$db->cell('SELECT COUNT(*) FROM articles WHERE id IN (' . $idsSql . ')');
             if ($existingCount !== count($order)) {
-                throw new \RuntimeException('Co najmniej jeden tekst z listy już nie istnieje. Odśwież panel.');
+                throw new \RuntimeException(t('controller.admin.co_najmniej_jeden_tekst_z_listy_juz_nie_istnieje_odswiez_panel'));
             }
             $db->transaction(function($db) use ($order) {
                 foreach ($order as $index => $id) {
@@ -352,10 +352,10 @@ final class AdminController extends BaseController
 
         try {
             if ($id <= 0 || !$this->app->db->one('SELECT id FROM articles WHERE id=:id LIMIT 1', ['id' => $id])) {
-                throw new \RuntimeException('Nie znaleziono tekstu.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_tekstu'));
             }
             if (!isset($_POST['is_featured']) || !in_array((string)$_POST['is_featured'], ['0', '1'], true)) {
-                throw new \InvalidArgumentException('Nieprawidłowy stan promocji tekstu.');
+                throw new \InvalidArgumentException(t('controller.admin.nieprawidowy_stan_promocji_tekstu'));
             }
             $this->app->db->query('UPDATE articles SET is_featured=:val WHERE id=:id', [
                 'val' => $isFeatured ? 1 : 0,
@@ -378,11 +378,11 @@ final class AdminController extends BaseController
 
         if (!$article) {
             http_response_code(404);
-            return $this->view('layouts/error', ['title' => '404', 'message' => 'Nie znaleziono tekstu do korekty.']);
+            return $this->view('layouts/error', ['title' => '404', 'message' => t('controller.admin.nie_znaleziono_tekstu_do_korekty')]);
         }
 
         return $this->view('admin/proofreader_edit', [
-            'title' => 'Korekta tekstu: ' . $article['title'],
+            'title' => t('controller.admin.korekta_tekstu') . $article['title'],
             'article' => $article,
         ]);
     }
@@ -395,9 +395,9 @@ final class AdminController extends BaseController
         try {
             (new ArticleService($this->app->db))->updateProofreading($id, $proofreaderId, $_POST);
             $this->slowoSnajper()->audit($proofreaderId, 'article_proofread_saved', ['article_id'=>$id]);
-            $this->app->session->flash('success', 'Korekta została zapisana. Tekst oznaczono jako KOREKTA.');
+            $this->app->session->flash('success', t('controller.admin.korekta_zostaa_zapisana_tekst_oznaczono_jako_korekta'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać korekty: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_korekty') . $e->getMessage());
         }
 
         redirect('/admin/proofreader/edit?id=' . $id);
@@ -429,7 +429,7 @@ final class AdminController extends BaseController
                 'rejected' => 'odrzucony',
                 'archived' => 'niepubliczny',
             ];
-            $msg = 'Status tekstu został zmieniony na: ' . ($labels[$status] ?? $status) . '.';
+            $msg = t('controller.admin.status_tekstu_zosta_zmieniony_na') . ($labels[$status] ?? $status) . '.';
 
             if ($this->isAjax()) {
                 $this->json(['success' => true, 'message' => $msg]);
@@ -437,7 +437,7 @@ final class AdminController extends BaseController
 
             $this->app->session->flash('success', $msg);
         } catch (\Throwable $e) {
-            $error = 'Nie udało się zmienić statusu tekstu: ' . $e->getMessage();
+            $error = t('controller.admin.nie_udao_sie_zmienic_statusu_tekstu') . $e->getMessage();
             if ($this->isAjax()) {
                 $this->json(['success' => false, 'message' => $error]);
             }
@@ -460,13 +460,13 @@ final class AdminController extends BaseController
         try {
             (new ArticleService($this->app->db))->sendToProofreading($articleId, $adminId);
             $this->slowoSnajper()->audit($adminId, 'article_sent_to_proofreading', ['article_id'=>$articleId]);
-            $msg = 'Tekst został skierowany do korekty.';
+            $msg = t('controller.admin.tekst_zosta_skierowany_do_korekty');
             if ($this->isAjax()) {
                 $this->json(['success' => true, 'message' => $msg]);
             }
             $this->app->session->flash('success', $msg);
         } catch (\Throwable $e) {
-            $error = 'Nie udało się skierować tekstu do korekty: ' . $e->getMessage();
+            $error = t('controller.admin.nie_udao_sie_skierowac_tekstu_do_korekty') . $e->getMessage();
             if ($this->isAjax()) {
                 $this->json(['success' => false, 'message' => $error]);
             }
@@ -483,13 +483,13 @@ final class AdminController extends BaseController
 
         try {
             (new ArticleEconomyService($this->app->db))->valueArticle($articleId, $adminId, $_POST);
-            $msg = 'Dane artykułu zostały zaktualizowane: wycena, etykieta i ustawienia dostępu.';
+            $msg = t('controller.admin.dane_artykuu_zostay_zaktualizowane_wycena_etykieta_i_us_a154bf9a');
             if ($this->isAjax()) {
                 $this->json(['success' => true, 'message' => $msg]);
             }
             $this->app->session->flash('success', $msg);
         } catch (\Throwable $e) {
-            $error = 'Nie udało się zapisać wyceny tekstu: ' . $e->getMessage();
+            $error = t('controller.admin.nie_udao_sie_zapisac_wyceny_tekstu') . $e->getMessage();
             if ($this->isAjax()) {
                 $this->json(['success' => false, 'message' => $error]);
             }
@@ -517,10 +517,10 @@ final class AdminController extends BaseController
         $adminId = $this->requireAdmin();
         try {
             $id = (new SurveyService($this->app->db, new FraudGuardService($this->app->db, $this->slowoSnajperConfig())))->createSurvey($adminId, $_POST);
-            $this->app->session->flash('success', 'Ankieta została utworzona. Dodaj pytania i ustaw status aktywny, gdy będzie gotowa.');
+            $this->app->session->flash('success', t('controller.admin.ankieta_zostaa_utworzona_dodaj_pytania_i_ustaw_status_a_e09cf606'));
             redirect('/admin/campaigns?tab=survey&survey_id=' . $id);
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się utworzyć ankiety: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_utworzyc_ankiety') . $e->getMessage());
             redirect('/admin/campaigns?tab=survey');
         }
     }
@@ -531,9 +531,9 @@ final class AdminController extends BaseController
         $id = (int)($_POST['id'] ?? 0);
         try {
             (new SurveyService($this->app->db, new FraudGuardService($this->app->db, $this->slowoSnajperConfig())))->updateSurvey($id, $_POST);
-            $this->app->session->flash('success', 'Ankieta została zapisana.');
+            $this->app->session->flash('success', t('controller.admin.ankieta_zostaa_zapisana'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać ankiety: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_ankiety') . $e->getMessage());
         }
         redirect('/admin/campaigns?tab=survey&survey_id=' . $id);
     }
@@ -544,9 +544,9 @@ final class AdminController extends BaseController
         $surveyId = (int)($_POST['survey_id'] ?? 0);
         try {
             (new SurveyService($this->app->db, new FraudGuardService($this->app->db, $this->slowoSnajperConfig())))->addQuestion($surveyId, $_POST);
-            $this->app->session->flash('success', 'Pytanie zostało dodane.');
+            $this->app->session->flash('success', t('controller.admin.pytanie_zostao_dodane'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się dodać pytania: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_dodac_pytania') . $e->getMessage());
         }
         redirect('/admin/campaigns?tab=survey&survey_id=' . $surveyId);
     }
@@ -560,9 +560,9 @@ final class AdminController extends BaseController
                 (int)($_POST['question_id'] ?? 0),
                 $surveyId
             );
-            $this->app->session->flash('success', 'Pytanie zostało usunięte.');
+            $this->app->session->flash('success', t('controller.admin.pytanie_zostao_usuniete'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się usunąć pytania: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_usunac_pytania') . $e->getMessage());
         }
         redirect('/admin/campaigns?tab=survey&survey_id=' . $surveyId);
     }
@@ -575,12 +575,12 @@ final class AdminController extends BaseController
         } catch (\RuntimeException) {
             http_response_code(404);
             return $this->view('layouts/error', [
-                'title' => 'Nie znaleziono ankiety',
-                'message' => 'Wybrana ankieta nie istnieje albo została usunięta.',
+                'title' => t('controller.admin.nie_znaleziono_ankiety'),
+                'message' => t('controller.admin.wybrana_ankieta_nie_istnieje_albo_zostaa_usunieta'),
             ]);
         }
         return $this->view('admin/survey_report', [
-            'title' => 'Raport ankiety',
+            'title' => t('admin.survey_report.raport_ankiety'),
             'survey' => $report['survey'],
             'questions' => $report['questions'],
             'responses' => $report['responses'],
@@ -601,7 +601,7 @@ final class AdminController extends BaseController
         }
         $selectedSurveyId = (int)($_GET['survey_id'] ?? 0);
         return $this->view('admin/campaigns', [
-            'title' => 'Kampanie i Zaangażowanie',
+            'title' => t('controller.admin.kampanie_i_zaangazowanie'),
             'campaigns' => $service->allForAdmin(...array_slice($this->slowoSnajper()->pageLimitOffset('admin_campaigns', $_GET['page'] ?? 1, 50, 200), 1)),
             'types' => $service->types(),
             'type_definitions' => $service->typeDefinitions(),
@@ -633,13 +633,13 @@ final class AdminController extends BaseController
                 $data['creative_mime'] = $creative['mime'];
             }
             $id = $this->campaignService()->create($adminId, $data);
-            $this->app->session->flash('success', 'Kampania została utworzona.');
+            $this->app->session->flash('success', t('controller.admin.kampania_zostaa_utworzona'));
             redirect('/admin/campaigns?tab=' . urlencode($this->campaignTab((string)($data['type'] ?? ''))) . '&id=' . $id);
         } catch (\Throwable $e) {
             if (is_array($creative)) {
                 try { $upload->deleteReference((string)$creative['path']); } catch (\Throwable) {}
             }
-            $this->app->session->flash('error', 'Nie udało się utworzyć kampanii: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_utworzyc_kampanii') . $e->getMessage());
             redirect('/admin/campaigns?tab=' . urlencode($this->campaignTab((string)($_POST['type'] ?? ''))));
         }
     }
@@ -663,12 +663,12 @@ final class AdminController extends BaseController
             if (is_array($creative) && !empty($before['creative_path']) && $before['creative_path'] !== $creative['path']) {
                 try { $upload->deleteReference((string)$before['creative_path']); } catch (\Throwable) {}
             }
-            $this->app->session->flash('success', 'Kampania została zapisana.');
+            $this->app->session->flash('success', t('controller.admin.kampania_zostaa_zapisana'));
         } catch (\Throwable $e) {
             if (is_array($creative)) {
                 try { $upload->deleteReference((string)$creative['path']); } catch (\Throwable) {}
             }
-            $this->app->session->flash('error', 'Nie udało się zapisać kampanii: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_kampanii') . $e->getMessage());
         }
         redirect('/admin/campaigns?tab=' . urlencode($this->campaignTab((string)($_POST['type'] ?? ''))) . '&id=' . $id);
     }
@@ -681,12 +681,12 @@ final class AdminController extends BaseController
         } catch (\RuntimeException) {
             http_response_code(404);
             return $this->view('layouts/error', [
-                'title' => 'Nie znaleziono kampanii',
-                'message' => 'Wybrana kampania nie istnieje albo została usunięta.',
+                'title' => t('ui.donations.campaign.nie_znaleziono_kampanii'),
+                'message' => t('controller.admin.wybrana_kampania_nie_istnieje_albo_zostaa_usunieta'),
             ]);
         }
         return $this->view('admin/campaign_report', [
-            'title' => 'Raport kampanii',
+            'title' => t('controller.admin.raport_kampanii'),
             'campaign' => $report['campaign'],
             'events' => $report['events'],
             'recent' => $report['recent'],
@@ -707,13 +707,13 @@ final class AdminController extends BaseController
             $service = new BugReportService($this->app->db, $this->talentService());
             if ((string)($_POST['decision'] ?? '') === 'accept') {
                 $result = $service->accept($reportId, $adminId, (string)($_POST['note'] ?? ''));
-                $this->app->session->flash('success', !empty($result['duplicate']) ? 'To zgłoszenie było już zaakceptowane.' : 'Błąd zaakceptowano, a TT przekazano do Programu Talent.');
+                $this->app->session->flash('success', !empty($result['duplicate']) ? t('controller.admin.to_zgoszenie_byo_juz_zaakceptowane') : t('controller.admin.bad_zaakceptowano_a_tt_przekazano_do_programu_talent'));
             } else {
                 $service->reject($reportId, $adminId, (string)($_POST['note'] ?? ''));
-                $this->app->session->flash('success', 'Zgłoszenie zostało odrzucone bez naliczenia TT.');
+                $this->app->session->flash('success', t('controller.admin.zgoszenie_zostao_odrzucone_bez_naliczenia_tt'));
             }
         } catch (\Throwable $error) {
-            $this->app->session->flash('error', 'Nie udało się rozpatrzyć zgłoszenia: ' . $error->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_rozpatrzyc_zgoszenia') . $error->getMessage());
         }
         redirect((string)($_POST['return_to'] ?? '') === 'bug_reports' ? '/admin/bug-reports' : '/admin/campaigns?tab=bugs');
     }
@@ -722,7 +722,7 @@ final class AdminController extends BaseController
     {
         $this->requireAdminOrRoles(['editor','publisher','moderator','chief_editor','redaktor_naczelny','wydawca']);
         return $this->view('admin/bug_reports', [
-            'title' => 'Zgłoszenia błędów',
+            'title' => t('admin.bug_reports.zgoszenia_bedow'),
             'bug_reports' => (new BugReportService($this->app->db, $this->talentService()))->allForAdmin(),
             'bug_report_return_to' => 'bug_reports',
         ]);
@@ -743,7 +743,7 @@ final class AdminController extends BaseController
         $this->requireAdmin();
         $service = new PayoutService($this->app->db, new FraudGuardService($this->app->db, $this->slowoSnajperConfig()));
         return $this->view('admin/payouts', [
-            'title' => 'Wypłaty',
+            'title' => t('wallet.payout_active'),
             'payouts' => $service->all(...array_slice($this->slowoSnajper()->pageLimitOffset('admin_payouts', $_GET['page'] ?? 1, 50, 200), 1)),
             'summary' => $service->summary(),
         ]);
@@ -758,14 +758,14 @@ final class AdminController extends BaseController
 
         try {
             $payout = $this->app->db->one('SELECT * FROM payouts WHERE id=:id', ['id' => $id]);
-            if (!$payout) throw new \RuntimeException('Wypłata nie istnieje.');
+            if (!$payout) throw new \RuntimeException(t('controller.admin.wypata_nie_istnieje'));
             if (!in_array($status, [
                 PayoutService::STATUS_APPROVED,
                 PayoutService::STATUS_PAID,
                 PayoutService::STATUS_REJECTED,
                 PayoutService::STATUS_CANCELLED,
             ], true)) {
-                throw new \InvalidArgumentException('Nieobsługiwany status wypłaty.');
+                throw new \InvalidArgumentException(t('controller.admin.nieobsugiwany_status_wypaty'));
             }
 
             $this->authorizeCriticalOperation(
@@ -819,11 +819,11 @@ final class AdminController extends BaseController
                 0,
                 (int)$payout['user_id'],
                 ['payout_id' => $id, 'target_status' => $status, 'admin_note' => $note],
-                "Zmiana statusu wypłaty #$id na $status. Notatka: $note"
+                str_replace(['{id}', '{status}', '{note}'], [(string)$id, (string)$status, (string)$note], t('controller.admin.payout_status_change'))
             );
-            $this->app->session->flash('info', 'Zlecenie zmiany statusu wypłaty oczekuje na zatwierdzenie drugiego pracownika (Maker–Checker).');
+            $this->app->session->flash('info', t('controller.admin.zlecenie_zmiany_statusu_wypaty_oczekuje_na_zatwierdzeni_c1edcc69'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zmienić statusu wypłaty: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zmienic_statusu_wypaty') . $e->getMessage());
         }
         redirect('/admin/payouts');
     }
@@ -832,7 +832,7 @@ final class AdminController extends BaseController
     {
         $this->requireAdmin();
         return $this->view('admin/users', [
-            'title' => 'Użytkownicy',
+            'title' => t('admin.anti_fraud.uzytkownicy'),
             'users' => (new UserService($this->app->db))->listUsers(...array_slice($this->slowoSnajper()->pageLimitOffset('admin_users', $_GET['page'] ?? 1, 50, 200), 1)),
             'hide_global_flashes' => true
         ]);
@@ -846,11 +846,11 @@ final class AdminController extends BaseController
 
         try {
             if ($userId === $adminId && $status !== 'active') {
-                throw new \RuntimeException('Nie możesz zablokować ani dezaktywować własnego konta administratora.');
+                throw new \RuntimeException(t('controller.admin.nie_mozesz_zablokowac_ani_dezaktywowac_wasnego_konta_ad_a1687777'));
             }
             $beforeUser = $this->app->db->one('SELECT status FROM users WHERE id=:id', ['id' => $userId]);
             if ($beforeUser === null) {
-                throw new \RuntimeException('Nie znaleziono użytkownika.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_uzytkownika'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -863,9 +863,9 @@ final class AdminController extends BaseController
             );
             (new UserService($this->app->db))->setStatus($userId, $status);
             $this->slowoSnajper()->audit($adminId, 'user_status_update', ['user_id'=>$userId, 'status'=>$status]);
-            $this->app->session->flash('success', 'Status użytkownika został zmieniony.');
+            $this->app->session->flash('success', t('controller.admin.status_uzytkownika_zosta_zmieniony'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zmienić statusu: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zmienic_statusu') . $e->getMessage());
         }
 
         $this->app->session->flash('last_user_id', $userId);
@@ -881,12 +881,12 @@ final class AdminController extends BaseController
         try {
             $report = $service->report($userId);
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się przygotować raportu użytkownika: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_przygotowac_raportu_uzytkownika') . $e->getMessage());
             redirect('/admin/users');
         }
 
         return $this->view('admin/user_delete', [
-            'title' => 'Bezpieczne usuwanie użytkownika',
+            'title' => t('admin.user_delete.bezpieczne_usuwanie_uzytkownika'),
             'report' => $report,
             'recent_reports' => $service->recentReports(),
             'hide_global_flashes' => true
@@ -901,7 +901,7 @@ final class AdminController extends BaseController
         try {
             $beforeUser = $this->app->db->one('SELECT status,email,login_name FROM users WHERE id=:id', ['id' => $userId]);
             if ($beforeUser === null) {
-                throw new \RuntimeException('Nie znaleziono użytkownika.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_uzytkownika'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -914,9 +914,9 @@ final class AdminController extends BaseController
             );
             (new UserDeletionService($this->app->db))->anonymize($userId, $adminId);
             $this->app->session->flash('last_user_id', $userId);
-            $this->app->session->flash('success', 'Użytkownik został dezaktywowany i zanonimizowany.');
+            $this->app->session->flash('success', t('controller.admin.uzytkownik_zosta_dezaktywowany_i_zanonimizowany'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zanonimizować użytkownika: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zanonimizowac_uzytkownika') . $e->getMessage());
             redirect('/admin/users/delete?id=' . $userId);
         }
 
@@ -930,11 +930,11 @@ final class AdminController extends BaseController
 
         try {
             if (!$this->slowoSnajperConfig()->antiHeavyFlag('allow_hard_user_clean', false)) {
-                throw new \RuntimeException('Twarde czyszczenie użytkownika jest odpięte w SNAJPERZE SŁOWA. Włącz je świadomie w Administracja → Ustawienia → SNAJPER SŁOWA.');
+                throw new \RuntimeException(t('controller.admin.twarde_czyszczenie_uzytkownika_jest_odpiete_w_snajperze_d3314da9'));
             }
             $beforeUser = $this->app->db->one('SELECT status,email,login_name FROM users WHERE id=:id', ['id' => $userId]);
             if ($beforeUser === null) {
-                throw new \RuntimeException('Nie znaleziono użytkownika.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_uzytkownika'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -948,9 +948,9 @@ final class AdminController extends BaseController
             (new UserDeletionService($this->app->db))->hardClean($userId, $adminId, (string)($_POST['confirmation'] ?? ''));
             $this->slowoSnajper()->audit($adminId, 'user_hard_clean', ['user_id'=>$userId]);
             $this->app->session->flash('last_user_id', $userId);
-            $this->app->session->flash('success', 'Użytkownik został twardo wyczyszczony.');
+            $this->app->session->flash('success', t('controller.admin.uzytkownik_zosta_twardo_wyczyszczony'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się wykonać twardego czyszczenia: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_wykonac_twardego_czyszczenia') . $e->getMessage());
             redirect('/admin/users/delete?id=' . $userId);
         }
 
@@ -965,7 +965,7 @@ final class AdminController extends BaseController
 
         try {
             if ($userId === $adminId && $role !== 'admin') {
-                throw new \RuntimeException('Nie możesz odebrać roli administratora własnemu kontu.');
+                throw new \RuntimeException(t('controller.admin.nie_mozesz_odebrac_roli_administratora_wasnemu_kontu'));
             }
             $beforeRoles = array_map(
                 static fn(array $row): string => (string)$row['role'],
@@ -1012,9 +1012,9 @@ final class AdminController extends BaseController
             }
             (new UserService($this->app->db))->setPrimaryRole($userId, $role);
             $this->slowoSnajper()->audit($adminId, 'user_role_update', ['user_id'=>$userId, 'role'=>$role]);
-            $this->app->session->flash('success', 'Typ konta użytkownika został zmieniony bez naruszania ról redakcyjnych.');
+            $this->app->session->flash('success', t('controller.admin.typ_konta_uzytkownika_zosta_zmieniony_bez_naruszania_ro_fd1d3160'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zmienić typu konta: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zmienic_typu_konta') . $e->getMessage());
         }
 
         $this->app->session->flash('last_user_id', $userId);
@@ -1030,7 +1030,7 @@ final class AdminController extends BaseController
         try {
             $beforeUser = $this->app->db->one('SELECT status,can_write FROM users WHERE id=:id', ['id' => $userId]);
             if ($beforeUser === null) {
-                throw new \RuntimeException('Nie znaleziono autora.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_autora'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -1043,9 +1043,9 @@ final class AdminController extends BaseController
             );
             (new UserService($this->app->db, $this->app->queueSignals))->approveAuthor($userId);
             $this->app->session->flash('last_user_id', $userId);
-            $this->app->session->flash('success', 'Autor został zatwierdzony. Włączono zgodę Pisanie.');
+            $this->app->session->flash('success', t('controller.admin.autor_zosta_zatwierdzony_waczono_zgode_pisanie'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zatwierdzić autora: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zatwierdzic_autora') . $e->getMessage());
         }
 
         redirect('/admin/users#user-' . $userId);
@@ -1062,7 +1062,7 @@ final class AdminController extends BaseController
                 ['id' => $userId]
             );
             if ($beforePermissions === null) {
-                throw new \RuntimeException('Nie znaleziono użytkownika.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_uzytkownika'));
             }
             $afterPermissions = [
                 'can_write' => isset($_POST['can_write']) ? 1 : 0,
@@ -1084,22 +1084,22 @@ final class AdminController extends BaseController
             $this->slowoSnajper()->audit($this->app->session->userId(), 'user_operational_permissions_update', ['user_id'=>$userId, 'changed'=>array_keys($changed)]);
             $this->app->session->flash('last_user_id', $userId);
             if ($changed === []) {
-                $this->app->session->flash('success', 'Zgody operacyjne bez zmian.');
+                $this->app->session->flash('success', t('controller.admin.zgody_operacyjne_bez_zmian'));
             } else {
                 $labels = [
                     'can_write' => 'Pisanie',
                     'talent_enabled' => 'Talent',
                     'wallet_enabled' => 'Wallet',
-                    'payout_enabled' => 'Wypłaty',
+                    'payout_enabled' => t('wallet.payout_active'),
                 ];
                 $changedLabels = [];
                 foreach (array_keys($changed) as $key) {
                     $changedLabels[] = $labels[$key] ?? $key;
                 }
-                $this->app->session->flash('success', 'Zapisano zgody operacyjne: ' . implode(', ', $changedLabels) . '.');
+                $this->app->session->flash('success', t('controller.admin.zapisano_zgody_operacyjne') . implode(', ', $changedLabels) . '.');
             }
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać zgód operacyjnych: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_zgod_operacyjnych') . $e->getMessage());
         }
 
         redirect('/admin/users#user-' . $userId);
@@ -1112,7 +1112,7 @@ final class AdminController extends BaseController
         [$page, $limit, $offset] = $this->slowoSnajper()->pageLimitOffset('admin_roles_users', $_GET['page'] ?? 1, 50, 200);
         $roleService = new RoleService($this->app->db);
         return $this->view('admin/roles', [
-            'title' => 'Role i uprawnienia SNAJPERA SŁOWA',
+            'title' => t('controller.admin.role_i_uprawnienia_snajpera_sowa'),
             'roles' => $roleService->editorialRoles(),
             'panels' => $roleService->panelDefinitions(),
             'users' => $roleService->listUsersForRoleAdmin($limit, $offset),
@@ -1179,9 +1179,9 @@ final class AdminController extends BaseController
                 'selected' => $changed['selected'] ?? [],
             ]);
             $this->app->session->flash('last_user_id', $userId);
-            $this->app->session->flash('success', 'Role redakcyjne zostały zapisane. Dostęp do kafelków działa według SNAJPERA SŁOWA. Wysokie role wymagają teraz potwierdzonego e-maila i 2FA przed wejściem do kafelka.');
+            $this->app->session->flash('success', t('controller.admin.role_redakcyjne_zostay_zapisane_dostep_do_kafelkow_dzia_80cf7c36'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać ról redakcyjnych: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_rol_redakcyjnych') . $e->getMessage());
         }
         redirect('/admin/roles#user-' . $userId);
     }
@@ -1196,7 +1196,7 @@ final class AdminController extends BaseController
 
         try {
             $res = (new \App\Services\UserService($this->app->db))->setAuthorSubmitBlock($authorId, $adminId, $duration, $reason);
-            $msg = $duration === 'clear' ? 'Blokada została zdjęta.' : 'Autor został zablokowany.';
+            $msg = $duration === 'clear' ? t('controller.admin.author_block_removed') : t('controller.admin.author_blocked');
 
             if ($this->isAjax()) {
                 $this->json(['success' => true, 'message' => $msg]);
@@ -1226,7 +1226,7 @@ final class AdminController extends BaseController
                 ['id' => $userId]
             );
             if ($beforeSecurity === null) {
-                throw new \RuntimeException('Nie znaleziono użytkownika.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_uzytkownika'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -1239,9 +1239,9 @@ final class AdminController extends BaseController
             );
             (new AuthSecurityService($this->app->db, $this->slowoSnajperConfig()))->disableTwoFactorByAdmin($userId, $adminId);
             $this->app->session->flash('last_user_id', $userId);
-            $this->app->session->flash('success', '2FA użytkownika zostało wyłączone. Konto ma wymuszoną ponowną konfigurację 2FA.');
+            $this->app->session->flash('success', t('controller.admin.2fa_uzytkownika_zostao_wyaczone_konto_ma_wymuszona_pono_8cea434e'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się wyłączyć 2FA: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_wyaczyc_2fa') . $e->getMessage());
         }
         redirect('/admin/roles#user-' . $userId);
     }
@@ -1254,8 +1254,8 @@ final class AdminController extends BaseController
         if (!isset($panels[$panelCode])) {
             http_response_code(404);
             return $this->view('layouts/error', [
-                'title' => 'Nie znaleziono kafelka',
-                'message' => 'Ten kafelek SNAJPERA SŁOWA nie istnieje.',
+                'title' => t('controller.admin.nie_znaleziono_kafelka'),
+                'message' => t('controller.admin.ten_kafelek_snajpera_sowa_nie_istnieje'),
             ]);
         }
 
@@ -1268,8 +1268,8 @@ final class AdminController extends BaseController
         if (!$roleService->canAccessPanel($userId, $panelCode, $isAdmin)) {
             http_response_code(403);
             return $this->view('layouts/error', [
-                'title' => 'Brak uprawnień',
-                'message' => 'Nie masz przypisanej roli wymaganej dla tego kafelka.',
+                'title' => t('controller.admin.brak_uprawnien'),
+                'message' => t('controller.admin.nie_masz_przypisanej_roli_wymaganej_dla_tego_kafelka'),
             ]);
         }
 
@@ -1306,7 +1306,7 @@ final class AdminController extends BaseController
         $labels = $this->app->config['languages']['labels'] ?? [];
 
         return $this->view('admin/main_banner', [
-            'title' => 'Baner Główny',
+            'title' => t('controller.admin.baner_gowny'),
             'banner' => (new MainBannerService($this->app->db))->forAdmin($languages),
             'languages' => $languages,
             'language_labels' => $labels,
@@ -1321,9 +1321,9 @@ final class AdminController extends BaseController
         try {
             (new MainBannerService($this->app->db))->updateFromAdmin($_POST, $languages);
             $this->app->cache->flushGroup('main_banner_public');
-            $this->app->session->flash('success', 'Baner Główny został zapisany.');
+            $this->app->session->flash('success', t('controller.admin.baner_gowny_zosta_zapisany'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać Baneru Głównego: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_baneru_gownego') . $e->getMessage());
         }
 
         redirect('/admin/main-banner');
@@ -1361,9 +1361,9 @@ final class AdminController extends BaseController
                 'background_job_id' => (int)$job['id'],
                 'target_languages' => $targetLanguages,
             ]);
-            $this->app->session->flash('success', 'Tłumaczenie Baneru Głównego trafiło do izolowanej kolejki AI.');
+            $this->app->session->flash('success', t('controller.admin.tumaczenie_baneru_gownego_trafio_do_izolowanej_kolejki_ai'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się przetłumaczyć Baneru Głównego przez AI: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_przetumaczyc_baneru_gownego_przez_ai') . $e->getMessage());
         }
 
         redirect('/admin/main-banner#translations');
@@ -1373,7 +1373,7 @@ final class AdminController extends BaseController
     {
         $this->requireAdmin();
         return $this->view('admin/categories', [
-            'title' => 'Kategorie', 
+            'title' => t('admin.categories.kategorie'),
             'categories' => (new CategoryService($this->app->db))->allForAdmin()
         ]);
     }
@@ -1387,19 +1387,19 @@ final class AdminController extends BaseController
         try {
             (new CategoryService($this->app->db))->create($name);
             $this->app->cache->flushGroup('site_menu');
-            $this->app->session->flash('success', 'Kategoria została utworzona.');
+            $this->app->session->flash('success', t('controller.admin.kategoria_zostaa_utworzona'));
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => 'Kategoria została utworzona.']);
+                echo json_encode(['success' => true, 'message' => t('controller.admin.kategoria_zostaa_utworzona')]);
                 exit;
             }
         } catch (\Throwable $e) {
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Błąd: ' . $e->getMessage()]);
+                echo json_encode(['success' => false, 'message' => t('controller.admin.bad') . $e->getMessage()]);
                 exit;
             }
-            $this->app->session->flash('error', 'Błąd: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.bad') . $e->getMessage());
         }
         redirect('/admin/categories');
     }
@@ -1422,17 +1422,17 @@ final class AdminController extends BaseController
             $this->app->cache->flushGroup('site_menu');
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => 'Zmiany w kategorii zostały zapisane.']);
+                echo json_encode(['success' => true, 'message' => t('controller.admin.zmiany_w_kategorii_zostay_zapisane')]);
                 exit;
             }
-            $this->app->session->flash('success', 'Zmiany w kategorii zostały zapisane.');
+            $this->app->session->flash('success', t('controller.admin.zmiany_w_kategorii_zostay_zapisane'));
         } catch (\Throwable $e) {
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Błąd: ' . $e->getMessage()]);
+                echo json_encode(['success' => false, 'message' => t('controller.admin.bad') . $e->getMessage()]);
                 exit;
             }
-            $this->app->session->flash('error', 'Błąd: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.bad') . $e->getMessage());
         }
         redirect('/admin/categories');
     }
@@ -1446,7 +1446,7 @@ final class AdminController extends BaseController
         try {
             $success = (new CategoryService($this->app->db))->delete($id);
         } catch (\Throwable $e) {
-            $msg = 'Nie udało się usunąć kategorii: ' . $e->getMessage();
+            $msg = t('controller.admin.nie_udao_sie_usunac_kategorii') . $e->getMessage();
             if ($isAjax) {
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => $msg]);
@@ -1460,12 +1460,12 @@ final class AdminController extends BaseController
             $this->app->cache->flushGroup('site_menu');
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => 'Kategoria została usunięta.']);
+                echo json_encode(['success' => true, 'message' => t('controller.admin.kategoria_zostaa_usunieta')]);
                 exit;
             }
-            $this->app->session->flash('success', 'Kategoria została usunięta.');
+            $this->app->session->flash('success', t('controller.admin.kategoria_zostaa_usunieta'));
         } else {
-            $msg = 'Ta kategoria ma przypisane artykuły. Możesz ją ukryć w menu albo dezaktywować.';
+            $msg = t('controller.admin.ta_kategoria_ma_przypisane_artykuy_mozesz_ja_ukryc_w_me_113cb07d');
             if ($isAjax) {
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => $msg]);
@@ -1479,7 +1479,7 @@ final class AdminController extends BaseController
     public function mails(): string
     {
         $this->requireAdmin();
-        return $this->view('admin/mails', ['title'=>'Kolejka maili', 'mails'=>(new MailService($this->app->db))->recent()]);
+        return $this->view('admin/mails', ['title'=>t('admin.mails.kolejka_maili'), 'mails'=>(new MailService($this->app->db))->recent()]);
     }
 
 
@@ -1493,7 +1493,7 @@ final class AdminController extends BaseController
         $data = $guard->dashboard($limit);
 
         return $this->view('admin/anti_fraud', [
-            'title' => 'ANTYFRAUD',
+            'title' => t('controller.admin.antyfraud'),
             'summary' => $data['summary'],
             'events' => $data['events'],
             'risk_users' => $data['users'],
@@ -1513,9 +1513,9 @@ final class AdminController extends BaseController
         try {
             $result = (new FraudGuardService($this->app->db, $this->slowoSnajperConfig()))->scan($limit);
             $this->slowoSnajper()->audit($adminId, 'fraud_scan_manual', $result);
-            $this->app->session->flash('success', 'Skan antyfraudowy zakończony. Sprawdzono: ' . (int)$result['scanned'] . ', oznaczono: ' . (int)$result['flagged'] . '.');
+            $this->app->session->flash('success', t('controller.admin.skan_antyfraudowy_zakonczony_sprawdzono') . (int)$result['scanned'] . t('controller.admin.oznaczono') . (int)$result['flagged'] . '.');
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się wykonać skanu antyfraudowego: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_wykonac_skanu_antyfraudowego') . $e->getMessage());
         }
 
         redirect('/admin/anti-fraud');
@@ -1531,7 +1531,7 @@ final class AdminController extends BaseController
             static fn(array $rule): bool => (string)$rule['activity_type'] !== \App\Services\AppReferralService::ACTIVITY_TYPE
         ));
         return $this->view('admin/settings', [
-            'title' => 'Ustawienia, Talent i SNAJPER SŁOWA',
+            'title' => t('controller.admin.ustawienia_talent_i_snajper_sowa'),
             'settings' => $settings,
             'rules' => $rules,
             'talent_rule_groups' => TalentRulePresenter::groups($rules),
@@ -1554,28 +1554,28 @@ final class AdminController extends BaseController
         try {
             $input = $_POST['settings'] ?? [];
             if (!is_array($input) || $input === []) {
-                throw new \InvalidArgumentException('Brak ustawień do zapisania.');
+                throw new \InvalidArgumentException(t('controller.admin.brak_ustawien_do_zapisania'));
             }
             $updates = [];
             foreach ($input as $name => $rawValue) {
                 if (!isset($allowed[$name])) {
-                    throw new \InvalidArgumentException('Tego ustawienia nie można zmieniać w formularzu ogólnym: ' . $name);
+                    throw new \InvalidArgumentException(t('controller.admin.tego_ustawienia_nie_mozna_zmieniac_w_formularzu_ogolnym') . $name);
                 }
                 $value = trim((string)$rawValue);
                 if ($allowed[$name] === 'text') {
                     if ($value === '') {
-                        throw new \InvalidArgumentException('Ustawienie ' . $name . ' nie może być puste.');
+                        throw new \InvalidArgumentException(t('controller.admin.ustawienie') . $name . t('controller.admin.nie_moze_byc_puste'));
                     }
                     $value = mb_substr($value, 0, 255);
                 } elseif (!is_numeric($value)) {
-                    throw new \InvalidArgumentException('Ustawienie ' . $name . ' musi być liczbą.');
+                    throw new \InvalidArgumentException(t('controller.admin.ustawienie') . $name . t('controller.admin.musi_byc_liczba'));
                 } else {
                     $number = (int)$value;
                     if ($allowed[$name] === 'hours' && ($number < 1 || $number > 8760)) {
-                        throw new \InvalidArgumentException('Czas dostępu premium musi mieścić się w zakresie 1–8760 godzin.');
+                        throw new \InvalidArgumentException(t('controller.admin.czas_dostepu_premium_musi_miescic_sie_w_zakresie_18760_godzin'));
                     }
                     if ($allowed[$name] === 'percent' && ($number < 0 || $number > 100)) {
-                        throw new \InvalidArgumentException('Udział serwisu musi mieścić się w zakresie 0–100%.');
+                        throw new \InvalidArgumentException(t('controller.admin.udzia_serwisu_musi_miescic_sie_w_zakresie_0100'));
                     }
                     $value = (string)$number;
                 }
@@ -1607,9 +1607,9 @@ final class AdminController extends BaseController
                 }
             });
             $this->app->cache->flushGroup('site_settings');
-            $this->app->session->flash('success', 'Ustawienia zostały zapisane.');
+            $this->app->session->flash('success', t('account.settings.saved'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać ustawień: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_ustawien') . $e->getMessage());
         }
         redirect('/admin/settings');
     }
@@ -1631,9 +1631,9 @@ final class AdminController extends BaseController
             );
             $this->slowoSnajperConfig()->saveFromAdmin($_POST['snajper'] ?? []);
             $this->slowoSnajper()->audit($adminId, 'slowo_snajper_settings_update', ['keys' => array_keys($_POST['snajper'] ?? [])]);
-            $this->app->session->flash('success', 'Ustawienia SNAJPERA SŁOWA zostały zapisane.');
+            $this->app->session->flash('success', t('controller.admin.ustawienia_snajpera_sowa_zostay_zapisane'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać SNAJPERA SŁOWA: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_snajpera_sowa') . $e->getMessage());
         }
         redirect('/admin/settings#slowo-snajper');
     }
@@ -1645,7 +1645,7 @@ final class AdminController extends BaseController
         try {
             $rules = $_POST['rules'] ?? [];
             if (!is_array($rules) || $rules === []) {
-                throw new \InvalidArgumentException('Brak reguł Talentu do zapisania.');
+                throw new \InvalidArgumentException(t('controller.admin.brak_regu_talentu_do_zapisania'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -1659,11 +1659,11 @@ final class AdminController extends BaseController
             $this->app->db->transaction(function () use ($rules, $talentService): void {
                 foreach ($rules as $type => $data) {
                     if (!is_array($data)) {
-                        throw new \InvalidArgumentException('Nieprawidłowe dane reguły Talentu.');
+                        throw new \InvalidArgumentException(t('controller.admin.nieprawidowe_dane_reguy_talentu'));
                     }
                     $money = str_replace([' ', ','], ['', '.'], trim((string)($data['money'] ?? '0')));
                     if (!is_numeric($money)) {
-                        throw new \InvalidArgumentException('Kwota reguły Talentu musi być liczbą.');
+                        throw new \InvalidArgumentException(t('controller.admin.kwota_reguy_talentu_musi_byc_liczba'));
                     }
                     $talentService->updateRule(
                         (string)$type,
@@ -1675,9 +1675,9 @@ final class AdminController extends BaseController
                     );
                 }
             });
-            $this->app->session->flash('success', 'Reguły Talentu zostały zapisane.');
+            $this->app->session->flash('success', t('controller.admin.reguy_talentu_zostay_zapisane'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać reguł Talentu: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_regu_talentu') . $e->getMessage());
         }
         redirect('/admin/settings');
     }
@@ -1688,7 +1688,7 @@ final class AdminController extends BaseController
         try {
             $input = is_array($_POST['promotion'] ?? null) ? $_POST['promotion'] : [];
             if ($input === []) {
-                throw new \InvalidArgumentException('Brak danych promocji Talent.');
+                throw new \InvalidArgumentException(t('controller.admin.brak_danych_promocji_talent'));
             }
             $service = $this->appReferralService();
             $before = $service->latestPromotion();
@@ -1697,16 +1697,16 @@ final class AdminController extends BaseController
                 'earnings.app_referral_promotion.update',
                 'talent_promotion',
                 \App\Services\AppReferralService::PROMOTION_CODE,
-                ['snapshot_policy' => 'reward_points zapisane w zaproszeniu nie są zmieniane'],
+                ['snapshot_policy' => t('controller.admin.reward_points_zapisane_w_zaproszeniu_nie_sa_zmieniane')],
                 $before,
                 ['submitted_promotion' => $input],
             );
             $this->app->db->transaction(function () use ($service, $adminId, $input): void {
                 $service->updatePromotion($adminId, $input);
             });
-            $this->app->session->flash('success', 'Promocja instalacyjna Talent została zapisana. Istniejące zaproszenia zachowały własną wartość TT.');
+            $this->app->session->flash('success', t('controller.admin.promocja_instalacyjna_talent_zostaa_zapisana_istniejace_aca2e516'));
         } catch (\Throwable $error) {
-            $this->app->session->flash('error', 'Nie udało się zapisać promocji Talent: ' . $error->getMessage());
+            $this->app->session->flash('error', t('controller.admin.nie_udao_sie_zapisac_promocji_talent') . $error->getMessage());
         }
         redirect('/admin/settings#talent-promotion');
     }
@@ -1733,13 +1733,13 @@ final class AdminController extends BaseController
         $adminId = $this->requireAdmin();
         $userId = (int)($_POST['user_id'] ?? 0);
         $points = (int)($_POST['points'] ?? 0);
-        $description = trim($_POST['description'] ?? 'Ręczna korekta admina');
+        $description = trim($_POST['description'] ?? t('controller.admin.reczna_korekta_admina'));
         
         try {
             $financialService = new \App\Services\FinancialService($this->app->db);
             $wallet = $this->app->db->one('SELECT id,points_balance FROM wallets WHERE user_id=:id', ['id' => $userId]);
             if ($wallet === null) {
-                throw new \RuntimeException('Nie znaleziono portfela użytkownika.');
+                throw new \RuntimeException(t('controller.admin.nie_znaleziono_portfela_uzytkownika'));
             }
             $this->authorizeCriticalOperation(
                 $adminId,
@@ -1762,13 +1762,13 @@ final class AdminController extends BaseController
                 (int)($wallet['id'] ?? 0),
                 $userId,
                 ['account_type' => 'points', 'points' => $points, 'description' => $description],
-                "Ręczne naliczenie Talentów (+$points TT). Powód: $description"
+                str_replace(['{points}', '{reason}'], [(string)$points, (string)$description], t('controller.admin.manual_talent_award'))
             );
 
             $this->app->session->flash('last_user_id', $userId);
-            $this->app->session->flash('info', 'Zlecenie naliczenia Talentów zostało utworzone (Maker-Checker).');
+            $this->app->session->flash('info', t('controller.admin.zlecenie_naliczenia_talentow_zostao_utworzone_maker_checker'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Błąd: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.admin.bad') . $e->getMessage());
         }
 
         redirect('/admin/users#user-' . $userId);

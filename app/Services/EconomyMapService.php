@@ -31,27 +31,40 @@ final class EconomyMapService
                 'icon' => 'article'
             ],
             [
-                'label' => $this->text('economy.flow.activity.label', $language),
-                'payer' => $this->text('economy.actor.activity_budget', $language),
-                'action' => $this->text('economy.flow.activity.action', $language),
-                'receiver' => $this->text('economy.actor.user', $language),
+                'label' => $this->text('economy.flow.response.label', $language),
+                'payer' => $this->text('economy.actor.response_funders', $language),
+                'action' => $this->text('economy.flow.response.action', $language),
+                'receiver' => $this->text('economy.actor.response_receiver', $language),
                 'wallet' => [
-                    'activity_bonus' => ActivityUiHelper::getLabel('activity_bonus', $language),
-                    'day_visit_bonus' => ActivityUiHelper::getLabel('day_visit_bonus', $language),
+                    'response_submission_deposit_hold' => ActivityUiHelper::getLabel('response_submission_deposit_hold', $language),
+                    'response_submission_deposit_refund' => ActivityUiHelper::getLabel('response_submission_deposit_refund', $language),
+                    'response_submission_deposit_forfeit' => ActivityUiHelper::getLabel('response_submission_deposit_forfeit', $language),
+                    'response_publication_bonus' => ActivityUiHelper::getLabel('response_publication_bonus', $language),
                 ],
-                'note' => $this->text('economy.flow.activity.note', $language),
-                'icon' => 'sun'
+                'note' => $this->text('economy.flow.response.note', $language),
+                'icon' => 'article'
             ],
             [
-                'label' => $this->text('economy.flow.survey.label', $language),
-                'payer' => $this->text('economy.actor.client_newsroom', $language),
-                'action' => $this->text('economy.flow.survey.action', $language),
-                'receiver' => $this->text('economy.actor.user_platform', $language),
+                'label' => $this->text('economy.flow.referral.label', $language),
+                'payer' => $this->text('economy.actor.talent_promotion_budget', $language),
+                'action' => $this->text('economy.flow.referral.action', $language),
+                'receiver' => $this->text('economy.actor.referral_parties', $language),
                 'wallet' => [
-                    'survey_reward' => ActivityUiHelper::getLabel('survey_reward', $language),
+                    'app_referral_bonus' => ActivityUiHelper::getLabel('app_referral_bonus', $language),
                 ],
-                'note' => $this->text('economy.flow.survey.note', $language),
-                'icon' => 'survey'
+                'note' => $this->text('economy.flow.referral.note', $language),
+                'icon' => 'share'
+            ],
+            [
+                'label' => $this->text('economy.flow.bug.label', $language),
+                'payer' => $this->text('economy.actor.talent_budget', $language),
+                'action' => $this->text('economy.flow.bug.action', $language),
+                'receiver' => $this->text('economy.actor.reporter', $language),
+                'wallet' => [
+                    'bug_report_bonus' => ActivityUiHelper::getLabel('bug_report_bonus', $language),
+                ],
+                'note' => $this->text('economy.flow.bug.note', $language),
+                'icon' => 'bug'
             ],
             [
                 'label' => $this->text('economy.flow.campaign.label', $language),
@@ -65,18 +78,6 @@ final class EconomyMapService
                 ],
                 'note' => $this->text('economy.flow.campaign.note', $language),
                 'icon' => 'eye'
-            ],
-            [
-                'label' => $this->text('economy.flow.live.label', $language),
-                'payer' => $this->text('economy.actor.participant', $language),
-                'action' => $this->text('economy.flow.live.action', $language),
-                'receiver' => $this->text('economy.actor.author_platform', $language),
-                'wallet' => [
-                    'ppv_reward' => ActivityUiHelper::getLabel('ppv_reward', $language),
-                    'live_event_reward' => ActivityUiHelper::getLabel('live_event_reward', $language),
-                ],
-                'note' => $this->text('economy.flow.live.note', $language),
-                'icon' => 'video'
             ],
             [
                 'label' => $this->text('economy.flow.payout.label', $language),

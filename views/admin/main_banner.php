@@ -17,20 +17,20 @@ $pl = is_array($translations['pl'] ?? null) ? $translations['pl'] : [];
 ?>
 
 <section class="admin-page-head zs-banner-admin-head">
-  <p class="kicker">Strona główna</p>
-  <h1>BANER GŁÓWNY</h1>
-  <p>Stały górny baner strony głównej. To nie jest artykuł. Wersja PL jest źródłem, a pozostałe wersje można wygenerować przez AI i później edytować ręcznie.</p>
+  <p class="kicker"><?= e(t('article.breadcrumb.home')) ?></p>
+  <h1><?= e(t('admin.dashboard.baner_gowny')) ?></h1>
+  <p><?= e(t('admin.main_banner.stay_gorny_baner_strony_gownej_to_nie_jest_artyku_wersj_a4f73306')) ?></p>
 </section>
 
 <section class="admin-panel-block zs-banner-editor-shell">
   <div class="zs-banner-editor-top">
     <div>
-      <p class="kicker">Źródło i tłumaczenia</p>
-      <h2>Redakcja Baneru Głównego</h2>
-      <p class="muted">Najpierw zapisz wersję PL, potem użyj przycisku tłumaczenia AI. Link i obraz są wspólne dla wszystkich języków.</p>
+      <p class="kicker"><?= e(t('admin.main_banner.zrodo_i_tumaczenia')) ?></p>
+      <h2><?= e(t('admin.main_banner.redakcja_baneru_gownego')) ?></h2>
+      <p class="muted"><?= e(t('admin.main_banner.najpierw_zapisz_wersje_pl_potem_uzyj_przycisku_tumaczen_e3b86b21')) ?></p>
     </div>
     <div class="zs-banner-status <?= $isActive ? 'is-active' : 'is-inactive' ?>">
-      <?= $isActive ? 'Baner aktywny' : 'Baner nieaktywny' ?>
+      <?= e(t($isActive ? 'admin.main_banner.status_active' : 'admin.main_banner.status_inactive')) ?>
     </div>
   </div>
 
@@ -39,22 +39,22 @@ $pl = is_array($translations['pl'] ?? null) ? $translations['pl'] : [];
 
     <div class="zs-banner-common-grid">
       <label>
-        <span>Link przycisku</span>
+        <span><?= e(t('admin.main_banner.link_przycisku')) ?></span>
         <input name="button_url" value="<?= e($buttonUrl) ?>" placeholder="/register">
       </label>
       <label>
-        <span>Obraz / tło</span>
+        <span><?= e(t('admin.main_banner.obraz_to')) ?></span>
         <input name="image_path" value="<?= e($imagePath) ?>" placeholder="/assets/img/banners/main-banner-editorial-soft-bg.webp">
       </label>
       <label class="zs-banner-checkbox">
         <input type="checkbox" name="is_active" value="1" <?= $isActive ? 'checked' : '' ?>>
-        <span>Pokazuj baner na stronie głównej</span>
+        <span><?= e(t('admin.main_banner.pokazuj_baner_na_stronie_gownej')) ?></span>
       </label>
     </div>
 
     <?php require __DIR__ . '/../partials/translation_status_legend.php'; ?>
 
-    <div id="translations" class="zs-banner-language-tabs" role="tablist" aria-label="Wersje językowe baneru">
+    <div id="translations" class="zs-banner-language-tabs" role="tablist" aria-label="<?= e(t('admin.main_banner.wersje_jezykowe_baneru')) ?>">
       <?php foreach ($languages as $lang): ?>
         <?php
           $label = (string)($languageLabels[$lang] ?? strtoupper($lang));
@@ -63,8 +63,8 @@ $pl = is_array($translations['pl'] ?? null) ? $translations['pl'] : [];
               ? 'is-source'
               : (trim((string)($languageRow['updated_at'] ?? '')) !== '' ? 'is-translated' : 'is-missing');
           $languageStateLabel = $lang === 'pl'
-              ? 'oryginał'
-              : ($languageState === 'is-translated' ? 'tłumaczenie' : 'brak tłumaczenia');
+              ? t('ui.partials.translation_status_legend.orygina')
+              : ($languageState === 'is-translated' ? t('admin.editorial_edit.tumaczenie') : t('ui.partials.translation_status_legend.brak_tumaczenia'));
         ?>
         <button type="button" class="zs-banner-lang-tab <?= e($languageState) ?> <?= $lang === $activeLang ? 'is-active' : '' ?>" data-banner-lang-tab="<?= e($lang) ?>" title="<?= e(strtoupper($lang) . ': ' . $languageStateLabel) ?>">
           <span><?= e(strtoupper($lang)) ?></span>
@@ -81,44 +81,44 @@ $pl = is_array($translations['pl'] ?? null) ? $translations['pl'] : [];
       <section class="zs-banner-language-panel <?= $lang === $activeLang ? 'is-active' : '' ?>" data-banner-lang-panel="<?= e($lang) ?>">
         <div class="zs-banner-language-head">
           <div>
-            <p class="kicker"><?= $lang === 'pl' ? 'Wersja źródłowa' : 'Wersja językowa' ?></p>
+            <p class="kicker"><?= $lang === 'pl' ? t('admin.main_banner.wersja_zrodowa') : t('admin.main_banner.wersja_jezykowa') ?></p>
             <h2><?= e($label) ?></h2>
           </div>
           <?php if ($lang !== 'pl'): ?>
-            <span class="zs-banner-ai-note">Tę wersję może uzupełnić AI. Po wygenerowaniu możesz ją normalnie poprawić.</span>
+            <span class="zs-banner-ai-note"><?= e(t('admin.main_banner.te_wersje_moze_uzupenic_ai_po_wygenerowaniu_mozesz_ja_n_05b0397d')) ?></span>
           <?php endif; ?>
         </div>
 
         <label class="zs-banner-field">
-          <span>Etykieta / kicker</span>
+          <span><?= e(t('admin.main_banner.etykieta_kicker')) ?></span>
           <input name="translations[<?= e($lang) ?>][kicker]" value="<?= e((string)($row['kicker'] ?? '')) ?>">
         </label>
 
         <label class="zs-banner-field zs-banner-field-title">
-          <span>Tytuł</span>
+          <span><?= e(t('author.article.title')) ?></span>
           <input name="translations[<?= e($lang) ?>][title]" value="<?= e((string)($row['title'] ?? '')) ?>">
         </label>
 
         <label class="zs-banner-field">
-          <span>Lead</span>
+          <span><?= e(t('author.article.lead')) ?></span>
           <textarea name="translations[<?= e($lang) ?>][lead_text]" rows="4"><?= e((string)($row['lead_text'] ?? '')) ?></textarea>
         </label>
 
         <label class="zs-banner-field">
-          <span>Opis dodatkowy</span>
+          <span><?= e(t('admin.main_banner.opis_dodatkowy')) ?></span>
           <textarea name="translations[<?= e($lang) ?>][body_text]" rows="5"><?= e((string)($row['body_text'] ?? '')) ?></textarea>
         </label>
 
         <label class="zs-banner-field">
-          <span>Tekst przycisku</span>
+          <span><?= e(t('admin.main_banner.tekst_przycisku')) ?></span>
           <input name="translations[<?= e($lang) ?>][button_label]" value="<?= e((string)($row['button_label'] ?? '')) ?>">
         </label>
       </section>
     <?php endforeach; ?>
 
     <div class="zs-banner-actions">
-      <button class="btn-red" type="submit">Zapisz Baner Główny</button>
-      <a class="btn-outline" href="/" target="_blank" rel="noopener">Podgląd strony głównej</a>
+      <button class="btn-red" type="submit"><?= e(t('admin.main_banner.zapisz_baner_gowny')) ?></button>
+      <a class="btn-outline" href="/" target="_blank" rel="noopener"><?= e(t('admin.main_banner.podglad_strony_gownej')) ?></a>
     </div>
   </form>
 
@@ -126,19 +126,19 @@ $pl = is_array($translations['pl'] ?? null) ? $translations['pl'] : [];
     <?= csrf_field() ?>
     <div>
       <p class="kicker">AI</p>
-      <h2>Tłumacz Baner Główny</h2>
-      <p>AI pobierze zapisaną wersję PL i utworzy wersje językowe. Potem każdą wersję możesz poprawić ręcznie w panelu powyżej.</p>
+      <h2><?= e(t('admin.main_banner.tumacz_baner_gowny')) ?></h2>
+      <p><?= e(t('admin.main_banner.ai_pobierze_zapisana_wersje_pl_i_utworzy_wersje_jezykow_c304d4e9')) ?></p>
       <label class="zs-banner-field">
-        <span>Dodatkowa instrukcja dla AI, opcjonalnie</span>
-        <textarea name="translation_instructions" rows="3" placeholder="Np. zachowaj spokojny, redakcyjny ton ŹRÓDŁA SŁOWA."></textarea>
+        <span><?= e(t('admin.main_banner.dodatkowa_instrukcja_dla_ai_opcjonalnie')) ?></span>
+        <textarea name="translation_instructions" rows="3" placeholder="<?= e(t('admin.main_banner.np_zachowaj_spokojny_redakcyjny_ton_zroda_sowa')) ?>"></textarea>
       </label>
     </div>
-    <button class="btn-red" type="submit">Tłumacz baner główny</button>
+    <button class="btn-red" type="submit"><?= e(t('admin.main_banner.tumacz_baner_gowny_2')) ?></button>
   </form>
 </section>
 
 <?php if (!$isActive): ?>
-  <section class="notice warning" style="margin-top: 24px;">Baner jest teraz nieaktywny i nie będzie widoczny na stronie głównej.</section>
+  <section class="notice warning" style="margin-top: 24px;"><?= e(t('admin.main_banner.baner_jest_teraz_nieaktywny_i_nie_bedzie_widoczny_na_st_edab98ac')) ?></section>
 <?php endif; ?>
 
 <section class="hero main-banner zs-banner-preview" style="margin-top: 24px;">

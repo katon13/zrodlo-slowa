@@ -6451,16 +6451,16 @@ code {
 .zs-human-note strong { display: block; margin-bottom: 5px; }
 .zs-human-note p { margin: 0; color: #665d5d; line-height: 1.55; }
 
-.zs-simple-dropzone {
+.zs-upload-dropzone.zs-simple-dropzone {
   position: relative;
   display: grid;
   justify-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 150px;
-  padding: 24px;
+  min-height: 180px;
+  padding: 32px 24px;
   overflow: hidden;
-  border: 1px dashed #cdbfc0;
+  border: 2px dashed #c90820;
   border-radius: 12px;
   background: #fffafa;
   color: #554b4b;
@@ -6524,8 +6524,37 @@ code {
   background: linear-gradient(135deg, #fff 0%, #fff 68%, #fff3f4 100%);
 }
 .zs-bug-report-head h1 { margin: 10px 0 14px; font: 800 clamp(34px, 5vw, 58px)/1.05 Georgia, serif; }
-.zs-bug-report-head > p:last-child { max-width: 720px; color: #655c5c; line-height: 1.65; }
+.zs-bug-report-head > p:not(.kicker) { max-width: 720px; color: #655c5c; line-height: 1.65; }
+.zs-bug-reward-value {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 18px;
+  align-items: center;
+  max-width: 720px;
+  margin-top: 22px;
+  padding: 18px 20px;
+  border-left: 5px solid var(--zs-red);
+  background: #211c1c;
+  color: #fff;
+}
+.zs-bug-reward-value span { font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.zs-bug-reward-value strong { grid-row: 1 / span 2; grid-column: 2; color: #fff; font-size: clamp(28px, 4vw, 44px); line-height: 1; }
+.zs-bug-reward-value small { color: #ded4d4; line-height: 1.45; }
 .zs-bug-report-form { display: grid; gap: 18px; padding: clamp(22px, 4vw, 40px); }
+.zs-bug-report-form .zs-upload-dropzone.zs-simple-dropzone.has-preview {
+  min-height: 280px;
+  padding: 18px;
+  background: #f8f5f3;
+}
+.zs-bug-report-form .zs-simple-dropzone.has-preview > span,
+.zs-bug-report-form .zs-simple-dropzone.has-preview > strong { display: none; }
+.zs-bug-report-form .zs-simple-dropzone.has-preview img {
+  width: 100%;
+  max-height: 360px;
+  margin: 0;
+  border-radius: 8px;
+  object-fit: contain;
+}
 .footer-bug-link { color: inherit; font-weight: 850; text-decoration: underline; text-underline-offset: 4px; }
 
 .zs-campaign-slot {

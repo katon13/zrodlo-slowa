@@ -1,12 +1,12 @@
 <?php
 $statusLabels = [
-    'draft' => 'szkic',
-    'submitted' => 'tekst przyszedł do redakcji',
-    'review' => 'w pracy redakcyjnej',
-    'approved' => 'zaakceptowany przez redakcję',
-    'published' => 'opublikowany',
-    'rejected' => 'odrzucony',
-    'archived' => 'archiwum',
+    'draft' => t('article.status.draft'),
+    'submitted' => t('admin.editorial_list.tekst_przyszed_do_redakcji'),
+    'review' => t('article.status.review'),
+    'approved' => t('admin.editorial_list.zaakceptowany_przez_redakcje'),
+    'published' => t('article.status.published'),
+    'rejected' => t('article.status.rejected'),
+    'archived' => t('article.status.archived'),
 ];
 $publicLanguages = is_array($languages['public_enabled'] ?? null)
     ? array_values($languages['public_enabled'])
@@ -18,21 +18,21 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
   <p class="kicker"><?= t('editorial.editing.kicker') ?></p>
   <h1><?= t('editorial.editing.title') ?></h1>
   <p><?= t('editorial.editing.description') ?></p>
-  <p><a class="btn-line compact" href="/admin/bug-reports">Sprawdź zgłoszenia błędów</a></p>
+  <p><a class="btn-line compact" href="/admin/bug-reports"><?= e(t('admin.editorial_list.sprawdz_zgoszenia_bedow')) ?></a></p>
 </section>
 
 <section class="admin-panel-block">
   <div class="admin-section-head">
     <div>
-      <p class="kicker">Warsztat wydawcy</p>
-      <h2>KOLEJNOŚĆ I WAŻNOŚĆ TEKSTÓW</h2>
+      <p class="kicker"><?= e(t('admin.editorial_list.warsztat_wydawcy')) ?></p>
+      <h2><?= e(t('editorial.editing.order_title')) ?></h2>
       <p><?= t('editorial.editing.order_description') ?></p>
     </div>
     <button type="button" class="zs-btn" id="save-order-btn"><?= t('editorial.editing.save_order') ?></button>
   </div>
   
   <div id="editorial-order-container" class="admin-notice-info u-mt-4" style="padding: 1rem; border: 1px dashed #cbd5e0; border-radius: 8px;">
-    <p style="font-size: 0.9rem; margin-bottom: 1rem; color: #718096;">Przeciągnij teksty poniżej, aby ustalić ich kolejność publiczną.</p>
+    <p style="font-size: 0.9rem; margin-bottom: 1rem; color: #718096;"><?= e(t('admin.editorial_list.przeciagnij_teksty_ponizej_aby_ustalic_ich_kolejnosc_publiczna')) ?></p>
     <div id="sortable-list" class="sortable-list">
       <?php foreach ($articles as $a): ?>
         <div class="sortable-item" data-id="<?= (int)$a['id'] ?>" draggable="true">
@@ -57,17 +57,17 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
 
   <div class="admin-section-head u-mt-6">
     <div>
-      <p class="kicker">Zasoby redakcyjne</p>
-      <h2>Lista tekstów</h2>
+      <p class="kicker"><?= e(t('admin.editorial_list.zasoby_redakcyjne')) ?></p>
+      <h2><?= e(t('admin.articles.lista_tekstow')) ?></h2>
     </div>
-    <span><?= count($articles) ?> pozycji</span>
+    <span><?= e(str_replace('{count}', (string)count($articles), t('admin.common.items_count'))) ?></span>
   </div>
   <?php require __DIR__ . '/../partials/translation_status_legend.php'; ?>
 
   <?php if (empty($articles)): ?>
     <div class="zs-empty-state">
-      <p class="zs-empty-title">Brak tekstów do wyświetlenia.</p>
-      <p class="zs-empty-desc">Poczekaj na teksty zaakceptowane przez Redakcję Główną.</p>
+      <p class="zs-empty-title"><?= e(t('admin.editorial_list.brak_tekstow_do_wyswietlenia')) ?></p>
+      <p class="zs-empty-desc"><?= e(t('admin.editorial_list.poczekaj_na_teksty_zaakceptowane_przez_redakcje_gowna')) ?></p>
     </div>
   <?php else: ?>
     <div class="editorial-articles-list">
@@ -87,7 +87,7 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
               <?php if ($mainImage): ?>
                 <img src="<?= e($mainImage) ?>" alt="">
               <?php else: ?>
-                <div class="thumb-placeholder">BRAK ZDJĘCIA</div>
+                <div class="thumb-placeholder"><?= e(t('admin.editorial_list.brak_zdjecia')) ?></div>
               <?php endif; ?>
             </div>
             
@@ -95,20 +95,20 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
               <div class="info-top">
                 <span class="admin-label">ID #<?= $id ?> | <?= e($statusLabels[$status] ?? $status) ?></span>
                 <?php if (!empty($a['response_to_article_id'])): ?>
-                  <span class="zs-status-badge review">OPINIA / POLEMIKA DO #<?= (int)$a['response_to_article_id'] ?></span>
+                  <span class="zs-status-badge review"><?= e(str_replace('{id}', (string)(int)$a['response_to_article_id'], t('admin.editorial_edit.response_heading'))) ?></span>
                 <?php endif; ?>
                 <?php if ($proofreadAt !== ''): ?>
-                  <span class="zs-status-badge review editorial-proofread-badge">KOREKTA</span>
+                  <span class="zs-status-badge review editorial-proofread-badge"><?= e(t('admin.dashboard.korekta')) ?></span>
                 <?php endif; ?>
               </div>
               <h3><?= e($a['title']) ?></h3>
               <div class="editorial-card-meta">
-                <span>Autor: <strong><?= e($a['author_name'] ?? '—') ?></strong></span>
-                <span>Kategoria: <strong><?= e($a['category_name'] ?? '—') ?></strong></span>
+                <span><?= e(t('admin.editorial_list.autor')) ?> <strong><?= e($a['author_name'] ?? '—') ?></strong></span>
+                <span><?= e(t('admin.editorial_list.kategoria')) ?> <strong><?= e($a['category_name'] ?? '—') ?></strong></span>
                 <?php if (!empty($a['response_to_article_id'])): ?>
-                  <span>Talent: <strong><?= $a['response_reward_qualified'] === null ? 'oczekuje na publikację' : (!empty($a['response_reward_qualified']) ? ((int)$a['response_reward_points'] . ' TT · snapshot') : '0 TT · snapshot niekwalifikowany') ?></strong></span>
-                  <?php $depositStatusLabels = ['not_required' => 'niewymagana', 'held' => 'pobrana', 'forfeited' => 'przepadła', 'refunded' => 'zwrócona']; ?>
-                  <span>Kaucja: <strong><?= $a['response_deposit_status'] === null ? 'niepobrana' : e($depositStatusLabels[(string)$a['response_deposit_status']] ?? (string)$a['response_deposit_status']) ?><?php if ($a['response_deposit_points'] !== null): ?> · <?= (int)$a['response_deposit_points'] ?> TT<?php endif; ?></strong></span>
+                  <span><?= e(t('admin.articles.talent')) ?> <strong><?= $a['response_reward_qualified'] === null ? t('admin.editorial_list.oczekuje_na_publikacje') : (!empty($a['response_reward_qualified']) ? ((int)$a['response_reward_points'] . ' TT · snapshot') : '0 TT · snapshot niekwalifikowany') ?></strong></span>
+                  <?php $depositStatusLabels = ['not_required' => t('response.deposit_status.not_required'), 'held' => t('response.deposit_status.held'), 'forfeited' => t('response.deposit_status.forfeited'), 'refunded' => t('response.deposit_status.refunded')]; ?>
+                  <span><?= e(t('admin.editorial_list.kaucja')) ?> <strong><?= $a['response_deposit_status'] === null ? 'niepobrana' : e($depositStatusLabels[(string)$a['response_deposit_status']] ?? (string)$a['response_deposit_status']) ?><?php if ($a['response_deposit_points'] !== null): ?> · <?= (int)$a['response_deposit_points'] ?> TT<?php endif; ?></strong></span>
                 <?php endif; ?>
               </div>
               <div class="editorial-card-dates">
@@ -122,21 +122,21 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
             <div class="editorial-card-side">
               <div class="editorial-side-stats">
                 <div class="ranking-item">
-                  <label>Kolejność</label>
+                  <label><?= e(t('editorial.editing.display_order')) ?></label>
                   <span><?= (int)($a['display_order'] ?? 0) ?></span>
                 </div>
                 <div class="ranking-item">
-                  <label>Waga</label>
+                  <label><?= e(t('admin.editorial_list.waga')) ?></label>
                   <span><?= (int)($a['editorial_weight'] ?? 0) ?></span>
                 </div>
                 <div class="ranking-item">
-                  <label>Odsłony</label>
+                  <label><?= e(t('admin.editorial_list.odsony')) ?></label>
                   <span><?= (int)($a['view_count'] ?? 0) ?></span>
                 </div>
               </div>
 
               <div class="zs-language-status-block">
-                <div class="zs-language-statuses" aria-label="Status wersji językowych">
+                <div class="zs-language-statuses" aria-label="<?= e(t('admin.editorial_list.status_wersji_jezykowych')) ?>">
                   <?php foreach ($publicLanguages as $language): ?>
                     <?php
                       $language = strtolower((string)$language);
@@ -154,18 +154,18 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
                           . '#translation-' . rawurlencode($language);
                     ?>
                     <?php if ($isSourceLanguage): ?>
-                      <a class="zs-status-badge zs-language-badge is-source" href="<?= e($editUrl) ?>" title="<?= e(strtoupper($language) . ': oryginał') ?>"><?= e(strtoupper($language)) ?></a>
+                      <a class="zs-status-badge zs-language-badge is-source" href="<?= e($editUrl) ?>" title="<?= e(strtoupper($language) . t('admin.editorial_list.orygina')) ?>"><?= e(strtoupper($language)) ?></a>
                     <?php elseif (in_array($translationStatus, ['error', 'rejected'], true)): ?>
-                      <a class="zs-status-badge zs-language-badge is-error" href="<?= e($editUrl) ?>" title="<?= e(strtoupper($language) . ': błąd lub odrzucone') ?>"><?= e(strtoupper($language)) ?></a>
+                      <a class="zs-status-badge zs-language-badge is-error" href="<?= e($editUrl) ?>" title="<?= e(strtoupper($language) . t('admin.editorial_list.bad_lub_odrzucone')) ?>"><?= e(strtoupper($language)) ?></a>
                     <?php elseif ($hasCompleteTranslation): ?>
-                      <a class="zs-status-badge zs-language-badge is-translated<?= $needsReview ? ' needs-review' : '' ?>" href="<?= e($editUrl) ?>" title="<?= e(strtoupper($language) . ': tłumaczenie zapisane') ?>">
+                      <a class="zs-status-badge zs-language-badge is-translated<?= $needsReview ? ' needs-review' : '' ?>" href="<?= e($editUrl) ?>" title="<?= e(strtoupper($language) . t('admin.editorial_list.tumaczenie_zapisane')) ?>">
                         <?= e(strtoupper($language)) ?>
                         <?php if ($needsReview): ?><span class="zs-language-review-dot" aria-hidden="true"></span><?php endif; ?>
                       </a>
                     <?php elseif (is_array($translation)): ?>
-                      <a class="zs-status-badge zs-language-badge is-incomplete" href="<?= e($editUrl) ?>" title="<?= e(strtoupper($language) . ': niekompletne tłumaczenie') ?>"><?= e(strtoupper($language)) ?></a>
+                      <a class="zs-status-badge zs-language-badge is-incomplete" href="<?= e($editUrl) ?>" title="<?= e(strtoupper($language) . t('admin.editorial_list.niekompletne_tumaczenie')) ?>"><?= e(strtoupper($language)) ?></a>
                     <?php else: ?>
-                      <span class="zs-status-badge zs-language-badge is-missing" title="<?= e(strtoupper($language) . ': brak tłumaczenia') ?>"><?= e(strtoupper($language)) ?></span>
+                      <span class="zs-status-badge zs-language-badge is-missing" title="<?= e(strtoupper($language) . t('admin.editorial_list.brak_tumaczenia')) ?>"><?= e(strtoupper($language)) ?></span>
                     <?php endif; ?>
                   <?php endforeach; ?>
                 </div>
@@ -173,27 +173,27 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
 
               <div class="editorial-pricing-row u-mt-2">
                 <div class="ranking-item">
-                  <label>Wycena tekstu</label>
+                  <label><?= e(t('admin.editorial_list.wycena_tekstu')) ?></label>
                   <span class="price-val"><?= number_format(($a['price_minor'] ?? 0) / 100, 2, ',', ' ') ?> PLN</span>
                 </div>
                 <div class="ranking-badges">
                   <?php if (!empty($a['is_premium'])): ?>
-                    <span class="zs-status-badge premium">PREMIUM</span>
+                    <span class="zs-status-badge premium"><?= e(t('admin.editorial_list.premium')) ?></span>
                   <?php endif; ?>
                   <?php if (!empty($a['is_unique'])): ?>
-                    <span class="zs-status-badge unique">UNIKALNY</span>
+                    <span class="zs-status-badge unique"><?= e(t('admin.editorial_list.unikalny')) ?></span>
                   <?php endif; ?>
                   <?php if (!empty($a['is_featured'])): ?>
-                    <span class="zs-status-badge featured">PROMOCJA</span>
+                    <span class="zs-status-badge featured"><?= e(t('admin.editorial_list.promocja')) ?></span>
                   <?php endif; ?>
                 </div>
               </div>
 
               <div class="editorial-side-actions">
-                <a href="/admin/editorial/edit?id=<?= $id ?>" class="zs-btn-small" title="Aktualizuj treść i ustawienia">Edytuj</a>
-                <a href="/article?id=<?= $id ?>&lang=<?= e($sourceLanguage) ?>" class="zs-btn-small btn-outline" target="_blank" rel="noopener">Podgląd</a>
+                <a href="/admin/editorial/edit?id=<?= $id ?>" class="zs-btn-small" title="<?= e(t('admin.editorial_list.aktualizuj_tresc_i_ustawienia')) ?>"><?= e(t('author.dashboard.edit')) ?></a>
+                <a href="/article?id=<?= $id ?>&lang=<?= e($sourceLanguage) ?>" class="zs-btn-small btn-outline" target="_blank" rel="noopener"><?= e(t('editorial.editing.preview')) ?></a>
                 <button type="button" class="zs-btn-small btn-outline btn-toggle-featured" data-id="<?= $id ?>" data-val="<?= !empty($a['is_featured']) ? 0 : 1 ?>">
-                  <?= !empty($a['is_featured']) ? 'Odepnij' : 'Promuj' ?>
+                        <?= e(t(!empty($a['is_featured']) ? 'admin.editorial_list.unpin' : 'admin.editorial_list.promote')) ?>
                 </button>
               </div>
             </div>
@@ -265,6 +265,14 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
 </style>
 
 <script>
+const editorialListUi = <?= json_encode([
+    'saveError' => t('common.save_error'),
+    'statusError' => t('admin.editorial_list.status_change_error'),
+    'unpin' => t('admin.editorial_list.unpin'),
+    'promote' => t('admin.editorial_list.promote'),
+    'promotionBadge' => t('admin.editorial_list.promotion_badge'),
+    'saving' => t('admin.role_panel.saving'),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 document.addEventListener('DOMContentLoaded', function() {
     const list = document.getElementById('sortable-list');
     let draggingItem = null;
@@ -309,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const btn = this;
         
         btn.disabled = true;
-        btn.innerText = 'Zapisywanie...';
+        btn.innerText = editorialListUi.saving;
 
         fetch('/admin/editorial/save-order', {
             method: 'POST',
@@ -328,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showLocalNotice(btn, 'error', data.message);
             }
         })
-        .catch(err => showLocalNotice(btn, 'error', 'Wystąpił błąd podczas zapisywania.'))
+        .catch(() => showLocalNotice(btn, 'error', editorialListUi.saveError))
         .finally(() => {
             btn.disabled = false;
             btn.innerText = '<?= t('editorial.editing.save_order') ?>';
@@ -361,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Update button
                     const newVal = val === '1' ? '0' : '1';
                     btn.dataset.val = newVal;
-                    btn.innerText = val === '1' ? 'Odepnij' : 'Promuj';
+      btn.innerText = val === '1' ? editorialListUi.unpin : editorialListUi.promote;
 
                     // Update badge
                     const card = document.getElementById('article-' + id);
@@ -372,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (val === '1' && !featuredBadge) {
                                 featuredBadge = document.createElement('span');
                                 featuredBadge.className = 'zs-status-badge featured';
-                                featuredBadge.innerText = 'PROMOCJA';
+                                featuredBadge.innerText = editorialListUi.promotionBadge;
                                 badges.appendChild(featuredBadge);
                             } else if (val === '0' && featuredBadge) {
                                 featuredBadge.remove();
@@ -386,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(err => {
                 btn.innerText = originalText;
-                showLocalNotice(btn, 'error', 'Wystąpił błąd podczas zmiany statusu.');
+                showLocalNotice(btn, 'error', editorialListUi.statusError);
             })
             .finally(() => {
                 btn.disabled = false;

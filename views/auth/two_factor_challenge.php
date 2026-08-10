@@ -1,10 +1,10 @@
 <section class="auth-panel">
   <div class="auth-copy">
-    <p class="kicker">SNAJPER SŁOWA / BEZPIECZNE LOGOWANIE</p>
-    <h1>Kod 2FA</h1>
-    <p>Hasło zostało przyjęte. Konto ma wysokie uprawnienia, dlatego przed pełnym logowaniem wpisz sześciocyfrowy kod z aplikacji uwierzytelniającej.</p>
+    <p class="kicker"><?= e(t('ui.auth.two_factor_challenge.snajper_sowa_bezpieczne_logowanie')) ?></p>
+    <h1><?= e(t('ui.auth.two_factor_challenge.kod_2fa')) ?></h1>
+    <p><?= e(t('ui.auth.two_factor_challenge.haso_zostao_przyjete_konto_ma_wysokie_uprawnienia_dlate_fc832592')) ?></p>
     <?php if (!empty($email)): ?>
-      <p class="muted">Konto: <strong><?= e($email) ?></strong></p>
+      <p class="muted"><?= e(t('ui.auth.two_factor_challenge.konto')) ?> <strong><?= e($email) ?></strong></p>
     <?php endif; ?>
   </div>
 
@@ -20,17 +20,17 @@
     <?php endif; ?>
 
     <label class="field">
-      <span>Kod 2FA</span>
+      <span><?= e(t('ui.auth.two_factor_challenge.kod_2fa')) ?></span>
       <input type="text" name="code" required inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" autofocus placeholder="000000">
     </label>
 
     <div class="notice">
-      Ten krok nie ładuje panelu admina ani portfela. Pełna sesja powstaje dopiero po poprawnym kodzie.
+      <?= e(t('ui.auth.two_factor_challenge.ten_krok_nie_aduje_panelu_admina_ani_portfela_pena_sesj_23b06220')) ?>
     </div>
 
     <div class="form-actions">
-      <button class="btn-red" type="submit">Potwierdź i zaloguj</button>
-      <a class="text-link" href="/login">Wróć do logowania</a>
+      <button class="btn-red" type="submit"><?= e(t('ui.auth.two_factor_challenge.potwierdz_i_zaloguj')) ?></button>
+      <a class="text-link" href="/login"><?= e(t('ui.auth.two_factor_challenge.wroc_do_logowania')) ?></a>
     </div>
   </form>
 </section>

@@ -52,7 +52,7 @@ if (!empty($displayName)) {
       <!-- Avatar Preview/Circle -->
       <div id="avatar-preview-wrapper" style="position: relative; width: 160px; height: 160px; border-radius: 50%; background: #eee; overflow: hidden; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
         <?php if ($avatarPath): ?>
-          <img id="avatar-img-main" src="<?= e($avatarPath) ?>?t=<?= strtotime($avatarUpdatedAt ?: 'now') ?>" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+          <img id="avatar-img-main" src="<?= e($avatarPath) ?>?t=<?= strtotime($avatarUpdatedAt ?: 'now') ?>" alt="<?= e(t('ui.account.settings.avatar')) ?>" style="width: 100%; height: 100%; object-fit: cover;">
         <?php else: ?>
           <div id="avatar-fallback" style="font-size: 3rem; font-weight: bold; color: #333;"><?= e($initials) ?></div>
         <?php endif; ?>
@@ -120,7 +120,7 @@ if (!empty($displayName)) {
           <?= t('account.settings.display_currency_desc', $currentLang) ?>
         </p>
         <select name="display_currency" class="zs-input" style="width: 100%; max-width: 400px;">
-          <option value="AUTO" <?= $displayCurrency === 'AUTO' ? 'selected' : '' ?>>AUTO (<?= t('layout.menu.latest', $currentLang) ?>)</option>
+          <option value="AUTO" <?= $displayCurrency === 'AUTO' ? 'selected' : '' ?>><?= e(t('profile.currency.auto', $currentLang)) ?></option>
           <option value="PLN" <?= $displayCurrency === 'PLN' ? 'selected' : '' ?>>PLN</option>
           <option value="EUR" <?= $displayCurrency === 'EUR' ? 'selected' : '' ?>>EUR</option>
           <option value="GBP" <?= $displayCurrency === 'GBP' ? 'selected' : '' ?>>GBP</option>
@@ -139,7 +139,7 @@ if (!empty($displayName)) {
 <div class="zs-panel-footer">
   <a href="<?= e($readerUrl) ?>" class="zs-link-aux"><?= t('wallet.back_to_wallet', $currentLang) ?></a>
   <span class="zs-sep">|</span>
-  <a href="<?= e(public_language_url($currentLang, '/account/security')) ?>" class="zs-link-aux">Bezpieczeństwo konta</a>
+  <a href="<?= e(public_language_url($currentLang, '/account/security')) ?>" class="zs-link-aux"><?= e(t('ui.account.security.bezpieczenstwo_konta_2')) ?></a>
 </div>
 
 <script src="/assets/js/slowo-image-editor.js"></script>

@@ -1,11 +1,11 @@
 <?php
 $statusMap = [
-    'queued' => ['label' => 'W kolejce', 'class' => 'mail-status-queued'],
-    'sent' => ['label' => 'Wysłany', 'class' => 'mail-status-sent'],
-    'failed' => ['label' => 'Błąd wysyłki', 'class' => 'mail-status-failed'],
-    'dead_letter' => ['label' => 'Dead letter — kontrola ręczna', 'class' => 'mail-status-failed'],
-    'processing' => ['label' => 'Wysyłanie', 'class' => 'mail-status-processing'],
-    'cancelled' => ['label' => 'Anulowany', 'class' => 'mail-status-cancelled'],
+    'queued' => ['label' => t('admin.mails.status_queued'), 'class' => 'mail-status-queued'],
+    'sent' => ['label' => t('admin.mails.wysany'), 'class' => 'mail-status-sent'],
+    'failed' => ['label' => t('admin.mails.bad_wysyki'), 'class' => 'mail-status-failed'],
+    'dead_letter' => ['label' => t('admin.mails.dead_letter_kontrola_reczna'), 'class' => 'mail-status-failed'],
+    'processing' => ['label' => t('admin.mails.wysyanie'), 'class' => 'mail-status-processing'],
+    'cancelled' => ['label' => t('admin.mails.status_cancelled'), 'class' => 'mail-status-cancelled'],
 ];
 
 if (!function_exists('getMailPreview')) {
@@ -20,9 +20,9 @@ if (!function_exists('getMailPreview')) {
 ?>
 
 <section class="admin-page-head">
-    <p class="kicker">Komunikacja</p>
-    <h1>Kolejka maili</h1>
-    <p>Przegląd wiadomości systemowych i statusów ich doręczenia.</p>
+    <p class="kicker"><?= e(t('admin.mails.komunikacja')) ?></p>
+    <h1><?= e(t('admin.mails.kolejka_maili')) ?></h1>
+    <p><?= e(t('admin.mails.przeglad_wiadomosci_systemowych_i_statusow_ich_doreczenia')) ?></p>
 </section>
 
 <div class="mail-queue-page">
@@ -38,7 +38,7 @@ if (!function_exists('getMailPreview')) {
                 </div>
                 <div class="mail-queue-meta">
                     <div class="mail-queue-recipient">
-                        <span style="color:#999; font-size:10px; text-transform:uppercase; letter-spacing:0.05em;">Do:</span> <?= e($m['email']) ?>
+                        <span style="color:#999; font-size:10px; text-transform:uppercase; letter-spacing:0.05em;"><?= e(t('admin.mails.do')) ?></span> <?= e($m['email']) ?>
                     </div>
                     <div class="mail-queue-date"><?= $date ?></div>
                     <div class="mail-status-badge <?= $st['class'] ?>"><?= $st['label'] ?></div>
@@ -48,7 +48,7 @@ if (!function_exists('getMailPreview')) {
         
         <?php if (empty($mails)): ?>
             <div style="padding: 60px 20px; text-align: center; color: #999; font-style: italic; background: #fff;">
-                Brak wiadomości w kolejce.
+                <?= e(t('admin.mails.brak_wiadomosci_w_kolejce')) ?>
             </div>
         <?php endif; ?>
     </div>

@@ -16,7 +16,7 @@ final class AccountSecurityController extends BaseController
         }
         $service = $this->security();
         return $this->view('account/security', [
-            'title' => 'Bezpieczeństwo konta',
+            'title' => t('ui.account.security.bezpieczenstwo_konta_2'),
             'security' => $service->userSecurityStatus($userId),
             'secret' => $service->currentTwoFactorSecret($userId),
             'otpauth_uri' => $service->otpauthUri($userId),
@@ -29,14 +29,14 @@ final class AccountSecurityController extends BaseController
         try {
             $link = $this->security()
                 ->queueEmailVerification($userId, (string)$this->app->config['app']['url']);
-            $message = 'Wiadomość potwierdzająca e-mail została dodana do kolejki.';
+            $message = t('controller.accountsecurity.wiadomosc_potwierdzajaca_e_mail_zostaa_dodana_do_kolejki');
             if (($this->app->config['app']['env'] ?? '') === 'local' && ($this->app->config['app']['debug'] ?? false)) {
                 $message .= ' Lokalny link testowy: ' . $link;
             }
             $this->app->session->flash('success', $message);
         } catch (\Throwable $e) {
             error_log('Email verification queue failed: ' . $e->getMessage());
-            $this->app->session->flash('error', 'Nie udało się przygotować wiadomości potwierdzającej.');
+            $this->app->session->flash('error', t('controller.accountsecurity.nie_udao_sie_przygotowac_wiadomosci_potwierdzajacej'));
         }
         redirect(public_language_url(public_language(), '/account/security'));
     }
@@ -45,9 +45,9 @@ final class AccountSecurityController extends BaseController
     {
         try {
             $this->security()->verifyEmailToken((string)($_GET['token'] ?? ''));
-            $this->app->session->flash('success', 'E-mail został potwierdzony.');
+            $this->app->session->flash('success', t('controller.accountsecurity.e_mail_zosta_potwierdzony'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się potwierdzić adresu e-mail.', 'email_verification'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.accountsecurity.nie_udao_sie_potwierdzic_adresu_e_mail'), 'email_verification'));
         }
         redirect(public_language_url(public_language(), '/account/security'));
     }
@@ -57,9 +57,9 @@ final class AccountSecurityController extends BaseController
         $userId = $this->requireAuth();
         try {
             $this->security()->startTwoFactorSetup($userId);
-            $this->app->session->flash('success', 'Wygenerowano sekret 2FA. Przepisz go do aplikacji i potwierdź kodem.');
+            $this->app->session->flash('success', t('controller.accountsecurity.wygenerowano_sekret_2fa_przepisz_go_do_aplikacji_i_potw_fe380dd4'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się rozpocząć konfiguracji 2FA.', '2fa_setup'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.accountsecurity.nie_udao_sie_rozpoczac_konfiguracji_2fa'), '2fa_setup'));
         }
         redirect(public_language_url(public_language(), '/account/security'));
     }
@@ -69,9 +69,9 @@ final class AccountSecurityController extends BaseController
         $userId = $this->requireAuth();
         try {
             $this->security()->enableTwoFactor($userId, (string)($_POST['code'] ?? ''));
-            $this->app->session->flash('success', '2FA zostało aktywowane.');
+            $this->app->session->flash('success', t('controller.accountsecurity.2fa_zostao_aktywowane'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się aktywować 2FA.', '2fa_enable'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.accountsecurity.nie_udao_sie_aktywowac_2fa'), '2fa_enable'));
         }
         redirect(public_language_url(public_language(), '/account/security'));
     }

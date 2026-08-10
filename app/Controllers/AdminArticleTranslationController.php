@@ -27,23 +27,23 @@ final class AdminArticleTranslationController extends BaseController
 
         try {
             if (!in_array($action, ['approve_publish', 'reject'], true)) {
-                throw new \InvalidArgumentException('Nieprawidłowa decyzja Wydawcy.');
+                throw new \InvalidArgumentException(t('controller.adminarticletranslation.nieprawidowa_decyzja_wydawcy'));
             }
 
             $service = new ArticleTranslationService($this->app->db, $this->app->config['languages'] ?? []);
             $translation = $service->findById($translationId);
             if (!$translation || (int)($translation['article_id'] ?? 0) !== $articleId) {
-                throw new \RuntimeException('Nie znaleziono tłumaczenia przypisanego do tego artykułu.');
+                throw new \RuntimeException(t('controller.adminarticletranslation.nie_znaleziono_tumaczenia_przypisanego_do_tego_artykuu'));
             }
             $language = strtolower((string)($translation['language'] ?? ''));
 
             if ($action === 'approve_publish') {
                 $service->approveAndPublish($translationId, $publisherId);
-                $message = 'Wydawca zaakceptował i opublikował tłumaczenie ' . strtoupper($language) . '.';
+                $message = t('controller.adminarticletranslation.wydawca_zaakceptowa_i_opublikowa_tumaczenie') . strtoupper($language) . '.';
                 $resultingStatus = 'published';
             } else {
                 $service->reject($translationId, $publisherId);
-                $message = 'Wydawca odrzucił tłumaczenie ' . strtoupper($language) . ' do poprawy.';
+                $message = t('controller.adminarticletranslation.wydawca_odrzuci_tumaczenie') . strtoupper($language) . ' do poprawy.';
                 $resultingStatus = 'rejected';
             }
 
@@ -55,7 +55,7 @@ final class AdminArticleTranslationController extends BaseController
             ]);
             $success = true;
         } catch (\Throwable $e) {
-            $message = 'Nie udało się zapisać decyzji Wydawcy: ' . $e->getMessage();
+            $message = t('controller.adminarticletranslation.nie_udao_sie_zapisac_decyzji_wydawcy') . $e->getMessage();
         }
 
         if ($this->isAjax()) {
@@ -102,9 +102,9 @@ final class AdminArticleTranslationController extends BaseController
                 'language' => $language,
                 'status' => (string)($_POST['status'] ?? 'draft'),
             ]);
-            $this->app->session->flash('success', 'Tłumaczenie artykułu zostało zapisane.');
+            $this->app->session->flash('success', t('controller.adminarticletranslation.tumaczenie_artykuu_zostao_zapisane'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', 'Nie udało się zapisać tłumaczenia: ' . $e->getMessage());
+            $this->app->session->flash('error', t('controller.adminarticletranslation.nie_udao_sie_zapisac_tumaczenia') . $e->getMessage());
         }
 
         redirect('/admin/articles?translation_article=' . $articleId . '&translation_lang=' . rawurlencode($language) . '#translation-' . $articleId);
@@ -125,7 +125,7 @@ final class AdminArticleTranslationController extends BaseController
             $instructions = $this->translationInstructionsForAiPackage($articleId, $sourceLanguage, $instructions);
             $targetLanguages = $this->targetLanguagesForAiPackage($sourceLanguage, $languageConfig);
             if ($targetLanguages === []) {
-                throw new \RuntimeException('Brak języków docelowych do tłumaczenia.');
+                throw new \RuntimeException(t('controller.adminarticletranslation.brak_jezykow_docelowych_do_tumaczenia'));
             }
 
             $sourceHash = hash('sha256', json_encode($article, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE));
@@ -148,7 +148,7 @@ final class AdminArticleTranslationController extends BaseController
             ]);
 
             return $this->aiPackageResponse(true, 202, [
-                'message' => 'Tłumaczenie zostało dodane do izolowanej kolejki AI.',
+                'message' => t('controller.adminarticletranslation.tumaczenie_zostao_dodane_do_izolowanej_kolejki_ai'),
                 'article_id' => $articleId,
                 'source_language' => $sourceLanguage,
                 'target_languages' => $targetLanguages,
@@ -158,7 +158,7 @@ final class AdminArticleTranslationController extends BaseController
             ]);
         } catch (\Throwable $e) {
             return $this->aiPackageResponse(false, 422, [
-                'message' => 'Błąd tłumaczenia AI: ' . $e->getMessage(),
+                'message' => t('controller.adminarticletranslation.bad_tumaczenia_ai') . $e->getMessage(),
                 'article_id' => $articleId,
                 'redirect_url' => $returnUrl,
             ]);
@@ -171,14 +171,14 @@ final class AdminArticleTranslationController extends BaseController
     private function articleForAiPackage(int $articleId): array
     {
         if ($articleId <= 0) {
-            throw new \InvalidArgumentException('Brak poprawnego article_id.');
+            throw new \InvalidArgumentException(t('controller.adminarticletranslation.brak_poprawnego_article_id'));
         }
         $article = $this->app->db->one(
             'SELECT `id`,`title`,`lead`,`body`,`source_language`,`updated_at` FROM `articles` WHERE `id`=:id LIMIT 1',
             ['id' => $articleId]
         );
         if (!$article) {
-            throw new \RuntimeException('Nie znaleziono artykułu.');
+            throw new \RuntimeException(t('controller.adminarticletranslation.nie_znaleziono_artykuu'));
         }
         return $article;
     }
@@ -273,7 +273,7 @@ final class AdminArticleTranslationController extends BaseController
         if ($this->expectsJsonResponse()) {
             header('Content-Type: application/json');
             $payload['success'] = $success;
-            return json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{"success":false,"message":"Błąd odpowiedzi JSON."}';
+            return json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: t('controller.adminarticletranslation.success_false_message_bad_odpowiedzi_json');
         }
 
         $this->app->session->flash($success ? 'success' : 'error', (string)($payload['message'] ?? ''));

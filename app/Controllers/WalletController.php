@@ -58,7 +58,7 @@ final class WalletController extends BaseController
             $lang = public_language();
             $this->app->session->flash('success', t('wallet.payout_method_saved', $lang));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zapisać metody wypłaty.', 'payout_method'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.wallet.nie_udao_sie_zapisac_metody_wypaty'), 'payout_method'));
         }
         $lang ??= public_language();
         redirect(public_language_url($lang, '/wallet'));
@@ -72,7 +72,7 @@ final class WalletController extends BaseController
             $lang = public_language();
             $this->app->session->flash('success', t('wallet.payout_request_saved', $lang));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zlecić wypłaty.', 'payout_request'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.wallet.nie_udao_sie_zlecic_wypaty'), 'payout_request'));
         }
         $lang ??= public_language();
         redirect(public_language_url($lang, '/wallet'));

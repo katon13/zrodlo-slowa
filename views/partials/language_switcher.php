@@ -39,7 +39,7 @@ $buildLanguageUrl = static function (string $language) use ($isArticlePageLangua
 };
 
 $currentShort = (string)($shortLabels[$currentLanguage] ?? strtoupper($currentLanguage));
-$label = function_exists('t') ? t('language.switcher.label', $currentLanguage) : 'Wybierz język';
+$label = t('language.switcher.label', $currentLanguage);
 ?>
 <details class="language-switcher" data-language-switcher>
   <summary class="language-trigger" aria-label="<?= e($label) ?>">

@@ -17,17 +17,17 @@ final class AuthorController extends BaseController
         $roles = array_filter(explode(',', (string)($user['roles'] ?? '')));
 
         if (($user['status'] ?? '') === 'pending_author' && in_array('author', $roles, true)) {
-            $this->app->session->flash('error', 'Konto autora czeka na akceptację redakcji. Dodawanie i edycja tekstów będzie dostępne po zatwierdzeniu.');
+            $this->app->session->flash('error', t('controller.author.konto_autora_czeka_na_akceptacje_redakcji_dodawanie_i_e_e274a122'));
             redirect('/author');
         }
 
         if (($user['status'] ?? '') !== 'active') {
-            $this->app->session->flash('error', 'Konto nie jest aktywne.');
+            $this->app->session->flash('error', t('controller.author.konto_nie_jest_aktywne'));
             redirect('/');
         }
 
         if ((int)($user['can_write'] ?? 0) !== 1) {
-            $this->app->session->flash('error', 'Możliwość pisania nie jest jeszcze aktywna. Redakcja musi ręcznie nadać tę zgodę.');
+            $this->app->session->flash('error', t('controller.author.mozliwosc_pisania_nie_jest_jeszcze_aktywna_redakcja_mus_557035f8'));
             redirect('/author');
         }
 
@@ -63,7 +63,7 @@ final class AuthorController extends BaseController
         $articleService = new ArticleService($this->app->db);
         $walletService = new WalletService($this->app->db);
         return $this->view('author/dashboard', [
-            'title' => 'Panel autora',
+            'title' => t('layout.header.author_panel'),
             'articles' => $articleService->forAuthor($userId, $this->slowoSnajperConfig()->limit('author_articles', 30, 100)),
             'wallet' => $walletService->optionalWalletForUser($userId),
             'author_state' => $authorState,
@@ -83,7 +83,7 @@ final class AuthorController extends BaseController
     public function createArticle(): string
     {
         $this->requireApprovedAuthor();
-        return $this->view('author/create_article', ['title' => 'Nowy tekst']);
+        return $this->view('author/create_article', ['title' => t('author.article.new')]);
     }
 
     public function storeArticle(): never
@@ -107,9 +107,9 @@ final class AuthorController extends BaseController
                 $uploadService->uploadArticleImage($_FILES['image'], $userId, $articleId, $position, $titleSeed, true);
             }
 
-            $this->app->session->flash('success', 'Szkic zapisany.');
+            $this->app->session->flash('success', t('controller.author.szkic_zapisany'));
         } catch (\Throwable $e) {
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zapisać szkicu.', 'article_create'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.author.nie_udao_sie_zapisac_szkicu'), 'article_create'));
         }
         redirect('/author');
     }
@@ -119,9 +119,9 @@ final class AuthorController extends BaseController
         $userId = $this->requireApprovedAuthor();
         $articleService = new ArticleService($this->app->db);
         $article = $articleService->findForAuthor((int)($_GET['id'] ?? 0), $userId);
-        if (!$article) { http_response_code(404); return $this->view('layouts/error', ['title'=>'404','message'=>'Nie znaleziono tekstu.']); }
+        if (!$article) { http_response_code(404); return $this->view('layouts/error', ['title'=>'404','message'=>t('controller.admin.nie_znaleziono_tekstu')]); }
         return $this->view('author/edit_article', [
-            'title'=>'Edycja tekstu',
+            'title'=>t('author.article.edit'),
             'article'=>$article,
             'media' => $articleService->getMedia((int)$article['id'], $this->slowoSnajperConfig()->limit('article_media', 12, 50))
         ]);
@@ -149,16 +149,16 @@ final class AuthorController extends BaseController
                 $uploadService->uploadArticleImage($_FILES['image'], $userId, $articleId, $position, $titleSeed, true);
             }
 
-            $msg = 'Tekst zaktualizowany.';
+            $msg = t('controller.author.tekst_zaktualizowany');
             if ($this->isAjax()) {
                 $this->json(['success' => true, 'message' => $msg, 'article_id' => $articleId]);
             }
             $this->app->session->flash('success', $msg);
         } catch (\Throwable $e) { 
             if ($this->isAjax()) {
-                $this->json(['success' => false, 'message' => $this->safeError($e, 'Nie udało się zapisać tekstu.', 'article_update')]);
+                $this->json(['success' => false, 'message' => $this->safeError($e, t('controller.author.nie_udao_sie_zapisac_tekstu'), 'article_update')]);
             }
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się zapisać tekstu.', 'article_update'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.author.nie_udao_sie_zapisac_tekstu'), 'article_update'));
         }
         redirect('/author');
     }
@@ -171,7 +171,7 @@ final class AuthorController extends BaseController
             $block = (new UserService($this->app->db))->authorSubmitBlockInfo($userId);
             if (!empty($block['is_blocked'])) {
                 $until = $block['blocked_until'] ? (' do: ' . $block['blocked_until']) : '';
-                throw new \RuntimeException('Redakcja czasowo zablokowała możliwość wysyłania tekstów' . $until . '.');
+                throw new \RuntimeException(t('controller.author.redakcja_czasowo_zablokowaa_mozliwosc_wysyania_tekstow') . $until . '.');
             }
 
             $articleId = (int)$_POST['id'];
@@ -204,16 +204,16 @@ final class AuthorController extends BaseController
             }
 
             (new ArticleService($this->app->db))->submit($articleId, $userId);
-            $msg = 'Tekst wysłany do redakcji.';
+            $msg = t('controller.author.tekst_wysany_do_redakcji');
             if ($this->isAjax()) {
                 $this->json(['success' => true, 'message' => $msg]);
             }
             $this->app->session->flash('success', $msg);
         } catch (\Throwable $e) { 
             if ($this->isAjax()) {
-                $this->json(['success' => false, 'message' => $this->safeError($e, 'Nie udało się wysłać tekstu.', 'article_submit')]);
+                $this->json(['success' => false, 'message' => $this->safeError($e, t('controller.author.nie_udao_sie_wysac_tekstu'), 'article_submit')]);
             }
-            $this->app->session->flash('error', $this->safeError($e, 'Nie udało się wysłać tekstu.', 'article_submit'));
+            $this->app->session->flash('error', $this->safeError($e, t('controller.author.nie_udao_sie_wysac_tekstu'), 'article_submit'));
         }
         redirect('/author');
     }
@@ -225,10 +225,10 @@ final class AuthorController extends BaseController
         $roleList = array_filter(explode(',', (string)$roles));
         try {
             if (!in_array('publisher', $roleList, true) && !in_array('chief_editor', $roleList, true)) {
-                throw new \RuntimeException('Publikacja wymaga roli wydawcy lub redaktora naczelnego.');
+                throw new \RuntimeException(t('controller.author.publikacja_wymaga_roli_wydawcy_lub_redaktora_naczelnego'));
             }
             if (!$this->mobileApprovalEnabled('article_publish_approval')) {
-                throw new \RuntimeException('Publikacja autora wymaga jawnie włączonego 3DORS Author.');
+                throw new \RuntimeException(t('controller.author.publikacja_autora_wymaga_jawnie_waczonego_3dors_author'));
             }
             $articleId = (int)($_POST['id'] ?? 0);
             $issuedAt = time();
@@ -251,9 +251,9 @@ final class AuthorController extends BaseController
             $this->app->session->flash('success', $msg);
         } catch (\Throwable $error) {
             if ($this->isAjax()) {
-                $this->json(['success' => false, 'message' => $this->safeError($error, 'Nie udało się rozpocząć publikacji.', 'article_publish')]);
+                $this->json(['success' => false, 'message' => $this->safeError($error, t('controller.author.nie_udao_sie_rozpoczac_publikacji'), 'article_publish')]);
             }
-            $this->app->session->flash('error', $this->safeError($error, 'Nie udało się rozpocząć publikacji.', 'article_publish'));
+            $this->app->session->flash('error', $this->safeError($error, t('controller.author.nie_udao_sie_rozpoczac_publikacji'), 'article_publish'));
         }
         redirect('/author');
     }
@@ -275,7 +275,7 @@ final class AuthorController extends BaseController
         $accountKey = 'article-submit:account:' . $userId;
         $ipKey = 'article-submit:ip:' . $ipHash;
         if ($limiter->tooManyAttempts($accountKey, 10) || $limiter->tooManyAttempts($ipKey, 30)) {
-            throw new \RuntimeException('Przekroczono limit wysyłania tekstów. Spróbuj ponownie za kilka minut.');
+            throw new \RuntimeException(t('controller.author.przekroczono_limit_wysyania_tekstow_sprobuj_ponownie_za_9e180620'));
         }
         $limiter->hit($accountKey, 600);
         $limiter->hit($ipKey, 600);
@@ -297,11 +297,11 @@ final class AuthorController extends BaseController
         try {
             $userId = $this->requireApprovedAuthor();
             $articleId = (int)($_POST['article_id'] ?? 0);
-            if ($articleId <= 0) throw new \InvalidArgumentException('Nieprawidłowy ID artykułu.');
+            if ($articleId <= 0) throw new \InvalidArgumentException(t('controller.author.nieprawidowy_id_artykuu'));
 
             $position = (int)($_POST['image_position'] ?? 50);
             $article = (new ArticleService($this->app->db))->assertAuthorEditable($articleId, $userId);
-            if (!$article) { throw new \InvalidArgumentException('Nie znaleziono artykułu.'); }
+            if (!$article) { throw new \InvalidArgumentException(t('controller.adminarticletranslation.nie_znaleziono_artykuu')); }
 
             $uploadService = new UploadService($this->app->db, $this->app->objectStorage);
             if (!empty($_POST['image_data'])) {
@@ -309,14 +309,14 @@ final class AuthorController extends BaseController
             } elseif (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
                 $mediaId = $uploadService->uploadArticleImage($_FILES['image'], $userId, $articleId, $position, (string)($article['title'] ?? 'zdjecie-artykulu'), true);
             } else {
-                throw new \InvalidArgumentException('Nie przesłano obrazu.');
+                throw new \InvalidArgumentException(t('controller.author.nie_przesano_obrazu'));
             }
             $media = (new ArticleService($this->app->db))->getMedia($articleId, 1)[0] ?? null;
 
-            return json_encode(['success' => true, 'message' => 'Zdjęcie zapisane', 'media' => $media]);
+            return json_encode(['success' => true, 'message' => t('author.article.saved'), 'media' => $media]);
         } catch (\Throwable $e) {
             http_response_code(400);
-            return json_encode(['success' => false, 'message' => $this->safeError($e, 'Nie udało się zapisać obrazu.', 'article_image_upload')]);
+            return json_encode(['success' => false, 'message' => $this->safeError($e, t('controller.author.nie_udao_sie_zapisac_obrazu'), 'article_image_upload')]);
         }
     }
 
@@ -326,14 +326,14 @@ final class AuthorController extends BaseController
         try {
             $userId = $this->requireApprovedAuthor();
             $mediaId = (int)($_POST['media_id'] ?? 0);
-            if ($mediaId <= 0) throw new \InvalidArgumentException('Nieprawidłowy ID mediów.');
+            if ($mediaId <= 0) throw new \InvalidArgumentException(t('controller.author.nieprawidowy_id_mediow'));
 
             (new UploadService($this->app->db, $this->app->objectStorage))->deleteMedia($mediaId, $userId);
 
-            return json_encode(['success' => true, 'message' => 'Zdjęcie usunięte']);
+            return json_encode(['success' => true, 'message' => t('controller.author.zdjecie_usuniete')]);
         } catch (\Throwable $e) {
             http_response_code(400);
-            return json_encode(['success' => false, 'message' => $this->safeError($e, 'Nie udało się usunąć obrazu.', 'article_image_delete')]);
+            return json_encode(['success' => false, 'message' => $this->safeError($e, t('controller.author.nie_udao_sie_usunac_obrazu'), 'article_image_delete')]);
         }
     }
 
@@ -346,8 +346,8 @@ final class AuthorController extends BaseController
             $mediaId = (int)($data['media_id'] ?? 0);
             $position = (int)($data['position'] ?? 50);
 
-            if ($mediaId <= 0) throw new \InvalidArgumentException('Nieprawidłowy ID mediów.');
-            if ($position < 0 || $position > 100) throw new \InvalidArgumentException('Nieprawidłowa pozycja.');
+            if ($mediaId <= 0) throw new \InvalidArgumentException(t('controller.author.nieprawidowy_id_mediow'));
+            if ($position < 0 || $position > 100) throw new \InvalidArgumentException(t('controller.author.nieprawidowa_pozycja'));
 
             $updated = $this->app->db->query(
                 'UPDATE media m
@@ -357,13 +357,13 @@ final class AuthorController extends BaseController
                 [$position, $mediaId, $userId, $userId]
             );
             if ($updated->rowCount() !== 1) {
-                throw new \RuntimeException('Media opublikowanego tekstu nie można zmieniać bez rewizji.');
+                throw new \RuntimeException(t('controller.author.media_opublikowanego_tekstu_nie_mozna_zmieniac_bez_rewizji'));
             }
 
-            return json_encode(['success' => true, 'message' => 'Pozycja zapisana']);
+            return json_encode(['success' => true, 'message' => t('controller.author.pozycja_zapisana')]);
         } catch (\Throwable $e) {
             http_response_code(400);
-            return json_encode(['success' => false, 'message' => $this->safeError($e, 'Nie udało się zmienić położenia obrazu.', 'article_image_position')]);
+            return json_encode(['success' => false, 'message' => $this->safeError($e, t('controller.author.nie_udao_sie_zmienic_poozenia_obrazu'), 'article_image_position')]);
         }
     }
 }
