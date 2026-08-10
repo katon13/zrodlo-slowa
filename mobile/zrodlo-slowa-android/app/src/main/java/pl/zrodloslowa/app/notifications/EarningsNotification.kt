@@ -38,6 +38,7 @@ data class NotificationsPage(
     val ok: Boolean,
     val items: List<EarningsNotification>,
     val nextCursor: Int,
+    val unreadCount: Int,
     val reason: String? = null,
 ) {
     companion object {
@@ -45,11 +46,16 @@ data class NotificationsPage(
             val json = JSONObject(text)
             val ok = json.optBoolean("ok", false)
             if (!ok) {
-                return NotificationsPage(ok = false, items = emptyList(), nextCursor = 0, reason = json.optString("reason"))
+                return NotificationsPage(ok = false, items = emptyList(), nextCursor = 0, unreadCount = 0, reason = json.optString("reason"))
             }
             val rawItems: JSONArray = json.optJSONArray("items") ?: JSONArray()
             val items = (0 until rawItems.length()).map { index -> EarningsNotification.fromJson(rawItems.getJSONObject(index)) }
-            NotificationsPage(ok = true, items = items, nextCursor = json.optInt("next_cursor"))
-        }.getOrDefault(NotificationsPage(ok = false, items = emptyList(), nextCursor = 0, reason = "parse_error"))
+            NotificationsPage(
+                ok = true,
+                items = items,
+                nextCursor = json.optInt("next_cursor"),
+                unreadCount = json.optInt("unread_count").coerceAtLeast(0),
+            )
+        }.getOrDefault(NotificationsPage(ok = false, items = emptyList(), nextCursor = 0, unreadCount = 0, reason = "parse_error"))
     }
 }

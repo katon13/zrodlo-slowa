@@ -99,7 +99,9 @@ final class EconomyMapService
             'article_sales' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(total_amount_minor),0) total, COALESCE(SUM(author_income_minor),0) author, COALESCE(SUM(publisher_fee_minor),0) platform, COALESCE(SUM(safety_fund_amount_minor),0) safety_fund FROM platform_revenues'),
             'bonuses' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(amount_minor),0) total, COALESCE(SUM(points_amount),0) points FROM activity_reward_logs'),
             'surveys' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(reward_amount_minor),0) rewards FROM survey_responses'),
-            'campaigns' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(cost_minor),0) cost, COALESCE(SUM(reward_minor),0) rewards FROM campaign_events'),
+            'campaigns' => $this->one("SELECT COUNT(*) FILTER (WHERE verification_status='verified') cnt,
+                COALESCE(SUM(cost_minor) FILTER (WHERE verification_status='verified'),0) cost,
+                COALESCE(SUM(reward_points),0) reward_points FROM campaign_events"),
             'payouts' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(amount_minor),0) total FROM payouts'),
             'transactions' => $this->one('SELECT COUNT(*) cnt, COALESCE(SUM(ABS(amount_minor)),0) total FROM wallet_transactions'),
         ];

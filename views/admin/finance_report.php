@@ -140,8 +140,8 @@ $statusBadge = function($status, $map) {
             </li>
             <li>
                 <span class="label">Kampanie reklamowe</span>
-                <span class="value is-negative"><?= $money($economy_summary['campaigns']['cost'] ?? 0) ?></span>
-                <small>nagrody dla użytkowników: <?= $money($economy_summary['campaigns']['rewards'] ?? 0) ?></small>
+                <span class="value"><?= $money($economy_summary['campaigns']['cost'] ?? 0) ?></span>
+                <small>naliczony przychód · użytkownicy: <?= number_format((int)($economy_summary['campaigns']['reward_points'] ?? 0), 0, ',', ' ') ?> TT</small>
             </li>
         </ul>
     </div>

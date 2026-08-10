@@ -60,12 +60,28 @@ final class EarningsApiController extends BaseController
         foreach ($items as $item) {
             $nextCursor = max($nextCursor, (int)$item['id']);
         }
-        $this->json(['ok' => true, 'items' => $items, 'next_cursor' => $nextCursor]);
+        $this->json([
+            'ok' => true,
+            'items' => $items,
+            'next_cursor' => $nextCursor,
+            'unread_count' => $this->notificationsService()->unreadCount($userId),
+        ]);
     }
 
     public function acknowledgeNotifications(): never
     {
         $userId = $this->authenticatedUserId();
+        $service = $this->notificationsService();
+        $markAll = in_array((string)($_POST['all'] ?? ''), ['1', 'true', 'yes'], true);
+        if ($markAll) {
+            $acknowledged = $service->acknowledgeAll($userId);
+            $this->json([
+                'ok' => true,
+                'acknowledged' => $acknowledged,
+                'unread_count' => $service->unreadCount($userId),
+            ]);
+        }
+
         $raw = $_POST['ids'] ?? [];
         if (is_string($raw)) {
             $raw = explode(',', $raw);
@@ -78,8 +94,12 @@ final class EarningsApiController extends BaseController
             http_response_code(422);
             $this->json(['ok' => false, 'reason' => 'invalid_notification_ids']);
         }
-        $acked = $this->notificationsService()->acknowledge($userId, $ids);
-        $this->json(['ok' => true, 'acknowledged' => $acked]);
+        $acked = $service->acknowledge($userId, $ids);
+        $this->json([
+            'ok' => true,
+            'acknowledged' => $acked,
+            'unread_count' => $service->unreadCount($userId),
+        ]);
     }
 
     public function jobStatus(): never

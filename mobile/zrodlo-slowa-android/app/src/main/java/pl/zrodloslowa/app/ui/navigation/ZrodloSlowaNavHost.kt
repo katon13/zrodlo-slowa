@@ -27,6 +27,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.suspendCancellableCoroutine
 import pl.zrodloslowa.app.config.AppLanguageManager
 import pl.zrodloslowa.app.config.LanguagePreferenceStore
 import pl.zrodloslowa.app.config.OnboardingPreferenceStore
@@ -42,6 +47,12 @@ import pl.zrodloslowa.app.ui.onboarding.OnboardingScreen
 import pl.zrodloslowa.app.ui.wallet.WalletScreen
 import pl.zrodloslowa.app.webview.SessionSecurityState
 import pl.zrodloslowa.app.referral.ReferralInstallManager
+import pl.zrodloslowa.app.notifications.NotificationUnreadState
+import pl.zrodloslowa.app.notifications.NotificationsApiBridge
+import pl.zrodloslowa.app.notifications.NotificationsPage
+import pl.zrodloslowa.app.session.WebSessionManager
+import pl.zrodloslowa.app.webview.WebUrlResolver
+import kotlin.coroutines.resume
 
 private const val WEB_PAGE_ROUTE = "webpage/{path}"
 
@@ -87,6 +98,37 @@ fun ZrodloSlowaNavHost(
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentRoute = currentBackStackEntry?.destination?.route
     val currentDestination = AppDestination.fromRoute(currentRoute)
+    val notificationSite = remember(languageCode) { SiteConfig.siteForLanguage(languageCode) }
+    val notificationBaseUrl = remember(notificationSite) { WebUrlResolver.baseUrl(notificationSite) }
+    val webSessions by WebSessionManager.sessions
+    val notificationSessionKey = webSessions[notificationBaseUrl.trimEnd('/')]?.storageKey ?: "anonymous"
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val notificationBridge = remember(notificationBaseUrl, notificationSessionKey) {
+        NotificationsApiBridge(context, notificationBaseUrl)
+    }
+
+    DisposableEffect(notificationBridge) {
+        onDispose { notificationBridge.destroy() }
+    }
+    LaunchedEffect(notificationSessionKey) {
+        NotificationUnreadState.clear()
+    }
+    LaunchedEffect(notificationBridge, lifecycleOwner, notificationSessionKey) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                val raw = suspendCancellableCoroutine { continuation ->
+                    notificationBridge.fetchNotifications(afterId = 0, limit = 1) { response ->
+                        if (continuation.isActive) continuation.resume(response)
+                    }
+                }
+                val page = NotificationsPage.fromJsonText(raw)
+                if (page.ok) {
+                    NotificationUnreadState.update(page.unreadCount)
+                }
+                delay(20_000L)
+            }
+        }
+    }
 
     // Doprecyzowanie dyspozycji pkt 4.2 ("FLAG_SECURE ma wynikać z
     // potwierdzonego przez serwer stanu sesji, nie z heurystyki URL"):
@@ -189,6 +231,7 @@ fun ZrodloSlowaNavHost(
         bottomBar = {
             ZrodloSlowaBottomBar(
                 currentDestination = currentDestination,
+                unreadNotificationCount = NotificationUnreadState.count,
                 onDestinationSelected = { destination ->
                     if (destination != currentDestination) {
                         navController.navigate(destination.route) {

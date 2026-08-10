@@ -9,6 +9,17 @@ final class EarningsNotificationService
 {
     public function __construct(private readonly Database $db) {}
 
+    public function unreadCount(int $userId): int
+    {
+        if ($userId <= 0) {
+            return 0;
+        }
+        return (int)$this->db->cell(
+            'SELECT COUNT(*) FROM activity_bonus_notifications WHERE user_id=:user AND seen_at IS NULL',
+            ['user' => $userId]
+        );
+    }
+
     /** @return list<array<string,mixed>> */
     public function pendingAfter(int $userId, int $afterId, int $limit = 5): array
     {
@@ -39,6 +50,18 @@ final class EarningsNotificationService
             'UPDATE activity_bonus_notifications SET seen_at=NOW()
              WHERE user_id=:user AND seen_at IS NULL AND id IN (' . implode(',', $placeholders) . ')',
             $params
+        )->rowCount();
+    }
+
+    public function acknowledgeAll(int $userId): int
+    {
+        if ($userId <= 0) {
+            return 0;
+        }
+        return $this->db->query(
+            'UPDATE activity_bonus_notifications SET seen_at=NOW()
+             WHERE user_id=:user AND seen_at IS NULL',
+            ['user' => $userId]
         )->rowCount();
     }
 

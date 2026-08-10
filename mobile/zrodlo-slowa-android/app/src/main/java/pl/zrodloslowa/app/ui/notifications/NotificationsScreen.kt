@@ -48,6 +48,7 @@ import pl.zrodloslowa.app.config.SiteConfig
 import pl.zrodloslowa.app.notifications.EarningsNotification
 import pl.zrodloslowa.app.notifications.NotificationsApiBridge
 import pl.zrodloslowa.app.notifications.NotificationsPage
+import pl.zrodloslowa.app.notifications.NotificationUnreadState
 import pl.zrodloslowa.app.session.WebSessionManager
 import pl.zrodloslowa.app.ui.auth.AuthGate
 import pl.zrodloslowa.app.webview.WebUrlResolver
@@ -109,6 +110,7 @@ private fun NotificationsContent(languageCode: String) {
                 loading = false
                 if (page.ok) {
                     error = false
+                    NotificationUnreadState.update(page.unreadCount)
                     if (page.items.isNotEmpty()) {
                         items = page.items.reversed() + items
                         afterId = maxOf(afterId, page.nextCursor)
@@ -134,11 +136,11 @@ private fun NotificationsContent(languageCode: String) {
             )
             if (items.isNotEmpty()) {
                 TextButton(onClick = {
-                    val ids = items.map { it.id }
-                    bridge.acknowledge(ids) { raw ->
+                    bridge.acknowledgeAll { raw ->
                         val json = runCatching { org.json.JSONObject(raw) }.getOrNull()
                         if (json?.optBoolean("ok", false) == true) {
                             items = emptyList()
+                            NotificationUnreadState.update(json.optInt("unread_count", 0))
                         }
                     }
                 }) {
@@ -169,7 +171,18 @@ private fun NotificationsContent(languageCode: String) {
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 items(items = items, key = { it.id }) { item ->
-                    NotificationCard(item)
+                    NotificationCard(
+                        item = item,
+                        onMarkRead = {
+                            bridge.acknowledge(listOf(item.id)) { raw ->
+                                val json = runCatching { org.json.JSONObject(raw) }.getOrNull()
+                                if (json?.optBoolean("ok", false) == true) {
+                                    items = items.filterNot { notification -> notification.id == item.id }
+                                    NotificationUnreadState.update(json.optInt("unread_count", 0))
+                                }
+                            }
+                        },
+                    )
                 }
             }
         }
@@ -177,7 +190,7 @@ private fun NotificationsContent(languageCode: String) {
 }
 
 @Composable
-private fun NotificationCard(item: EarningsNotification) {
+private fun NotificationCard(item: EarningsNotification, onMarkRead: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -199,7 +212,7 @@ private fun NotificationCard(item: EarningsNotification) {
                     tint = MaterialTheme.colorScheme.onPrimary,
                 )
             }
-            Column(modifier = Modifier.padding(start = 12.dp)) {
+            Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
                 Text(text = item.title, style = MaterialTheme.typography.titleSmall)
                 Text(
                     text = item.message,
@@ -212,6 +225,9 @@ private fun NotificationCard(item: EarningsNotification) {
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
+                TextButton(onClick = onMarkRead) {
+                    Text(text = stringResource(R.string.notifications_mark_read))
                 }
             }
         }

@@ -22,10 +22,7 @@ final class MigrationService
             $summary = [];
             foreach ($this->migrationFiles() as $file) {
                 $version = pathinfo($file, PATHINFO_FILENAME);
-                $checksum = hash_file('sha256', $file);
-                if (!is_string($checksum)) {
-                    throw new \RuntimeException("Nie udało się policzyć sumy migracji $version.");
-                }
+                $checksum = $this->migrationChecksum($file, $version);
                 $existing = $this->database->one('SELECT * FROM schema_migrations WHERE version=:version', [
                     'version' => $version,
                 ]);
@@ -83,10 +80,7 @@ final class MigrationService
             $summary = [];
             foreach ($this->migrationFiles() as $file) {
                 $version = pathinfo($file, PATHINFO_FILENAME);
-                $checksum = hash_file('sha256', $file);
-                if (!is_string($checksum)) {
-                    throw new \RuntimeException("Nie udało się policzyć sumy migracji $version.");
-                }
+                $checksum = $this->migrationChecksum($file, $version);
                 $statements = count($this->runner->statements((string)file_get_contents($file)));
                 $this->markBaselined($version, $checksum, $statements);
                 $summary[$version] = ['status' => 'baselined', 'statements' => $statements];
@@ -224,6 +218,18 @@ final class MigrationService
                 );
             }
         }
+    }
+
+    private function migrationChecksum(string $file, string $version): string
+    {
+        $contents = file_get_contents($file);
+        if (!is_string($contents)) {
+            throw new \RuntimeException("Nie udało się policzyć sumy migracji $version.");
+        }
+
+        // Git may materialize the same SQL with LF or CRLF on different hosts.
+        // Line endings are not a schema change and must not invalidate history.
+        return hash('sha256', str_replace(["\r\n", "\r"], "\n", $contents));
     }
 
     private function migrationFiles(): array

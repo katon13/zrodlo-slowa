@@ -598,9 +598,10 @@ final class AdminController extends BaseController
         $this->requireAdmin();
         $service = $this->campaignService();
         return $this->view('admin/campaigns', [
-            'title' => 'Kampanie, reklamy, PPV i live',
+            'title' => 'Kampanie i Zaangażowanie',
             'campaigns' => $service->allForAdmin(...array_slice($this->slowoSnajper()->pageLimitOffset('admin_campaigns', $_GET['page'] ?? 1, 50, 200), 1)),
             'types' => $service->types(),
+            'type_definitions' => $service->typeDefinitions(),
             'statuses' => $service->statuses(),
             'selected_campaign' => isset($_GET['id']) ? $service->find((int)$_GET['id']) : null,
         ]);
@@ -649,6 +650,7 @@ final class AdminController extends BaseController
             'campaign' => $report['campaign'],
             'events' => $report['events'],
             'recent' => $report['recent'],
+            'summary' => $report['summary'],
         ]);
     }
 

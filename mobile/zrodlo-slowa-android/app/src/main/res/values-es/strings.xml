@@ -14,6 +14,7 @@
     <string name="notifications_empty">No hay notificaciones nuevas.</string>
     <string name="notifications_error">No se pudieron cargar las notificaciones. Comprueba tu conexión.</string>
     <string name="notifications_mark_all_read">Marcar todas como leídas</string>
+    <string name="notifications_mark_read">Marcar como leída</string>
 
     <string name="action_change_language">Cambiar idioma</string>
     <string name="action_language_automatic">Automático</string>

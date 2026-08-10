@@ -34,7 +34,7 @@ final class OperatorPanelPresenterTest extends TestCase
         self::assertSame('GOTOWE · DOWÓD OBECNOŚCI', $rules['day_visit_bonus']['operator_readiness']);
         self::assertFalse($rules['article_read_bonus']['operator_activation_locked']);
         self::assertTrue($rules['login_bonus']['operator_activation_locked']);
-        self::assertTrue($rules['ad_click_reward']['operator_activation_locked']);
+        self::assertFalse($rules['ad_click_reward']['operator_activation_locked']);
     }
 
     public function testUnknownTalentRuleGetsReadableFallback(): void

@@ -14,6 +14,7 @@
     <string name="notifications_empty">Aucune nouvelle notification.</string>
     <string name="notifications_error">Impossible de charger les notifications. Vérifiez votre connexion.</string>
     <string name="notifications_mark_all_read">Tout marquer comme lu</string>
+    <string name="notifications_mark_read">Marquer comme lue</string>
 
     <string name="action_change_language">Changer de langue</string>
     <string name="action_language_automatic">Automatique</string>

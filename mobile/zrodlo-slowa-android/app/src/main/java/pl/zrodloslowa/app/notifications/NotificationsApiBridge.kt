@@ -138,13 +138,21 @@ class NotificationsApiBridge(context: Context, private val baseUrl: String) {
      * nowego endpointu ani nie wyłączamy CSRF po stronie backendu.
      */
     fun acknowledge(ids: List<Int>, onResult: (String) -> Unit) {
+        acknowledgeBody("ids=" + ids.joinToString(","), onResult)
+    }
+
+    /** Ten sam endpoint i ten sam backendowy licznik; bez lokalnego czyszczenia na ślepo. */
+    fun acknowledgeAll(onResult: (String) -> Unit) {
+        acknowledgeBody("all=1", onResult)
+    }
+
+    private fun acknowledgeBody(body: String, onResult: (String) -> Unit) {
         if (acknowledgeInFlight) {
             mainHandler.post { onResult(ERROR_BUSY) }
             return
         }
         acknowledgeInFlight = true
         val url = baseUrl.trimEnd('/') + "/api/earnings/notifications/ack"
-        val body = "ids=" + ids.joinToString(",")
         runFetch(
             scriptTemplate = { callId ->
                 """

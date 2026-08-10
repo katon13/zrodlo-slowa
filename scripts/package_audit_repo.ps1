@@ -12,7 +12,7 @@ if (-not (Test-Path -LiteralPath $exportsDirectory)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($OutputPath)) {
-    $OutputPath = Join-Path $exportsDirectory 'zrodlo-slowa_AUDYT_TALENT_ODPOWIEDZI_REFERRAL_2026-08-10.zip'
+    $OutputPath = Join-Path $exportsDirectory 'zrodlo-slowa_AUDYT_PELNY_2026-08-10.zip'
 }
 $resolvedOutput = [System.IO.Path]::GetFullPath($OutputPath)
 if (-not $resolvedOutput.StartsWith($exportsDirectory + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
@@ -137,7 +137,10 @@ $safetyFundEvidenceFiles = @(
     '3dors-wartownik-pl.png',
     '3dors-wartownik-en.png',
     'odpowiedz-publikacja-pod-artykulem.png',
-    'odpowiedz-publikacja-jak-zarabiac.png'
+    'odpowiedz-publikacja-jak-zarabiac.png',
+    'kampanie-admin-powiadomienia-www.png',
+    'kampanie-publiczne-www.png',
+    'powiadomienia-badge-mobile.png'
 ) | ForEach-Object {
     Get-Item -LiteralPath (Join-Path $repoRoot "docs/screenshots/$_") -ErrorAction SilentlyContinue
 } | Where-Object { $_ -is [System.IO.FileInfo] }
@@ -208,6 +211,7 @@ try {
             $evidenceWriter.WriteLine('Test conditions: docs/FINAL_AUDIT_BEFORE_PHYSICAL_E2E.md')
             $evidenceWriter.WriteLine('Referral implementation: docs/RAPORT_WDROZENIA_REFERRAL_2026-08-10.md')
             $evidenceWriter.WriteLine('Talent and response-publication implementation: docs/RAPORT_WDROZENIA_ODPOWIEDZI_PUBLIKACJA_I_TALENT_2026-08-10.md')
+            $evidenceWriter.WriteLine('Campaign and notification implementation: docs/RAPORT_WDROZENIA_KAMPANIE_POWIADOMIENIA_2026-08-10.md')
             $evidenceWriter.WriteLine('Connected-test XML results: audit-evidence/test-results/')
         } finally {
             $evidenceWriter.Dispose()
@@ -223,7 +227,7 @@ try {
             $writer.WriteLine("Connected-test result files: $($testEvidenceFiles.Count)")
             $writer.WriteLine('Excluded: every real .env/.env.* file (only explicitly named examples are allowed), .git, IDE/system data, vendor/node_modules, cache, runtime storage, database backups, builds, APKs, keystores, logs and older archives.')
             $writer.WriteLine('Start here: CONSULTATION_README.md')
-            $writer.WriteLine('Reports: docs/FINAL_AUDIT_BEFORE_PHYSICAL_E2E.md, docs/RAPORT_WDROZENIA_REFERRAL_2026-08-10.md and docs/RAPORT_WDROZENIA_ODPOWIEDZI_PUBLIKACJA_I_TALENT_2026-08-10.md')
+            $writer.WriteLine('Reports: docs/FINAL_AUDIT_BEFORE_PHYSICAL_E2E.md, docs/RAPORT_WDROZENIA_REFERRAL_2026-08-10.md, docs/RAPORT_WDROZENIA_ODPOWIEDZI_PUBLIKACJA_I_TALENT_2026-08-10.md and docs/RAPORT_WDROZENIA_KAMPANIE_POWIADOMIENIA_2026-08-10.md')
         } finally {
             $writer.Dispose()
         }

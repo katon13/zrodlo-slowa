@@ -7,12 +7,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pl.zrodloslowa.app.navigation.AppDestination
+import pl.zrodloslowa.app.notifications.notificationBadgeText
 
 /**
  * Stały dolny pasek nawigacji zgodny z zaakceptowaną makietą wizualną (ETAP 4
@@ -43,6 +45,7 @@ import pl.zrodloslowa.app.navigation.AppDestination
 @Composable
 fun ZrodloSlowaBottomBar(
     currentDestination: AppDestination,
+    unreadNotificationCount: Int = 0,
     onDestinationSelected: (AppDestination) -> Unit,
 ) {
     // Naprawa obserwacji z realnego testu na emulatorze
@@ -102,11 +105,12 @@ fun ZrodloSlowaBottomBar(
             ) {
                 AppDestination.bottomBarItems.forEach { destination ->
                     if (destination == AppDestination.WALLET) {
-                        Box(modifier = Modifier.width(64.dp))
+                        Box(modifier = Modifier.weight(1f))
                     } else {
                         BottomBarFlatItem(
                             destination = destination,
                             selected = destination == currentDestination,
+                            unreadCount = if (destination == AppDestination.NOTIFICATIONS) unreadNotificationCount else 0,
                             onClick = { onDestinationSelected(destination) },
                         )
                     }
@@ -155,15 +159,16 @@ fun ZrodloSlowaBottomBar(
 }
 
 @Composable
-private fun BottomBarFlatItem(
+private fun RowScope.BottomBarFlatItem(
     destination: AppDestination,
     selected: Boolean,
+    unreadCount: Int,
     onClick: () -> Unit,
 ) {
     val tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
     Column(
         modifier = Modifier
-            .width(64.dp)
+            .weight(1f)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -172,12 +177,35 @@ private fun BottomBarFlatItem(
             .padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(imageVector = destination.icon, contentDescription = null, tint = tint)
+        Box(modifier = Modifier.size(30.dp), contentAlignment = Alignment.Center) {
+            Icon(imageVector = destination.icon, contentDescription = null, tint = tint)
+            val badgeText = notificationBadgeText(unreadCount)
+            if (badgeText.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 7.dp, y = (-5).dp)
+                        .defaultMinSize(minWidth = 17.dp, minHeight = 17.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(horizontal = 4.dp, vertical = 1.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = badgeText,
+                        color = Color.White,
+                        fontSize = 9.sp,
+                        lineHeight = 10.sp,
+                    )
+                }
+            }
+        }
         Text(
             text = stringResource(destination.labelRes),
             color = tint,
-            fontSize = 11.sp,
+            fontSize = if (destination == AppDestination.NOTIFICATIONS) 9.sp else 11.sp,
             textAlign = TextAlign.Center,
+            maxLines = 1,
         )
     }
 }

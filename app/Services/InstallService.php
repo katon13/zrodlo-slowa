@@ -82,7 +82,26 @@ final class InstallService
 
     public function migrate(): array
     {
-        return $this->install(false);
+        $this->ensureDatabaseExists();
+        $db = new Database($this->databaseConfig['default']);
+        if (!$this->tableExists($db, 'users')) {
+            return $this->install(false);
+        }
+
+        $migrations = (new MigrationService(
+            $db,
+            $this->migrationDirectory($db),
+            $this->sqlRunner,
+        ))->migrate();
+
+        return [
+            'ok' => true,
+            'database' => $this->databaseName(),
+            'mode' => 'migrate',
+            'schema_loaded' => false,
+            'schema_statements' => 0,
+            'migrations' => $migrations,
+        ];
     }
 
     public function check(): array

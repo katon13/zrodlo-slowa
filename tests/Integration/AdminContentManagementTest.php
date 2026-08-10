@@ -243,30 +243,84 @@ final class AdminContentManagementTest extends DatabaseTestCase
         ));
     }
 
-    public function testPpvEventUsesPerViewCostInsteadOfEntireCampaignBudget(): void
+    public function testUnverifiedPpvCampaignCannotBeActivated(): void
     {
         $service = $this->campaignService();
-        $campaignId = $service->create($this->adminId(), [
-            'name' => 'PPV PHPUnit',
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('wiarygodnego dowodu');
+        $service->create($this->adminId(), [
+            'client_name' => 'Klient PHPUnit',
+            'name' => 'PPV bez dowodu',
             'type' => 'ppv',
             'status' => 'active',
             'budget' => '100,00',
-            'cost_per_view' => '1,00',
-            'reward_for_user' => '0,50',
+            'cost_per_view' => '2,00',
+            'budget_confirmed' => '1',
         ]);
-        $this->database->query(
-            'UPDATE activity_reward_rules SET is_active=0 WHERE activity_type=\'ppv_reward\''
-        );
+    }
 
-        $result = $service->recordPpv($this->ordinaryUserId(), $campaignId);
-        self::assertNotNull($result);
-        self::assertSame(
-            100,
-            (int)$this->database->cell(
-                'SELECT cost_minor FROM campaign_events WHERE id=:id',
-                ['id' => $result['event_id']]
-            )
+    public function testVerifiedCampaignClickSnapshotsTalentAndDuplicateDoesNotConsumeBudget(): void
+    {
+        $this->database->query(
+            "UPDATE activity_reward_rules
+             SET points_amount=10,amount_minor=0,daily_limit=0,is_active=1
+             WHERE activity_type='ad_click_reward'"
         );
+        $service = $this->campaignService();
+        $campaignId = $service->create($this->adminId(), [
+            'client_name' => 'Reklamodawca PHPUnit',
+            'client_email' => 'ads@example.test',
+            'name' => 'Kliknięcie PHPUnit',
+            'type' => 'ad_click',
+            'status' => 'active',
+            'target_url' => 'https://example.test/landing',
+            'budget' => '10,00',
+            'cost_per_click' => '1,50',
+            'budget_confirmed' => '1',
+        ]);
+
+        $result = $service->recordClick($this->ordinaryUserId(), $campaignId);
+        self::assertNotNull($result);
+        $event = $this->database->one(
+            'SELECT * FROM campaign_events WHERE id=:id',
+            ['id' => (int)$result['event_id']]
+        );
+        self::assertSame('verified', $event['verification_status']);
+        self::assertSame('server_redirect', $event['proof_type']);
+        self::assertSame(150, (int)$event['cost_minor']);
+        self::assertSame(10, (int)$event['talent_points_snapshot']);
+        self::assertSame(0, (int)$event['reward_points']);
+        self::assertNotEmpty($event['talent_job_public_id']);
+
+        self::assertNull($service->recordClick($this->ordinaryUserId(), $campaignId));
+        self::assertSame(150, (int)$this->database->cell(
+            "SELECT SUM(cost_minor) FROM campaign_events WHERE campaign_id=:id AND verification_status='verified'",
+            ['id' => $campaignId]
+        ));
+        self::assertSame(1, (int)$this->database->cell(
+            'SELECT duplicate_attempts_count FROM campaigns WHERE id=:id',
+            ['id' => $campaignId]
+        ));
+
+        $this->database->query(
+            "UPDATE activity_reward_rules SET points_amount=1,is_active=0 WHERE activity_type='ad_click_reward'"
+        );
+        $worker = new DurableJobWorker(
+            new DurableJobQueue($this->database),
+            new EarningsJobHandler($this->database),
+            EarningsQueueService::QUEUE,
+            'phpunit-campaign-worker',
+        );
+        self::assertSame(1, $worker->runOne()['completed']);
+        self::assertSame(10, (int)$this->database->cell(
+            'SELECT reward_points FROM campaign_events WHERE id=:id',
+            ['id' => (int)$result['event_id']]
+        ));
+        self::assertSame(10, (int)$this->database->cell(
+            "SELECT points_amount FROM activity_reward_logs
+             WHERE activity_type='ad_click_reward' AND reference_type='campaign_event' AND reference_id=:id",
+            ['id' => (int)$result['event_id']]
+        ));
     }
 
     public function testManualTalentApprovalRejectsZeroOrNegativeReward(): void

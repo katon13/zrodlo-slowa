@@ -61,11 +61,12 @@ final class TalentService
             }
 
             $isResponsePublication = $activityType === 'response_publication_bonus';
+            $isCampaignEvent = $referenceType === 'campaign_event' && $referenceId !== null && $referenceId > 0;
             $rule = $db->one('SELECT * FROM activity_reward_rules WHERE activity_type=:type', ['type' => $activityType]);
-            if (!$rule && !$isResponsePublication) {
+            if (!$rule && !$isResponsePublication && !$isCampaignEvent) {
                 return $this->decision($userId, $activityType, 'missing_rule');
             }
-            if (!$isResponsePublication && (int)($rule['is_active'] ?? 0) !== 1) {
+            if (!$isResponsePublication && !$isCampaignEvent && (int)($rule['is_active'] ?? 0) !== 1) {
                 return $this->decision($userId, $activityType, 'inactive_rule');
             }
 
@@ -75,6 +76,14 @@ final class TalentService
                     return $this->decision($userId, $activityType, 'snapshot_ineligible');
                 }
                 $points = $responseSnapshot['points'];
+                $amountMinor = 0;
+            } elseif ($isCampaignEvent) {
+                $points = $this->campaignEventSnapshotPoints(
+                    $userId,
+                    $activityType,
+                    $referenceId,
+                    $context,
+                );
                 $amountMinor = 0;
             } else {
                 $points = $activityType === AppReferralService::ACTIVITY_TYPE
@@ -109,7 +118,7 @@ final class TalentService
             $this->ledger->walletForUser($userId);
             $this->ledger->lockWalletsForUsers([$userId]);
 
-            $dailyLimit = ($isResponsePublication || $activityType === 'survey_reward')
+            $dailyLimit = ($isResponsePublication || $isCampaignEvent || $activityType === 'survey_reward')
                 ? 0
                 : (int)($rule['daily_limit'] ?? 0);
             if ($dailyLimit > 0) {
@@ -229,8 +238,8 @@ final class TalentService
 
             if ($referenceType === 'campaign_event' && $referenceId !== null && $referenceId > 0) {
                 $db->query(
-                    'UPDATE campaign_events SET is_rewarded=1,reward_minor=:amount WHERE id=:id',
-                    ['amount' => $amountMinor, 'id' => $referenceId]
+                    'UPDATE campaign_events SET is_rewarded=1,reward_points=:points WHERE id=:id',
+                    ['points' => $points, 'id' => $referenceId]
                 );
             }
 
@@ -390,6 +399,43 @@ final class TalentService
         return ['qualified' => $qualified, 'points' => $points];
     }
 
+    /** @param array<string,mixed> $context */
+    private function campaignEventSnapshotPoints(
+        int $userId,
+        string $activityType,
+        int $eventId,
+        array $context,
+    ): int {
+        $event = $this->db->one(
+            'SELECT user_id,verification_status,talent_activity_type,talent_rule_qualified,
+                    talent_points_snapshot,talent_job_public_id
+             FROM campaign_events WHERE id=:id FOR UPDATE',
+            ['id' => $eventId]
+        );
+        if (
+            $event === null
+            || (int)$event['user_id'] !== $userId
+            || (string)$event['verification_status'] !== 'verified'
+            || (string)$event['talent_activity_type'] !== $activityType
+            || (bool)$event['talent_rule_qualified'] !== true
+        ) {
+            throw new \RuntimeException('Zdarzenie kampanii nie spełnia zapisanego kontraktu naliczenia TT.');
+        }
+        $points = (int)$event['talent_points_snapshot'];
+        $jobPublicId = trim((string)($context['job_public_id'] ?? ''));
+        $storedJobPublicId = trim((string)($event['talent_job_public_id'] ?? ''));
+        if (
+            $points <= 0
+            || $points > 1_000_000
+            || $jobPublicId === ''
+            || $storedJobPublicId === ''
+            || !hash_equals($storedJobPublicId, $jobPublicId)
+        ) {
+            throw new \RuntimeException('Zadanie Talent nie odpowiada snapshotowi zweryfikowanego zdarzenia kampanii.');
+        }
+        return $points;
+    }
+
     public function recentNotifications(int $userId, int $limit = 10): array
     {
         return $this->db->all('SELECT * FROM activity_bonus_notifications WHERE user_id=:user ORDER BY created_at DESC, id DESC LIMIT ' . (int)$limit, ['user' => $userId]);
@@ -424,6 +470,8 @@ final class TalentService
             'article_read_bonus',
             'response_publication_bonus',
             'survey_reward',
+            'ad_view_reward',
+            'ad_click_reward',
         ];
         if ($active && !in_array($type, $verifiedActivationTypes, true)) {
             throw new \RuntimeException('Ta reguła nie ma jeszcze wiarygodnego punktu wyzwolenia i nie może zostać aktywowana.');
@@ -458,6 +506,9 @@ final class TalentService
             }
             $amountMinor = 0;
             $limit = 0;
+        }
+        if (in_array($type, ['ad_view_reward', 'ad_click_reward'], true) && $amountMinor !== 0) {
+            throw new \InvalidArgumentException('Kampanie reklamowe przyznają użytkownikowi TT. Rozliczenie PLN pozostaje po stronie kampanii.');
         }
 
         $statement = $this->db->query('UPDATE activity_reward_rules SET points_amount=:points, submission_deposit_points=:deposit, amount_minor=:amount, daily_limit=:l, is_active=:s, updated_at=NOW() WHERE activity_type=:t', [

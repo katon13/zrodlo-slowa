@@ -188,6 +188,12 @@ abstract class BaseController
                 'user_id' => $this->app->session->userId(),
             ];
         }
+        if (!array_key_exists('unread_notifications_count', $data)) {
+            $notificationUserId = $this->app->session->userId();
+            $data['unread_notifications_count'] = $notificationUserId !== null
+                ? (new \App\Services\EarningsNotificationService($this->app->db))->unreadCount($notificationUserId)
+                : 0;
+        }
         if (!array_key_exists('tt_rate_label', $data)) {
             $paymentConfig = new \App\Services\PaymentRuntimeConfigService($this->app->db, $this->app->config['payments'] ?? []);
             $currencyService = new \App\Services\CurrencyRateService($this->app->cache);

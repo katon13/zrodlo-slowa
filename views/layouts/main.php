@@ -77,6 +77,7 @@ $content = (string)($content ?? '');
         <?php endif; ?>
         <form action="<?= e(public_language_url($currentLanguage, '/logout')) ?>" method="post" class="inline"><?= csrf_field() ?><button class="btn-logout" type="submit"><?= e(t('layout.auth.logout', $currentLanguage)) ?></button></form>
         
+        <?php $unreadNotificationCount = max(0, (int)($unread_notifications_count ?? 0)); ?>
         <a href="<?= e(public_language_url($currentLanguage, '/account/settings')) ?>" class="header-avatar-link" title="<?= e(t('account.settings.title', $currentLanguage)) ?>">
           <?php if (!empty($current_user_avatar)): ?>
             <img src="<?= e($current_user_avatar) ?>?t=<?= strtotime($current_user_avatar_updated_at ?? 'now') ?>" alt="" class="header-avatar-img">
@@ -85,6 +86,7 @@ $content = (string)($content ?? '');
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </div>
           <?php endif; ?>
+          <span class="zs-notification-badge" data-notification-badge aria-label="<?= e(t('notifications.unread_label', $currentLanguage)) ?>" <?= $unreadNotificationCount === 0 ? 'hidden' : '' ?>><?= $unreadNotificationCount > 99 ? '99+' : $unreadNotificationCount ?></span>
         </a>
       <?php else: ?>
         <a href="<?= e(public_language_url($currentLanguage, '/login')) ?>"><?= e(t('layout.auth.login', $currentLanguage)) ?></a>
@@ -163,10 +165,18 @@ document.addEventListener('DOMContentLoaded', function() {
       return stack;
     }
 
-    function acknowledge(items, nextCursor) {
-      if (!items.length) return Promise.resolve();
+    function updateNotificationBadge(count) {
+      var badge = document.querySelector('[data-notification-badge]');
+      if (!badge) return;
+      count = Math.max(0, parseInt(count || '0', 10));
+      badge.hidden = count === 0;
+      badge.textContent = count > 99 ? '99+' : String(count);
+    }
+
+    function acknowledge(ids) {
+      if (!ids.length) return Promise.resolve({ok: true});
       var body = new URLSearchParams();
-      items.forEach(function(item) { body.append('ids[]', String(item.id)); });
+      ids.forEach(function(id) { body.append('ids[]', String(id)); });
       return fetch('/api/earnings/notifications/ack', {
         method: 'POST',
         credentials: 'same-origin',
@@ -178,7 +188,10 @@ document.addEventListener('DOMContentLoaded', function() {
         body: body.toString()
       }).then(function(response) {
         if (!response.ok) throw new Error('notification_ack_failed');
-        sessionStorage.setItem(cursorKey, String(nextCursor));
+        return response.json();
+      }).then(function(payload) {
+        updateNotificationBadge(payload.unread_count || 0);
+        return payload;
       });
     }
 
@@ -192,6 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return response.json();
       }).then(function(payload) {
         var items = Array.isArray(payload.items) ? payload.items : [];
+        updateNotificationBadge(payload.unread_count || 0);
         var stack = notificationStack();
         items.forEach(function(item) {
           if (!stack || stack.querySelector('[data-earning-notification-id="' + item.id + '"]')) return;
@@ -202,11 +216,23 @@ document.addEventListener('DOMContentLoaded', function() {
           message.textContent = String(item.message || item.title || '');
           var recorded = document.createElement('small');
           recorded.textContent = <?= json_encode($brandName . ' ' . t('wallet.activity_recorded', $currentLanguage), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+          var markRead = document.createElement('button');
+          markRead.type = 'button';
+          markRead.className = 'earning-toast-read';
+          markRead.textContent = <?= json_encode(t('notifications.mark_read', $currentLanguage), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+          markRead.addEventListener('click', function() {
+            markRead.disabled = true;
+            acknowledge([parseInt(item.id, 10)]).then(function() {
+              toast.remove();
+            }).catch(function() { markRead.disabled = false; });
+          });
           toast.appendChild(message);
           toast.appendChild(recorded);
+          toast.appendChild(markRead);
           stack.appendChild(toast);
         });
-        return acknowledge(items, Math.max(cursor, parseInt(payload.next_cursor || cursor, 10)));
+        sessionStorage.setItem(cursorKey, String(Math.max(cursor, parseInt(payload.next_cursor || cursor, 10))));
+        return payload;
       });
     }
 

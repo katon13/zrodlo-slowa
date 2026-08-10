@@ -14,6 +14,7 @@
     <string name="notifications_empty">Keine neuen Benachrichtigungen.</string>
     <string name="notifications_error">Benachrichtigungen konnten nicht geladen werden. Bitte Verbindung prüfen.</string>
     <string name="notifications_mark_all_read">Alle als gelesen markieren</string>
+    <string name="notifications_mark_read">Als gelesen markieren</string>
 
     <string name="action_change_language">Sprache ändern</string>
     <string name="action_language_automatic">Automatisch</string>

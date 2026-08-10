@@ -150,5 +150,11 @@ final class FreshInstallTest extends TestCase
         $secondRun = $installer->install();
         self::assertSame('migrate', $secondRun['mode']);
         self::assertSame('preserved', $secondRun['admin']['status']);
+
+        unset($_ENV['ADMIN_EMAIL'], $_ENV['ADMIN_DISPLAY_NAME'], $_ENV['ADMIN_PASSWORD']);
+        $migrationOnlyRun = $installer->migrate();
+        self::assertTrue($migrationOnlyRun['ok']);
+        self::assertSame('migrate', $migrationOnlyRun['mode']);
+        self::assertFalse($migrationOnlyRun['schema_loaded']);
     }
 }

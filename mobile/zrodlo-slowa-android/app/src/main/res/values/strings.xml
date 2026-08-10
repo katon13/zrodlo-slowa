@@ -14,6 +14,7 @@
     <string name="notifications_empty">Brak nowych powiadomień.</string>
     <string name="notifications_error">Nie udało się pobrać powiadomień. Sprawdź połączenie.</string>
     <string name="notifications_mark_all_read">Oznacz wszystkie jako przeczytane</string>
+    <string name="notifications_mark_read">Oznacz jako przeczytane</string>
 
     <string name="action_change_language">Zmień język</string>
     <string name="action_language_automatic">Automatycznie</string>
