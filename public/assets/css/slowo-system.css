@@ -6666,16 +6666,6 @@ code {
   flex: 0 0 auto;
   color: #b7aaa6;
 }
-.zs-home-value-split > small {
-  display: block;
-  margin-bottom: 3px;
-  color: #7a6f6b;
-  font-size: 10px;
-  font-weight: 850;
-  letter-spacing: .08em;
-  line-height: 1.25;
-  text-transform: uppercase;
-}
 .zs-home-value-split { min-width: 0; }
 .zs-home-value-bar {
   display: flex;

@@ -311,14 +311,6 @@
     "it": "acquista l’accesso",
     "es": "compra el acceso"
   },
-  "home.value_flow.split_label": {
-    "pl": "Przychód dzieli się automatycznie",
-    "en": "Revenue is split automatically",
-    "de": "Der Erlös wird automatisch aufgeteilt",
-    "fr": "Le revenu est réparti automatiquement",
-    "it": "Il ricavo viene ripartito automaticamente",
-    "es": "El ingreso se reparte automáticamente"
-  },
   "home.value_flow.split_aria": {
     "pl": "Podział przychodu: {split}",
     "en": "Revenue split: {split}",

@@ -227,7 +227,6 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
             <strong><?= e(t('home.value_flow.step_purchase_label', $currentLanguage)) ?> <?= e(t('home.value_flow.step_purchase', $currentLanguage)) ?></strong>
           </div>
           <div class="zs-home-value-split">
-            <small><?= e(t('home.value_flow.split_label', $currentLanguage)) ?></small>
             <div
               class="zs-home-value-bar"
               role="img"
