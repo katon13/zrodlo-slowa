@@ -251,7 +251,7 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
         <article class="zs-home-value-axis is-reader">
           <span class="zs-home-value-axis-label"><?= e(t('home.value_flow.reader_benefit_label', $currentLanguage)) ?></span>
           <h3><?= e(t('home.value_flow.reader_axis_title', $currentLanguage)) ?></h3>
-          <p><?= e(t('home.value_flow.reader_benefit', $currentLanguage)) ?></p>
+          <p class="zs-home-value-reader-activity"><?= e(t('home.value_flow.reader_benefit', $currentLanguage)) ?></p>
           <p class="zs-home-value-more"><?= e(t('home.value_flow.more', $currentLanguage)) ?></p>
         </article>
       </div>

@@ -328,12 +328,12 @@
     "es": "Reparto del ingreso: {split}"
   },
   "home.value_flow.more": {
-    "pl": "Za aktywności objęte Talentem, reklamy i kampanie czytelnik zdobywa TT. Twórca otrzymuje TT także za opublikowaną polemikę.",
-    "en": "Readers earn TT for eligible Talent activities, advertising and campaigns. Creators also receive TT for a published response.",
-    "de": "Leser verdienen TT für berechtigte Talent-Aktivitäten, Werbung und Kampagnen. Kreative erhalten TT auch für eine veröffentlichte Replik.",
-    "fr": "Le lecteur gagne des TT pour les activités Talent éligibles, la publicité et les campagnes. Le créateur en reçoit aussi pour une réponse publiée.",
-    "it": "Il lettore guadagna TT per le attività Talent idonee, la pubblicità e le campagne. Il creatore li riceve anche per una replica pubblicata.",
-    "es": "El lector gana TT por actividades Talent elegibles, publicidad y campañas. El creador también los recibe por una réplica publicada."
+    "pl": "Masz coś do powiedzenia? Możesz odpowiedzieć własną opinią lub polemiką.",
+    "en": "Have something to say? You can respond with your own opinion or response article.",
+    "de": "Hast du etwas zu sagen? Du kannst mit deiner eigenen Meinung oder Replik antworten.",
+    "fr": "Vous avez quelque chose à dire ? Vous pouvez répondre par votre propre opinion ou réplique.",
+    "it": "Hai qualcosa da dire? Puoi rispondere con una tua opinione o replica.",
+    "es": "¿Tienes algo que decir? Puedes responder con tu propia opinión o réplica."
   },
   "home.value_flow.reader_benefit_label": {
     "pl": "Dla czytelnika",
@@ -352,20 +352,20 @@
     "es": "Para el creador"
   },
   "home.value_flow.reader_axis_title": {
-    "pl": "Czytasz. Zdobywasz TT. Możesz publikować.",
-    "en": "Read. Earn TT. Become a columnist.",
-    "de": "Lesen. TT verdienen. Selbst publizieren.",
-    "fr": "Lire. Gagner des TT. Devenir chroniqueur.",
-    "it": "Leggi. Guadagna TT. Diventa editorialista.",
-    "es": "Lee. Gana TT. Conviértete en articulista."
+    "pl": "Nie tylko płacisz. Zdobywasz TT.",
+    "en": "You do more than pay. You earn TT.",
+    "de": "Du zahlst nicht nur. Du verdienst TT.",
+    "fr": "Vous ne faites pas que payer. Vous gagnez des TT.",
+    "it": "Non paghi soltanto. Guadagni TT.",
+    "es": "No solo pagas. Ganas TT."
   },
   "home.value_flow.reader_benefit": {
-    "pl": "Dostaje wartościowy tekst i widzi, kogo wspiera zakup. Może też zostać publicystą — przygotować własny tekst lub polemikę.",
-    "en": "Readers get valuable work and see whom their purchase supports. They can also become columnists and prepare their own article or response.",
-    "de": "Leser erhalten wertvolle Inhalte und sehen, wen ihr Kauf unterstützt. Sie können auch publizieren und einen eigenen Text oder eine Replik verfassen.",
-    "fr": "Le lecteur accède à un contenu de qualité et voit qui bénéficie de son achat. Il peut aussi devenir chroniqueur et préparer son article ou sa réponse.",
-    "it": "Il lettore accede a contenuti di valore e vede chi sostiene con l’acquisto. Può anche diventare editorialista e preparare un proprio articolo o una replica.",
-    "es": "El lector accede a contenido de valor y ve a quién apoya con su compra. También puede ser articulista y preparar su propio texto o réplica."
+    "pl": "Czytasz • oglądasz reklamy • bierzesz udział • zdobywasz TT",
+    "en": "Read • watch ads • take part • earn TT",
+    "de": "Lesen • Werbung ansehen • teilnehmen • TT verdienen",
+    "fr": "Lire • voir des publicités • participer • gagner des TT",
+    "it": "Leggi • guarda le pubblicità • partecipa • guadagna TT",
+    "es": "Lee • mira anuncios • participa • gana TT"
   },
   "home.premium.title": {
     "pl": "Źródło Słowa Premium",
