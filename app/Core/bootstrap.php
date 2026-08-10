@@ -213,9 +213,6 @@ function is_admin_request(): bool {
 function t(string $translationKey, ?string $language = null): string {
     static $service = null;
     static $in_t = false;
-    if ($language === null && function_exists('is_admin_request') && is_admin_request()) {
-        $language = 'pl';
-    }
     if ($in_t) {
         if ($translationKey === 'brand.name') return 'ŹRÓDŁO SŁOWA';
         if (is_admin_request()) {

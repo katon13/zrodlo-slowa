@@ -25,10 +25,10 @@ final class CampaignService
     public function types(): array
     {
         return [
-            'ad_click' => 'Baner — przejście do reklamodawcy',
-            'ad_view' => 'Film — potwierdzone obejrzenie',
-            'sponsored_article' => 'Artykuł sponsorowany — przeczytanie',
-            'survey_ad' => 'Ankieta — ukończenie',
+            'ad_click' => t('campaign.type.ad_click'),
+            'ad_view' => t('campaign.type.ad_view'),
+            'sponsored_article' => t('campaign.type.sponsored_article'),
+            'survey_ad' => t('campaign.type.survey_ad'),
         ];
     }
 
@@ -36,9 +36,9 @@ final class CampaignService
     public function placements(): array
     {
         return [
-            'home' => 'Strona główna',
-            'article' => 'Pod artykułem',
-            'campaigns' => 'Strona kampanii',
+            'home' => t('admin.campaigns.placement.home'),
+            'article' => t('admin.campaigns.placement.article'),
+            'campaigns' => t('admin.campaigns.placement.campaigns'),
         ];
     }
 
@@ -46,10 +46,10 @@ final class CampaignService
     public function statuses(): array
     {
         return [
-            'draft' => 'Szkic',
-            'active' => 'Aktywna',
-            'paused' => 'Wstrzymana',
-            'closed' => 'Zakończona',
+            'draft' => t('article.status.draft'),
+            'active' => t('admin.surveys.status_active'),
+            'paused' => t('admin.surveys.status_paused'),
+            'closed' => t('admin.partials.campaign_form.zakonczona'),
         ];
     }
 
@@ -65,7 +65,6 @@ final class CampaignService
                 'activity_type' => 'ad_click_reward',
                 'cost_field' => 'cost_per_click_minor',
                 'ready' => true,
-                'proof' => 'Przekierowanie wykonuje serwer. Liczymy najwyżej jedno zweryfikowane kliknięcie użytkownika dziennie.',
                 'proof_key' => 'campaign.proof.ad_click',
             ],
             'ad_view' => [
@@ -73,7 +72,6 @@ final class CampaignService
                 'activity_type' => 'ad_view_reward',
                 'cost_field' => 'cost_per_view_minor',
                 'ready' => true,
-                'proof' => 'Serwer wydaje jednorazowy dowód, mierzy czas i odrzuca ukrytą lub zbyt krótką sesję.',
                 'proof_key' => 'campaign.proof.ad_view',
             ],
             'sponsored_article' => [
@@ -81,7 +79,6 @@ final class CampaignService
                 'activity_type' => 'article_read_bonus',
                 'cost_field' => 'cost_per_view_minor',
                 'ready' => true,
-                'proof' => 'Rozliczenie następuje po potwierdzeniu czasu i postępu czytania przypiętego artykułu.',
                 'proof_key' => 'campaign.proof.sponsored_article',
             ],
             'survey_ad' => [
@@ -89,7 +86,6 @@ final class CampaignService
                 'activity_type' => 'survey_reward',
                 'cost_field' => 'cost_per_completed_survey_minor',
                 'ready' => true,
-                'proof' => 'Rozliczenie następuje po zapisaniu kompletnej odpowiedzi w przypiętej ankiecie.',
                 'proof_key' => 'campaign.proof.survey',
             ],
         ];
@@ -97,6 +93,7 @@ final class CampaignService
         foreach ($definitions as $type => &$definition) {
             $rule = $this->talentRule((string)$definition['activity_type']);
             $definition['label'] = $this->types()[$type];
+            $definition['proof'] = t((string)$definition['proof_key']);
             $definition['talent_active'] = (int)($rule['is_active'] ?? 0) === 1;
             $definition['talent_points'] = (int)($rule['points_amount'] ?? 0);
             $definition['activation_ready'] = $definition['talent_active']
@@ -228,7 +225,7 @@ final class CampaignService
     {
         $campaign = $this->find($id);
         if ($campaign === null) {
-            throw new \RuntimeException('Nie znaleziono kampanii.');
+            throw new \RuntimeException(t('admin.campaigns.error.not_found'));
         }
         $events = $this->db->all(
             'SELECT event_type,verification_status,COUNT(*) cnt,
@@ -295,7 +292,7 @@ final class CampaignService
     public function update(int $id, int $adminId, array $data): void
     {
         if ($this->find($id) === null) {
-            throw new \RuntimeException('Nie znaleziono kampanii.');
+            throw new \RuntimeException(t('admin.campaigns.error.not_found'));
         }
         $this->db->transaction(function (Database $_db) use ($id, $adminId, $data): void {
             $this->save($id, $adminId, $data);
@@ -406,7 +403,7 @@ final class CampaignService
     public function recordDelivery(int $campaignId, ?int $userId, string $sessionHash, string $eventType): bool
     {
         if (!in_array($eventType, ['impression', 'start'], true) || preg_match('/^[a-f0-9]{64}$/D', $sessionHash) !== 1) {
-            throw new \InvalidArgumentException('Nieprawidłowe zdarzenie emisji kampanii.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.invalid_delivery_event'));
         }
         if ($this->findActive($campaignId) === null) {
             return false;
@@ -433,38 +430,38 @@ final class CampaignService
         $type = (string)($data['type'] ?? 'ad_click');
         $status = (string)($data['status'] ?? 'draft');
         if (!array_key_exists($type, $types)) {
-            throw new \InvalidArgumentException('Wybierz prawidłowy typ kampanii.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.invalid_type'));
         }
         if (!array_key_exists($status, $statuses)) {
-            throw new \InvalidArgumentException('Wybierz prawidłowy status kampanii.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.invalid_status'));
         }
 
         $name = trim((string)($data['name'] ?? ''));
         if ($name === '') {
-            throw new \InvalidArgumentException('Podaj nazwę kampanii.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.name_required'));
         }
         $clientName = trim((string)($data['client_name'] ?? ''));
         if ($clientName === '') {
-            throw new \InvalidArgumentException('Podaj nazwę zleceniodawcy.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.client_required'));
         }
         $clientEmail = trim((string)($data['client_email'] ?? '')) ?: null;
         if ($clientEmail !== null && filter_var($clientEmail, FILTER_VALIDATE_EMAIL) === false) {
-            throw new \InvalidArgumentException('Podaj poprawny adres e-mail zleceniodawcy.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.invalid_client_email'));
         }
         $targetUrl = trim((string)($data['target_url'] ?? '')) ?: null;
         if ($targetUrl !== null && filter_var($targetUrl, FILTER_VALIDATE_URL) === false) {
-            throw new \InvalidArgumentException('Podaj poprawny pełny link docelowy kampanii.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.invalid_target_url'));
         }
         $startsAt = $this->dateOrNull($data['starts_at'] ?? null);
         $endsAt = $this->dateOrNull($data['ends_at'] ?? null);
         if ($startsAt !== null && $endsAt !== null && strtotime($endsAt) <= strtotime($startsAt)) {
-            throw new \InvalidArgumentException('Koniec kampanii musi przypadać po jej rozpoczęciu.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.invalid_date_range'));
         }
 
         $existing = $id !== null ? $this->find($id) : null;
         $placement = (string)($data['placement'] ?? ($existing['placement'] ?? 'campaigns'));
         if (!array_key_exists($placement, $this->placements())) {
-            throw new \InvalidArgumentException('Wybierz miejsce emisji kampanii.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.invalid_placement'));
         }
         $linkedArticleId = max(0, (int)($data['linked_article_id'] ?? ($existing['linked_article_id'] ?? 0))) ?: null;
         $linkedSurveyId = max(0, (int)($data['linked_survey_id'] ?? ($existing['linked_survey_id'] ?? 0))) ?: null;
@@ -504,31 +501,31 @@ final class CampaignService
             default => $payload['cpv'],
         };
         if ($payload['budget'] > 0 && $eventCost > $payload['budget']) {
-            throw new \InvalidArgumentException('Cena jednego zweryfikowanego zdarzenia nie może przekraczać budżetu kampanii.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.event_cost_exceeds_budget'));
         }
 
         if ($status === 'active') {
             if (!in_array($type, self::READY_TYPES, true) || ($definition['ready'] ?? false) !== true) {
-                throw new \RuntimeException('Ten typ kampanii pozostaje w szkicu, dopóki nie ma wiarygodnego dowodu zdarzenia.');
+                throw new \RuntimeException(t('admin.campaigns.error.type_not_ready'));
             }
             if (!$payload['budget_confirmed']) {
-                throw new \InvalidArgumentException('Przed aktywacją potwierdź przyjęcie zlecenia i budżetu reklamodawcy.');
+                throw new \InvalidArgumentException(t('admin.campaigns.error.confirm_budget'));
             }
             if ($payload['budget'] <= 0 || $eventCost <= 0) {
-                throw new \InvalidArgumentException('Aktywna kampania musi mieć dodatni budżet i cenę zweryfikowanego zdarzenia.');
+                throw new \InvalidArgumentException(t('admin.campaigns.error.active_budget_and_cost'));
             }
             if ($type === 'ad_click' && ($targetUrl === null || $creativePath === null || !str_starts_with((string)$creativeMime, 'image/'))) {
-                throw new \InvalidArgumentException('Aktywny baner wymaga obrazu i prawidłowego linku docelowego.');
+                throw new \InvalidArgumentException(t('admin.campaigns.error.banner_requirements'));
             }
             if ($type === 'ad_view' && ($creativePath === null || !str_starts_with((string)$creativeMime, 'video/'))) {
-                throw new \InvalidArgumentException('Aktywna kampania filmowa wymaga przesłanego filmu.');
+                throw new \InvalidArgumentException(t('admin.campaigns.error.video_requirements'));
             }
             if ($type === 'sponsored_article') {
                 $article = $linkedArticleId !== null
                     ? $this->db->one("SELECT id FROM articles WHERE id=:id AND status='published' LIMIT 1", ['id' => $linkedArticleId])
                     : null;
                 if ($article === null) {
-                    throw new \InvalidArgumentException('Wybierz opublikowany artykuł sponsorowany.');
+                    throw new \InvalidArgumentException(t('admin.campaigns.error.published_article_required'));
                 }
             }
             if ($type === 'survey_ad') {
@@ -536,7 +533,7 @@ final class CampaignService
                     ? $this->db->one("SELECT id FROM surveys WHERE id=:id AND status='active' LIMIT 1", ['id' => $linkedSurveyId])
                     : null;
                 if ($survey === null) {
-                    throw new \InvalidArgumentException('Wybierz aktywną ankietę.');
+                    throw new \InvalidArgumentException(t('admin.campaigns.error.active_survey_required'));
                 }
             }
             if (in_array($type, ['sponsored_article', 'survey_ad'], true)) {
@@ -547,17 +544,19 @@ final class CampaignService
                     ['linked' => $linkedId, 'type' => $type, 'id' => $id ?? 0],
                 );
                 if ($duplicate !== null) {
-                    throw new \InvalidArgumentException('Ten materiał jest już przypięty do innej aktywnej kampanii.');
+                    throw new \InvalidArgumentException(t('admin.campaigns.error.material_already_active'));
                 }
             }
             if (($definition['talent_active'] ?? false) !== true || (int)$definition['talent_points'] <= 0) {
-                throw new \RuntimeException('Najpierw ustaw i włącz odpowiadającą regułę w Ustawienia → Program Talent.');
+                throw new \RuntimeException(t('admin.campaigns.error.talent_rule_required'));
             }
             $talentCost = $this->pointsLiabilityMinor((int)$definition['talent_points']);
             if ($eventCost <= $talentCost) {
-                throw new \InvalidArgumentException(
-                    'Cena zdarzenia musi być wyższa od kosztu TT (' . $this->formatMoney($talentCost) . '), aby kampania generowała dodatnią marżę.'
-                );
+                throw new \InvalidArgumentException(str_replace(
+                    '{cost}',
+                    $this->formatMoney($talentCost),
+                    t('admin.campaigns.error.positive_margin'),
+                ));
             }
         }
 
@@ -638,7 +637,7 @@ final class CampaignService
                 ['id' => $campaignId],
             );
             if ($campaign === null) {
-                throw new \RuntimeException('Ta kampania nie jest teraz aktywna.');
+                throw new \RuntimeException(t('campaign.error.not_active'));
             }
 
             $definition = $this->typeDefinitions()[(string)$campaign['type']] ?? null;
@@ -647,10 +646,10 @@ final class CampaignService
                 || (string)$definition['event_type'] !== $eventType
                 || (string)$definition['activity_type'] !== $activityType
             ) {
-                throw new \RuntimeException('Ta akcja nie jest właściwa dla wybranej kampanii.');
+                throw new \RuntimeException(t('campaign.error.invalid_action'));
             }
             if ($eventType === 'view' && $watchSeconds < (int)($campaign['minimum_view_seconds'] ?? 15)) {
-                throw new \RuntimeException('Materiał nie był oglądany przez wymagany czas kampanii.');
+                throw new \RuntimeException(t('campaign.error.minimum_time'));
             }
 
             $today = date('Y-m-d');
@@ -676,7 +675,7 @@ final class CampaignService
             $allowed = ($guard['allowed'] ?? false) === true;
             $rule = $this->talentRule($activityType);
             if ($allowed && ((int)($rule['is_active'] ?? 0) !== 1 || (int)($rule['points_amount'] ?? 0) <= 0)) {
-                throw new \RuntimeException('Kampania została bezpiecznie zatrzymana, ponieważ jej reguła Talent nie jest aktywna.');
+                throw new \RuntimeException(t('campaign.error.talent_rule_inactive'));
             }
 
             $eventCost = match ((string)$definition['cost_field']) {
@@ -686,7 +685,7 @@ final class CampaignService
             };
             $points = $allowed ? (int)($rule['points_amount'] ?? 0) : 0;
             if ($allowed && $eventCost <= $this->pointsLiabilityMinor($points)) {
-                throw new \RuntimeException('Kampania została zatrzymana, ponieważ aktualna stawka nie pokrywa kosztu TT.');
+                throw new \RuntimeException(t('campaign.error.rate_below_talent_cost'));
             }
 
             $verifiedCount = (int)$db->cell(
@@ -694,14 +693,14 @@ final class CampaignService
                 ['id' => $campaignId],
             );
             if ($allowed && (int)$campaign['max_verified_events'] > 0 && $verifiedCount >= (int)$campaign['max_verified_events']) {
-                throw new \RuntimeException('Limit zweryfikowanych zdarzeń tej kampanii został osiągnięty.');
+                throw new \RuntimeException(t('campaign.error.event_limit_reached'));
             }
             $spent = (int)$db->cell(
                 "SELECT COALESCE(SUM(cost_minor),0) FROM campaign_events WHERE campaign_id=:id AND verification_status='verified'",
                 ['id' => $campaignId],
             );
             if ($allowed && (int)$campaign['budget_minor'] > 0 && ($spent + $eventCost) > (int)$campaign['budget_minor']) {
-                throw new \RuntimeException('Budżet tej kampanii został wykorzystany.');
+                throw new \RuntimeException(t('campaign.error.budget_exhausted'));
             }
 
             $publicId = $this->uuidV4();
@@ -767,7 +766,7 @@ final class CampaignService
                 $eventId,
             );
             if (($award['queued'] ?? false) !== true || empty($award['public_id'])) {
-                throw new \RuntimeException('Nie udało się atomowo zakolejkować należnych TT. Zdarzenie nie zostało rozliczone.');
+                throw new \RuntimeException(t('campaign.error.reward_queue_failed'));
             }
             $db->query(
                 'UPDATE campaign_events SET talent_job_public_id=:job WHERE id=:id',
@@ -808,7 +807,7 @@ final class CampaignService
         ?string $talentJobPublicId,
     ): ?array {
         if ($talentJobPublicId === null || preg_match('/^[a-f0-9-]{36}$/D', $talentJobPublicId) !== 1) {
-            throw new \RuntimeException('Nie rozliczono kampanii, ponieważ należne TT nie trafiły do kolejki Talent.');
+            throw new \RuntimeException(t('campaign.error.reward_not_queued'));
         }
         return $this->db->transaction(function (Database $db) use (
             $userId,
@@ -841,7 +840,7 @@ final class CampaignService
                     && (int)($talentPayload['response_id'] ?? 0) === $sourceId)
             );
             if (!$jobMatchesSource) {
-                throw new \RuntimeException('Zadanie Talent nie odpowiada potwierdzonemu działaniu kampanii.');
+                throw new \RuntimeException(t('campaign.error.invalid_talent_job'));
             }
             $campaign = $db->one(
                 "SELECT * FROM campaigns
@@ -859,7 +858,7 @@ final class CampaignService
                 || (string)$definition['event_type'] !== $eventType
                 || (string)$definition['activity_type'] !== $activityType
             ) {
-                throw new \RuntimeException('Kampania nie odpowiada potwierdzonemu działaniu.');
+                throw new \RuntimeException(t('campaign.error.event_mismatch'));
             }
             $idempotencyKey = implode(':', ['campaign', $campaignId, $userId, $eventType, $sourceType, $sourceId]);
             if ($db->one('SELECT id FROM campaign_events WHERE idempotency_key=:key LIMIT 1', ['key' => $idempotencyKey])) {
@@ -871,7 +870,7 @@ final class CampaignService
             }
             $rule = $this->talentRule($activityType);
             if ((int)($rule['is_active'] ?? 0) !== 1 || (int)($rule['points_amount'] ?? 0) <= 0) {
-                throw new \RuntimeException('Kampania została wstrzymana, ponieważ odpowiadająca nagroda TT jest wyłączona.');
+                throw new \RuntimeException(t('campaign.error.reward_disabled'));
             }
             $eventCost = match ((string)$definition['cost_field']) {
                 'cost_per_completed_survey_minor' => (int)$campaign['cost_per_completed_survey_minor'],
@@ -879,7 +878,7 @@ final class CampaignService
             };
             $points = (int)$rule['points_amount'];
             if ($eventCost <= $this->pointsLiabilityMinor($points)) {
-                throw new \RuntimeException('Kampania została wstrzymana, ponieważ stawka nie pokrywa nagrody TT.');
+                throw new \RuntimeException(t('campaign.error.rate_below_reward'));
             }
             $verifiedCount = (int)$db->cell(
                 "SELECT COUNT(*) FROM campaign_events WHERE campaign_id=:id AND verification_status='verified'",
@@ -1008,7 +1007,7 @@ final class CampaignService
             return 0;
         }
         if (!is_numeric($normalized)) {
-            throw new \InvalidArgumentException('Kwoty kampanii muszą być liczbami.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.amounts_numeric'));
         }
         return max(0, (int)round(((float)$normalized) * 100));
     }
@@ -1021,7 +1020,7 @@ final class CampaignService
         }
         $timestamp = strtotime($value);
         if ($timestamp === false) {
-            throw new \InvalidArgumentException('Podano nieprawidłową datę kampanii.');
+            throw new \InvalidArgumentException(t('admin.campaigns.error.invalid_date'));
         }
         return date('Y-m-d H:i:s', $timestamp);
     }

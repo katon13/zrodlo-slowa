@@ -79,9 +79,13 @@ final class PublicLanguageService
             }
         }
 
-        // 9. Tylko requesty nie-GET bez jawnego języka mogą awaryjnie użyć sesji.
-        // Zwykłe GET /wallet albo / nie mogą używać sesji, bo wtedy / po DE zostaje DE.
-        if ($method !== 'GET') {
+        // 9. Panel operatora zachowuje jawnie wybrany język także pomiędzy zwykłymi
+        // linkami /admin/*. Front publiczny nadal nie dziedziczy sesji dla GET, aby
+        // wejście na / po stronie DE nie przełączało automatycznie strony głównej.
+        $normalizedPath = (string)(parse_url($normalizedUri['path'], PHP_URL_PATH) ?: '/');
+        $adminGetMayUseSession = $method === 'GET'
+            && ($normalizedPath === '/admin' || str_starts_with($normalizedPath, '/admin/'));
+        if ($method !== 'GET' || $adminGetMayUseSession) {
             $sessionLanguage = $_SESSION['interface_language'] ?? null;
             if (is_string($sessionLanguage) && $this->isEnabled($sessionLanguage)) {
                 return $this->normalize($sessionLanguage);

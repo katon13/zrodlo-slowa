@@ -30,11 +30,52 @@ async function main() {
     page.waitForLoadState('networkidle'),
     page.locator('form button[type="submit"]').click(),
   ]);
-  const adminResponse = await page.goto('http://localhost:8080/admin/settings', { waitUntil: 'networkidle' });
+  const adminResponse = await page.goto('http://localhost:8080/admin/settings', { waitUntil: 'domcontentloaded' });
   if (!adminResponse || !adminResponse.ok() || page.url().includes('/login')) {
     throw new Error(`Admin page is unavailable after login: ${page.url()}`);
   }
+  await page.locator('h1').waitFor();
   await page.screenshot({ path: path.join(outputDirectory, 'panel-admina-ustawienia-talent.png'), fullPage: true });
+
+  const adminEnglishResponse = await page.goto('http://localhost:8080/en/admin/settings', { waitUntil: 'domcontentloaded' });
+  if (!adminEnglishResponse || !adminEnglishResponse.ok()) throw new Error('English admin page did not return HTTP 200.');
+  const adminEnglishLanguage = await page.locator('html').getAttribute('lang');
+  if (adminEnglishLanguage !== 'en') throw new Error(`English admin language mismatch: ${adminEnglishLanguage}`);
+  const adminEnglishBody = await page.locator('body').innerText();
+  const expectedEnglishTalentCopy = [
+    'Settings and Talent',
+    'Getting started and active presence',
+    'Reading and community',
+    'Surveys and campaigns',
+    'Account creation',
+    'Active daily visit',
+    'Article read',
+    'Published opinion or response',
+    'Bug report',
+    'Survey participation',
+    'Advertisement view',
+    'Advertisement click',
+  ];
+  const missingEnglishTalentCopy = expectedEnglishTalentCopy.filter((copy) => !adminEnglishBody.includes(copy));
+  const leakedPolishTalentCopy = [
+    'Start i aktywna obecność',
+    'Czytanie i społeczność',
+    'Ankiety i kampanie',
+    'Założenie konta',
+    'Aktywna wizyta dzienna',
+  ].filter((copy) => adminEnglishBody.includes(copy));
+  await page.screenshot({ path: path.join(outputDirectory, 'panel-admina-ustawienia-talent-en.png'), fullPage: true });
+  if (missingEnglishTalentCopy.length > 0 || leakedPolishTalentCopy.length > 0) {
+    const talentStart = adminEnglishBody.indexOf('Talent Program');
+    const talentExcerpt = adminEnglishBody.slice(Math.max(0, talentStart), Math.max(0, talentStart) + 2200);
+    throw new Error(`English Talent localization mismatch. Missing: ${missingEnglishTalentCopy.join(', ')}; Polish: ${leakedPolishTalentCopy.join(', ')}; excerpt: ${talentExcerpt}`);
+  }
+
+  const persistedAdminResponse = await page.goto('http://localhost:8080/admin/settings', { waitUntil: 'domcontentloaded' });
+  const persistedAdminLanguage = await page.locator('html').getAttribute('lang');
+  if (!persistedAdminResponse || !persistedAdminResponse.ok() || persistedAdminLanguage !== 'en') {
+    throw new Error(`Admin language was not retained: ${persistedAdminLanguage}`);
+  }
 
   const body = await page.locator('body').innerText();
   const leakedKeys = body.match(/\b(?:admin|ui|controller)\.[a-z0-9_.]+\b/g) || [];
@@ -42,6 +83,11 @@ async function main() {
   process.stdout.write(JSON.stringify({
     publicStatus: publicResponse.status(),
     adminStatus: adminResponse.status(),
+    adminEnglishStatus: adminEnglishResponse.status(),
+    adminEnglishLanguage,
+    persistedAdminLanguage,
+    missingEnglishTalentCopy,
+    leakedPolishTalentCopy,
     leakedKeys: [...new Set(leakedKeys)],
     consoleErrors,
     failedResponses: [...new Set(failedResponses)],

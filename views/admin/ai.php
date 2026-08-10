@@ -48,7 +48,7 @@ $lastTestError = (string)($ai_settings['ai.openai.last_test_error'] ?? '');
 </section>
 
 <section class="zs-ai-top-line" aria-label="<?= e(t('admin.ai.podsumowanie_ai')) ?>">
-  <article class="zs-ai-mini-card"><span><?= e(t('admin.ai.praca_ai')) ?></span><strong><?= (int)($ai_summary['jobs_count'] ?? 0) ?></strong><small><?= (int)($ai_summary['planned_jobs_count'] ?? 0) ?> zaplanowanych</small></article>
+  <article class="zs-ai-mini-card"><span><?= e(t('admin.ai.praca_ai')) ?></span><strong><?= (int)($ai_summary['jobs_count'] ?? 0) ?></strong><small><?= e(str_replace('{count}', (string)(int)($ai_summary['planned_jobs_count'] ?? 0), t('admin.ai.planned_count'))) ?></small></article>
   <article class="zs-ai-mini-card"><span><?= e(t('article.language_versions')) ?></span><strong><?= (int)($ai_summary['translations_count'] ?? 0) ?></strong><small><?= e(str_replace('{count}', (string)(int)($ai_summary['draft_translations_count'] ?? 0), t('admin.ai.drafts_count'))) ?></small></article>
   <article class="zs-ai-mini-card"><span><?= e(t('admin.ai.slad_pracy')) ?></span><strong><?= (int)($ai_summary['events_count'] ?? 0) ?></strong><small><?= e(str_replace('{count}', (string)(int)($ai_summary['prompts_count'] ?? 0), t('admin.ai.instructions_count'))) ?></small></article>
   <article class="zs-ai-mini-card"><span><?= e(t('admin.ai.dzisiaj_miesiac')) ?></span><strong><?= (int)($ai_summary['translation_jobs_today'] ?? 0) ?> / <?= (int)($ai_summary['translation_jobs_month'] ?? 0) ?></strong><small><?= e(t('admin.ai.tumaczenia_uruchomione_przez_redakcje')) ?></small></article>
@@ -61,7 +61,7 @@ $lastTestError = (string)($ai_settings['ai.openai.last_test_error'] ?? '');
       <h2><?= e(t('admin.ai.poaczenie_z_ai')) ?></h2>
     </div>
     <span class="zs-ai-led <?= ($keyConfigured && $lastTestStatus === 'success') ? 'is-ok' : '' ?>"><?= ($keyConfigured && $lastTestStatus === 'success') ? t('admin.ai.ai_podaczona') : t('admin.ai.ai_niepodaczona') ?></span>
-    <small><?= $lastTestAt !== '' ? 'Ostatni test: ' . e($lastTestAt) : 'Brak ostatniego testu' ?><?= $lastTestError !== '' ? ' · ' . e($lastTestError) : '' ?></small>
+    <small><?= e($lastTestAt !== '' ? str_replace('{date}', $lastTestAt, t('admin.ai.last_test')) : t('admin.ai.no_last_test')) ?><?= $lastTestError !== '' ? ' · ' . e($lastTestError) : '' ?></small>
     <form method="post" action="/admin/ai/test" class="zs-ai-test-form">
       <?= csrf_field() ?>
       <input type="hidden" name="model" value="<?= e($ai_settings['ai.openai.model'] ?? 'gpt-5.5') ?>">

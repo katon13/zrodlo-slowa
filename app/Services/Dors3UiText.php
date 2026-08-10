@@ -49,9 +49,6 @@ final class Dors3UiText
     private static function language(?string $language): string
     {
         $language = strtolower(trim((string)$language));
-        if ($language === '' && function_exists('is_admin_request') && is_admin_request()) {
-            return 'pl';
-        }
         if ($language === '' && function_exists('public_language')) {
             $language = (string)public_language();
         }

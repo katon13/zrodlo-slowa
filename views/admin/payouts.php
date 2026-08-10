@@ -71,8 +71,8 @@ $statusLabels = [
               <td><strong class="admin-user-name"><?= e($p['display_name']) ?></strong><span class="admin-user-email"><?= e($p['email']) ?></span></td>
               <td><strong><?= $money($p['amount_minor']) ?></strong><small class="admin-note"><?= e($p['currency']) ?> · <?= e($p['requested_at']) ?></small></td>
               <td><span class="status-pill status-<?= e($status) ?>"><?= e($statusLabels[$status] ?? strtoupper($status)) ?></span></td>
-              <td><strong><?= e($p['method_label'] ?: 'Brak metody') ?></strong><span class="admin-note"><?= e(trim(($p['method_type'] ?? '') . ' ' . ($p['account_ref'] ?? ''))) ?></span></td>
-              <td><span class="admin-note"><?= e($p['note'] ?: '—') ?></span><?php if (!empty($p['admin_note'])): ?><span class="admin-note">Redakcja: <?= e($p['admin_note']) ?></span><?php endif; ?></td>
+              <td><strong><?= e($p['method_label'] ?: t('admin.payouts.no_method')) ?></strong><span class="admin-note"><?= e(trim(($p['method_type'] ?? '') . ' ' . ($p['account_ref'] ?? ''))) ?></span></td>
+              <td><span class="admin-note"><?= e($p['note'] ?: '—') ?></span><?php if (!empty($p['admin_note'])): ?><span class="admin-note"><?= e(t('admin.payouts.editorial_prefix')) ?> <?= e($p['admin_note']) ?></span><?php endif; ?></td>
               <td class="admin-actions-cell">
                 <?php if (in_array($status, ['paid','rejected','cancelled'], true)): ?>
                   <span class="admin-note"><?= e(t('admin.payouts.zamkniete_historia_zostaje_w_ksiedze_portfela')) ?></span>

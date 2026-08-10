@@ -23,13 +23,13 @@
     ];
 
     $keyGroups = [
-        t('admin.settings.group_service') => ['site.name', 'site.tagline', 'migration.status'],
-        t('admin.settings.group_economy') => ['premium_access_hours'],
+        'service' => ['site.name', 'site.tagline', 'migration.status'],
+        'economy' => ['premium_access_hours'],
     ];
 
     $settingsByGroup = [];
     foreach ($settings as $s) {
-        $foundGroup = t('admin.settings.pozostae_2');
+        $foundGroup = 'other';
         foreach ($keyGroups as $group => $keys) {
             if (in_array($s['name'], $keys)) {
                 $foundGroup = $group;
@@ -86,10 +86,10 @@
             <span><?= e(t('article.premium.platform_share')) ?></span><strong><?= e(t(in_array((string)($settingValues['migration.status'] ?? ''), ['complete', 'completed', 'ready'], true) ? 'admin.settings.status_ready' : 'admin.settings.status_preparing')) ?></strong><small><?= e(t('admin.settings.stan_konfiguracji_gownej')) ?></small>
         </article>
         <article class="<?= !empty($snajper['enabled']) ? 'is-ready' : 'is-warning' ?>">
-            <span><?= e(t('admin.settings.snajper_sowa')) ?></span><strong><?= !empty($snajper['enabled']) ? 'AKTYWNY' : t('admin.settings.wyaczony_2') ?></strong><small><?= e(t('admin.settings.ochrona_ruchu_i_rol')) ?></small>
+            <span><?= e(t('admin.settings.snajper_sowa')) ?></span><strong><?= e(t(!empty($snajper['enabled']) ? 'admin.settings.status_active_masculine' : 'admin.settings.wyaczony_2')) ?></strong><small><?= e(t('admin.settings.ochrona_ruchu_i_rol')) ?></small>
         </article>
         <article class="<?= !empty($antiFraudCfg['enabled']) ? 'is-ready' : 'is-warning' ?>">
-            <span><?= e(t('admin.settings.kontrola_ryzyka')) ?></span><strong><?= !empty($antiFraudCfg['enabled']) ? 'AKTYWNA' : t('admin.settings.wyaczona') ?></strong><small><?= e(t('admin.settings.nagrody_i_wypaty')) ?></small>
+            <span><?= e(t('admin.settings.kontrola_ryzyka')) ?></span><strong><?= e(t(!empty($antiFraudCfg['enabled']) ? 'admin.settings.status_active_feminine' : 'admin.settings.wyaczona')) ?></strong><small><?= e(t('admin.settings.nagrody_i_wypaty')) ?></small>
         </article>
         <article class="<?= $activeTalentRuleCount > 0 ? 'is-ready' : 'is-muted' ?>">
             <span><?= e(t('referral.landing.kicker')) ?></span><strong><?= $activeTalentRuleCount ?> / <?= $talentRuleCount ?></strong><small><?= e(t('admin.settings.aktywnych_zasad_nagradzania')) ?></small>
@@ -106,7 +106,7 @@
             <?php echo csrf_field(); ?>
             <label class="zs-setting-label zs-critical-password"><span><?= e(t('admin.settings.potwierdz_hasem_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
             <div class="zs-settings-grid">
-                <?php foreach ($settingsByGroup['SERWIS'] ?? [] as $s): ?>
+                <?php foreach ($settingsByGroup['service'] ?? [] as $s): ?>
                     <div class="zs-setting-item">
                         <label class="zs-setting-label"><?php echo e($keyLabels[$s['name']] ?? $s['name']); ?></label>
                         <div class="zs-setting-control">
@@ -133,7 +133,7 @@
             <?php echo csrf_field(); ?>
             <label class="zs-setting-label zs-critical-password"><span><?= e(t('admin.settings.potwierdz_hasem_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
             <div class="zs-settings-grid">
-                <?php foreach ($settingsByGroup['EKONOMIA'] ?? [] as $s): ?>
+                <?php foreach ($settingsByGroup['economy'] ?? [] as $s): ?>
                     <div class="zs-setting-item">
                         <label class="zs-setting-label"><?php echo e($keyLabels[$s['name']] ?? $s['name']); ?></label>
                         <div class="zs-setting-control">
@@ -392,7 +392,7 @@
                     <h3 id="talent-promotion-title"><?= e(t('admin.settings.bonus_za_instalacje_i_polecenie')) ?></h3>
                     <p><?= e(t('admin.settings.kontrolowana_promocja_nad_istniejacym_talentem_kwota_je_993d3d5a')) ?></p>
                 </div>
-                <span class="zs-talent-state<?= !empty($referralPromotion['is_promoted']) ? ' is-active' : '' ?>"><?= !empty($referralPromotion['is_promoted']) ? 'PROMOWANE' : t('admin.payments.wyaczone') ?></span>
+                <span class="zs-talent-state<?= !empty($referralPromotion['is_promoted']) ? ' is-active' : '' ?>"><?= e(t(!empty($referralPromotion['is_promoted']) ? 'referral.promoted' : 'admin.payments.wyaczone')) ?></span>
             </div>
 
             <div class="zs-referral-admin-stats">
@@ -411,11 +411,11 @@
                         </label>
                         <label>
                             <span><?= e(t('admin.settings.aktywne_zaproszenia_osoba')) ?></span>
-                            <div class="zs-input-with-unit"><input type="number" min="1" max="100" step="1" required name="promotion[active_invitation_limit]" value="<?= e((string)($referralPromotion['active_invitation_limit'] ?? 3)) ?>"><b>szt.</b></div>
+                            <div class="zs-input-with-unit"><input type="number" min="1" max="100" step="1" required name="promotion[active_invitation_limit]" value="<?= e((string)($referralPromotion['active_invitation_limit'] ?? 3)) ?>"><b><?= e(t('admin.settings.unit_items')) ?></b></div>
                         </label>
                         <label>
                             <span><?= e(t('admin.settings.skuteczne_polecenia_osoba')) ?></span>
-                            <div class="zs-input-with-unit"><input type="number" min="1" max="100" step="1" required name="promotion[successful_referral_limit]" value="<?= e((string)($referralPromotion['successful_referral_limit'] ?? 3)) ?>"><b>szt.</b></div>
+                            <div class="zs-input-with-unit"><input type="number" min="1" max="100" step="1" required name="promotion[successful_referral_limit]" value="<?= e((string)($referralPromotion['successful_referral_limit'] ?? 3)) ?>"><b><?= e(t('admin.settings.unit_items')) ?></b></div>
                         </label>
                         <label>
                             <span><?= e(t('admin.settings.waznosc_zaproszenia')) ?></span>
@@ -503,7 +503,7 @@
                                         <p><?php echo e((string)$r['operator_description']); ?></p>
                                         <small class="zs-talent-human-trigger"><?php echo e((string)($r['operator_trigger'] ?? '')); ?></small>
                                     </div>
-                                    <span class="zs-talent-state<?php echo $isActive ? ' is-active' : ''; ?>" data-talent-state><?php echo $isActive ? 'Aktywna' : t('admin.settings.wyaczona_2'); ?></span>
+                                    <span class="zs-talent-state<?php echo $isActive ? ' is-active' : ''; ?>" data-talent-state><?php echo e(t($isActive ? 'admin.settings.status_active_feminine' : 'admin.settings.wyaczona_2')); ?></span>
                                 </div>
 
                                 <div class="zs-talent-rule-controls">
@@ -560,7 +560,7 @@
     </section>
 
     <!-- POZOSTAŁE -->
-    <?php if (!empty($settingsByGroup['POZOSTAŁE'])): ?>
+    <?php if (!empty($settingsByGroup['other'])): ?>
     <section class="zs-settings-section zs-operator-settings-section">
         <div class="zs-operator-section-head">
             <div><p class="kicker"><?= e(t('admin.settings.ustawienia_dodatkowe')) ?></p><h2><?= e(t('admin.settings.pozostae')) ?></h2><p><?= e(t('admin.settings.parametry_pomocnicze_ktore_nie_naleza_do_wyspecjalizowa_e1e27c2e')) ?></p></div>
@@ -570,7 +570,7 @@
             <?php echo csrf_field(); ?>
             <label class="zs-setting-label zs-critical-password"><span><?= e(t('admin.settings.potwierdz_hasem_administratora')) ?></span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="<?= e(t('admin.ai.haso_chroniace_zmiane')) ?>"></label>
             <div class="zs-settings-grid">
-                <?php foreach ($settingsByGroup['POZOSTAŁE'] as $s): ?>
+                <?php foreach ($settingsByGroup['other'] as $s): ?>
                     <div class="zs-setting-item">
                         <label class="zs-setting-label"><?php echo e($s['name']); ?></label>
                         <div class="zs-setting-control">

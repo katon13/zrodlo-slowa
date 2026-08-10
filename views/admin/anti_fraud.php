@@ -14,7 +14,7 @@ $scoreClass = static function($score): string {
 ?>
 <section class="admin-page-head">
   <p class="kicker"><?= e(t('admin.anti_fraud.snajper_sowa_straznik')) ?></p>
-  <h1><?= function_exists('zs_icon') ? zs_icon('shield', 'zs-title-icon') : '' ?>ANTYFRAUD</h1>
+  <h1><?= function_exists('zs_icon') ? zs_icon('shield', 'zs-title-icon') : '' ?><?= e(t('admin.anti_fraud.title')) ?></h1>
   <p><?= e(t('admin.anti_fraud.kontrola_reklam_ankiet_bonusow_i_wypat_ten_panel_nie_us_6d78a1bb')) ?></p>
 </section>
 
@@ -65,7 +65,7 @@ $scoreClass = static function($score): string {
 <section class="admin-panel-block">
   <div class="admin-section-head">
     <div><p class="kicker"><?= e(t('admin.anti_fraud.uzytkownicy')) ?></p><h2><?= e(t('admin.anti_fraud.najwyzsze_ryzyko')) ?></h2></div>
-    <span>LIMIT <?= (int)$snajper_limit ?></span>
+    <span><?= e(t('admin.anti_fraud.limit')) ?> <?= (int)$snajper_limit ?></span>
   </div>
 
   <?php if (empty($risk_users)): ?>

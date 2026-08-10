@@ -10256,6 +10256,258 @@
   "admin.partials.campaign_surveys.status_saved": {
     "pl": "Zapisana", "en": "Saved", "de": "Gespeichert", "fr": "Enregistrée", "it": "Salvata", "es": "Guardada"
   },
+  "admin.settings.status_active_masculine": {
+    "pl": "AKTYWNY", "en": "ACTIVE", "de": "AKTIV", "fr": "ACTIF", "it": "ATTIVO", "es": "ACTIVO"
+  },
+  "admin.settings.status_active_feminine": {
+    "pl": "AKTYWNA", "en": "ACTIVE", "de": "AKTIV", "fr": "ACTIVE", "it": "ATTIVA", "es": "ACTIVA"
+  },
+  "admin.settings.unit_items": {
+    "pl": "szt.", "en": "pcs.", "de": "Stk.", "fr": "unités", "it": "pz.", "es": "uds."
+  },
+  "admin.talent.group.presence.title": {
+    "pl": "Start i aktywna obecność", "en": "Getting started and active presence", "de": "Einstieg und aktive Anwesenheit", "fr": "Démarrage et présence active", "it": "Avvio e presenza attiva", "es": "Inicio y presencia activa"
+  },
+  "admin.talent.group.presence.description": {
+    "pl": "Proste nagrody za rozpoczęcie i regularne korzystanie z serwisu.", "en": "Simple rewards for getting started and using the service regularly.", "de": "Einfache Belohnungen für den Einstieg und die regelmäßige Nutzung des Dienstes.", "fr": "Des récompenses simples pour commencer et utiliser régulièrement le service.", "it": "Ricompense semplici per iniziare e utilizzare regolarmente il servizio.", "es": "Recompensas sencillas por empezar y utilizar el servicio con regularidad."
+  },
+  "admin.talent.group.community.title": {
+    "pl": "Czytanie i społeczność", "en": "Reading and community", "de": "Lesen und Gemeinschaft", "fr": "Lecture et communauté", "it": "Lettura e comunità", "es": "Lectura y comunidad"
+  },
+  "admin.talent.group.community.description": {
+    "pl": "Nagrody za czytanie, publikacje i pomoc w poprawianiu serwisu.", "en": "Rewards for reading, publishing and helping improve the service.", "de": "Belohnungen für Lesen, Veröffentlichungen und Hilfe bei der Verbesserung des Dienstes.", "fr": "Récompenses pour la lecture, les publications et l'aide à l'amélioration du service.", "it": "Ricompense per la lettura, le pubblicazioni e il contributo al miglioramento del servizio.", "es": "Recompensas por leer, publicar y ayudar a mejorar el servicio."
+  },
+  "admin.talent.group.campaigns.title": {
+    "pl": "Ankiety i kampanie", "en": "Surveys and campaigns", "de": "Umfragen und Kampagnen", "fr": "Enquêtes et campagnes", "it": "Sondaggi e campagne", "es": "Encuestas y campañas"
+  },
+  "admin.talent.group.campaigns.description": {
+    "pl": "Nagrody TT za potwierdzone działania w kampaniach i ankietach.", "en": "TT rewards for verified actions in campaigns and surveys.", "de": "TT-Belohnungen für bestätigte Aktionen in Kampagnen und Umfragen.", "fr": "Récompenses TT pour les actions confirmées dans les campagnes et les enquêtes.", "it": "Ricompense TT per azioni confermate in campagne e sondaggi.", "es": "Recompensas TT por acciones confirmadas en campañas y encuestas."
+  },
+  "admin.talent.rule.status.working": {
+    "pl": "DZIAŁA", "en": "WORKING", "de": "AKTIV", "fr": "OPÉRATIONNEL", "it": "ATTIVO", "es": "FUNCIONA"
+  },
+  "admin.talent.rule.registration_bonus.title": {
+    "pl": "Założenie konta", "en": "Account creation", "de": "Kontoerstellung", "fr": "Création du compte", "it": "Creazione dell'account", "es": "Creación de la cuenta"
+  },
+  "admin.talent.rule.registration_bonus.description": {
+    "pl": "Przyznawana jeden raz po prawidłowym utworzeniu konta użytkownika.", "en": "Awarded once after a user account is created correctly.", "de": "Wird einmal nach der korrekten Erstellung eines Benutzerkontos vergeben.", "fr": "Attribuée une seule fois après la création correcte d'un compte utilisateur.", "it": "Assegnata una sola volta dopo la corretta creazione di un account utente.", "es": "Se concede una sola vez tras crear correctamente una cuenta de usuario."
+  },
+  "admin.talent.rule.registration_bonus.trigger": {
+    "pl": "Nagroda trafia do użytkownika jeden raz po prawidłowym założeniu konta.", "en": "The reward is credited once after the account has been created correctly.", "de": "Die Belohnung wird einmal nach der korrekten Kontoerstellung gutgeschrieben.", "fr": "La récompense est créditée une seule fois après la création correcte du compte.", "it": "La ricompensa viene accreditata una sola volta dopo la corretta creazione dell'account.", "es": "La recompensa se abona una sola vez tras crear correctamente la cuenta."
+  },
+  "admin.talent.rule.registration_bonus.badge": {
+    "pl": "Jednorazowa", "en": "One-time", "de": "Einmalig", "fr": "Unique", "it": "Una tantum", "es": "Una vez"
+  },
+  "admin.talent.rule.day_visit_bonus.title": {
+    "pl": "Aktywna wizyta dzienna", "en": "Active daily visit", "de": "Aktiver täglicher Besuch", "fr": "Visite quotidienne active", "it": "Visita giornaliera attiva", "es": "Visita diaria activa"
+  },
+  "admin.talent.rule.day_visit_bonus.description": {
+    "pl": "Raz dziennie za prawdziwą, aktywną wizytę zalogowanego użytkownika.", "en": "Once a day for a genuine active visit by a signed-in user.", "de": "Einmal täglich für einen echten aktiven Besuch eines angemeldeten Benutzers.", "fr": "Une fois par jour pour la visite réellement active d'un utilisateur connecté.", "it": "Una volta al giorno per una visita realmente attiva di un utente connesso.", "es": "Una vez al día por una visita realmente activa de un usuario conectado."
+  },
+  "admin.talent.rule.day_visit_bonus.trigger": {
+    "pl": "Nagroda trafia raz dziennie po potwierdzeniu aktywnej wizyty.", "en": "The reward is credited once a day after an active visit is confirmed.", "de": "Die Belohnung wird einmal täglich nach Bestätigung eines aktiven Besuchs gutgeschrieben.", "fr": "La récompense est créditée une fois par jour après confirmation d'une visite active.", "it": "La ricompensa viene accreditata una volta al giorno dopo la conferma di una visita attiva.", "es": "La recompensa se abona una vez al día tras confirmar una visita activa."
+  },
+  "admin.talent.rule.day_visit_bonus.badge": {
+    "pl": "Kontrola obecności", "en": "Presence check", "de": "Anwesenheitsprüfung", "fr": "Contrôle de présence", "it": "Controllo presenza", "es": "Control de presencia"
+  },
+  "admin.talent.rule.article_read_bonus.title": {
+    "pl": "Przeczytanie artykułu", "en": "Article read", "de": "Artikel gelesen", "fr": "Lecture d'un article", "it": "Lettura di un articolo", "es": "Lectura de un artículo"
+  },
+  "admin.talent.rule.article_read_bonus.description": {
+    "pl": "Za przeczytanie tekstu przez wymagany czas i dotarcie do odpowiedniej części artykułu.", "en": "For reading the text for the required time and reaching the required part of the article.", "de": "Für das Lesen des Textes über die erforderliche Zeit und das Erreichen des erforderlichen Artikelabschnitts.", "fr": "Pour avoir lu le texte pendant la durée requise et atteint la partie demandée de l'article.", "it": "Per aver letto il testo per il tempo richiesto e raggiunto la parte prevista dell'articolo.", "es": "Por leer el texto durante el tiempo requerido y llegar a la parte indicada del artículo."
+  },
+  "admin.talent.rule.article_read_bonus.trigger": {
+    "pl": "Nagroda trafia po rzeczywistym przeczytaniu tekstu.", "en": "The reward is credited after the text has genuinely been read.", "de": "Die Belohnung wird nach dem tatsächlichen Lesen des Textes gutgeschrieben.", "fr": "La récompense est créditée après une lecture réelle du texte.", "it": "La ricompensa viene accreditata dopo la lettura effettiva del testo.", "es": "La recompensa se abona tras la lectura real del texto."
+  },
+  "admin.talent.rule.article_read_bonus.badge": {
+    "pl": "Weryfikacja czytania", "en": "Reading verification", "de": "Leseprüfung", "fr": "Vérification de lecture", "it": "Verifica lettura", "es": "Verificación de lectura"
+  },
+  "admin.talent.rule.response_publication_bonus.title": {
+    "pl": "Opublikowana opinia lub polemika", "en": "Published opinion or response", "de": "Veröffentlichte Meinung oder Erwiderung", "fr": "Opinion ou réponse publiée", "it": "Opinione o replica pubblicata", "es": "Opinión o réplica publicada"
+  },
+  "admin.talent.rule.response_publication_bonus.description": {
+    "pl": "Kaucja jest pobierana raz przy wysłaniu. Po publikacji wraca, a użytkownik otrzymuje nagrodę TT.", "en": "The deposit is charged once on submission. It is returned after publication and the user receives a TT reward.", "de": "Die Kaution wird bei der Einreichung einmal belastet. Nach der Veröffentlichung wird sie zurückgegeben und der Benutzer erhält eine TT-Belohnung.", "fr": "La caution est prélevée une fois lors de l'envoi. Elle est restituée après publication et l'utilisateur reçoit une récompense en TT.", "it": "Il deposito viene addebitato una sola volta all'invio. Dopo la pubblicazione viene restituito e l'utente riceve una ricompensa in TT.", "es": "La fianza se cobra una vez al enviar. Tras la publicación se devuelve y el usuario recibe una recompensa en TT."
+  },
+  "admin.talent.rule.response_publication_bonus.trigger": {
+    "pl": "Kaucja jest pobierana przy wysłaniu, a po publikacji wraca razem z nagrodą.", "en": "The deposit is charged on submission and returned with the reward after publication.", "de": "Die Kaution wird bei der Einreichung belastet und nach der Veröffentlichung zusammen mit der Belohnung zurückgegeben.", "fr": "La caution est prélevée à l'envoi puis restituée avec la récompense après publication.", "it": "Il deposito viene addebitato all'invio e restituito con la ricompensa dopo la pubblicazione.", "es": "La fianza se cobra al enviar y se devuelve con la recompensa tras la publicación."
+  },
+  "admin.talent.rule.response_publication_bonus.badge": {
+    "pl": "TT po publikacji · kaucja 1 raz", "en": "TT after publication · one deposit", "de": "TT nach Veröffentlichung · eine Kaution", "fr": "TT après publication · une caution", "it": "TT dopo la pubblicazione · un deposito", "es": "TT tras la publicación · una fianza"
+  },
+  "admin.talent.rule.bug_report_bonus.title": {
+    "pl": "Zgłoszenie błędu", "en": "Bug report", "de": "Fehlermeldung", "fr": "Signalement d'erreur", "it": "Segnalazione di errore", "es": "Informe de error"
+  },
+  "admin.talent.rule.bug_report_bonus.description": {
+    "pl": "Za prawdziwy błąd sprawdzony i zaakceptowany przez redakcję. Samo wysłanie nie daje TT.", "en": "For a genuine error reviewed and accepted by the editorial team. Submission alone does not award TT.", "de": "Für einen echten Fehler, der von der Redaktion geprüft und akzeptiert wurde. Die Einreichung allein bringt keine TT.", "fr": "Pour une erreur réelle vérifiée et acceptée par la rédaction. Le simple envoi ne donne pas de TT.", "it": "Per un errore reale verificato e accettato dalla redazione. Il solo invio non assegna TT.", "es": "Por un error real revisado y aceptado por la redacción. El envío por sí solo no concede TT."
+  },
+  "admin.talent.rule.bug_report_bonus.trigger": {
+    "pl": "Nagroda trafia tylko za prawdziwy błąd zaakceptowany przez redakcję.", "en": "The reward is credited only for a genuine error accepted by the editorial team.", "de": "Die Belohnung wird nur für einen echten, von der Redaktion akzeptierten Fehler gutgeschrieben.", "fr": "La récompense est créditée uniquement pour une erreur réelle acceptée par la rédaction.", "it": "La ricompensa viene accreditata solo per un errore reale accettato dalla redazione.", "es": "La recompensa solo se abona por un error real aceptado por la redacción."
+  },
+  "admin.talent.rule.survey_reward.title": {
+    "pl": "Udział w ankiecie", "en": "Survey participation", "de": "Teilnahme an einer Umfrage", "fr": "Participation à une enquête", "it": "Partecipazione a un sondaggio", "es": "Participación en una encuesta"
+  },
+  "admin.talent.rule.survey_reward.description": {
+    "pl": "Za prawidłowe ukończenie ankiety. Budżet reklamodawcy pozostaje w przypiętej kampanii.", "en": "For completing a survey correctly. The advertiser's budget remains in the linked campaign.", "de": "Für das korrekte Ausfüllen einer Umfrage. Das Budget des Werbetreibenden verbleibt in der verknüpften Kampagne.", "fr": "Pour avoir correctement terminé une enquête. Le budget de l'annonceur reste dans la campagne associée.", "it": "Per aver completato correttamente un sondaggio. Il budget dell'inserzionista resta nella campagna collegata.", "es": "Por completar correctamente una encuesta. El presupuesto del anunciante permanece en la campaña vinculada."
+  },
+  "admin.talent.rule.survey_reward.trigger": {
+    "pl": "Nagroda TT trafia po zapisaniu kompletnej odpowiedzi.", "en": "The TT reward is credited after a complete response has been saved.", "de": "Die TT-Belohnung wird nach dem Speichern einer vollständigen Antwort gutgeschrieben.", "fr": "La récompense en TT est créditée après l'enregistrement d'une réponse complète.", "it": "La ricompensa in TT viene accreditata dopo il salvataggio di una risposta completa.", "es": "La recompensa en TT se abona tras guardar una respuesta completa."
+  },
+  "admin.talent.rule.survey_reward.badge": {
+    "pl": "TT z Programu Talent", "en": "Talent Programme TT", "de": "TT aus dem Talent-Programm", "fr": "TT du Programme Talent", "it": "TT del Programma Talent", "es": "TT del Programa Talent"
+  },
+  "admin.talent.rule.ad_view_reward.title": {
+    "pl": "Obejrzenie materiału reklamowego", "en": "Advertisement view", "de": "Werbematerial angesehen", "fr": "Visionnage d'une publicité", "it": "Visualizzazione di una pubblicità", "es": "Visualización de publicidad"
+  },
+  "admin.talent.rule.ad_view_reward.description": {
+    "pl": "Za obejrzenie filmu przez czas ustawiony w aktywnej kampanii.", "en": "For watching a video for the time set in an active campaign.", "de": "Für das Ansehen eines Videos über die in einer aktiven Kampagne festgelegte Zeit.", "fr": "Pour avoir regardé une vidéo pendant la durée définie dans une campagne active.", "it": "Per aver guardato un video per il tempo impostato in una campagna attiva.", "es": "Por ver un vídeo durante el tiempo establecido en una campaña activa."
+  },
+  "admin.talent.rule.ad_view_reward.trigger": {
+    "pl": "Nagroda trafia po obejrzeniu filmu przez czas ustawiony w kampanii.", "en": "The reward is credited after the video has been watched for the campaign's required time.", "de": "Die Belohnung wird gutgeschrieben, nachdem das Video für die in der Kampagne festgelegte Zeit angesehen wurde.", "fr": "La récompense est créditée après le visionnage de la vidéo pendant la durée définie dans la campagne.", "it": "La ricompensa viene accreditata dopo aver guardato il video per il tempo previsto dalla campagna.", "es": "La recompensa se abona tras ver el vídeo durante el tiempo fijado en la campaña."
+  },
+  "admin.talent.rule.ad_view_reward.badge": {
+    "pl": "Koszt PLN · nagroda TT", "en": "PLN cost · TT reward", "de": "Kosten in PLN · TT-Belohnung", "fr": "Coût en PLN · récompense TT", "it": "Costo in PLN · ricompensa TT", "es": "Coste en PLN · recompensa TT"
+  },
+  "admin.talent.rule.ad_click_reward.title": {
+    "pl": "Kliknięcie reklamy", "en": "Advertisement click", "de": "Klick auf eine Werbung", "fr": "Clic sur une publicité", "it": "Clic su una pubblicità", "es": "Clic en un anuncio"
+  },
+  "admin.talent.rule.ad_click_reward.description": {
+    "pl": "Za potwierdzone przejście do strony reklamodawcy. Powtórzenie nie daje kolejnej nagrody.", "en": "For a confirmed visit to the advertiser's website. Repeating it does not award another reward.", "de": "Für einen bestätigten Besuch der Website des Werbetreibenden. Eine Wiederholung bringt keine weitere Belohnung.", "fr": "Pour une visite confirmée du site de l'annonceur. La répétition ne donne pas une nouvelle récompense.", "it": "Per una visita confermata al sito dell'inserzionista. La ripetizione non assegna un'altra ricompensa.", "es": "Por una visita confirmada al sitio del anunciante. Repetirla no concede otra recompensa."
+  },
+  "admin.talent.rule.ad_click_reward.trigger": {
+    "pl": "Nagroda trafia po potwierdzonym przejściu z banera.", "en": "The reward is credited after a confirmed transition from the banner.", "de": "Die Belohnung wird nach einem bestätigten Übergang vom Banner gutgeschrieben.", "fr": "La récompense est créditée après un passage confirmé depuis la bannière.", "it": "La ricompensa viene accreditata dopo un passaggio confermato dal banner.", "es": "La recompensa se abona tras una visita confirmada desde el banner."
+  },
+  "admin.talent.rule.ad_click_reward.badge": {
+    "pl": "Koszt PLN · nagroda TT", "en": "PLN cost · TT reward", "de": "Kosten in PLN · TT-Belohnung", "fr": "Coût en PLN · récompense TT", "it": "Costo in PLN · ricompensa TT", "es": "Coste en PLN · recompensa TT"
+  },
+  "admin.ai.planned_count": {
+    "pl": "{count} zaplanowanych", "en": "{count} planned", "de": "{count} geplant", "fr": "{count} planifiées", "it": "{count} pianificate", "es": "{count} planificadas"
+  },
+  "admin.ai.last_test": {
+    "pl": "Ostatni test: {date}", "en": "Last test: {date}", "de": "Letzter Test: {date}", "fr": "Dernier test : {date}", "it": "Ultimo test: {date}", "es": "Última prueba: {date}"
+  },
+  "admin.ai.no_last_test": {
+    "pl": "Brak ostatniego testu", "en": "No test has been run yet", "de": "Es wurde noch kein Test ausgeführt", "fr": "Aucun test n’a encore été exécuté", "it": "Non è stato ancora eseguito alcun test", "es": "Todavía no se ha ejecutado ninguna prueba"
+  },
+  "admin.articles.author_prefix": {
+    "pl": "Autor:", "en": "Author:", "de": "Autor:", "fr": "Auteur :", "it": "Autore:", "es": "Autor:"
+  },
+  "admin.articles.reward_decided_at_publication": {
+    "pl": "Nagroda zostanie ustalona przy publikacji", "en": "The reward will be determined at publication", "de": "Die Belohnung wird bei der Veröffentlichung festgelegt", "fr": "La récompense sera déterminée lors de la publication", "it": "La ricompensa sarà determinata al momento della pubblicazione", "es": "La recompensa se determinará al publicarse"
+  },
+  "admin.articles.reward_points": {
+    "pl": "{points} TT przyznane po publikacji", "en": "{points} TT awarded after publication", "de": "{points} TT nach der Veröffentlichung vergeben", "fr": "{points} TT attribués après publication", "it": "{points} TT assegnati dopo la pubblicazione", "es": "{points} TT concedidos después de la publicación"
+  },
+  "admin.payouts.no_method": {
+    "pl": "Brak metody", "en": "No method", "de": "Keine Methode", "fr": "Aucune méthode", "it": "Nessun metodo", "es": "Sin método"
+  },
+  "admin.payouts.editorial_prefix": {
+    "pl": "Redakcja:", "en": "Editorial team:", "de": "Redaktion:", "fr": "Rédaction :", "it": "Redazione:", "es": "Redacción:"
+  },
+  "admin.surveys.save_changes": {
+    "pl": "Zapisz zmiany w ankiecie", "en": "Save survey changes", "de": "Änderungen an der Umfrage speichern", "fr": "Enregistrer les modifications de l’enquête", "it": "Salva le modifiche al sondaggio", "es": "Guardar cambios de la encuesta"
+  },
+  "admin.surveys.type_prefix": {
+    "pl": "Typ:", "en": "Type:", "de": "Typ:", "fr": "Type :", "it": "Tipo:", "es": "Tipo:"
+  },
+  "admin.finance_report.answers_count": {
+    "pl": "{count} odpowiedzi", "en": "{count} responses", "de": "{count} Antworten", "fr": "{count} réponses", "it": "{count} risposte", "es": "{count} respuestas"
+  },
+  "admin.editorial_list.change_prefix": {
+    "pl": "Zmiana:", "en": "Updated:", "de": "Geändert:", "fr": "Modification :", "it": "Modifica:", "es": "Cambio:"
+  },
+  "admin.editorial_list.proofreading_date": {
+    "pl": "Korekta: {date}", "en": "Proofreading: {date}", "de": "Korrektur: {date}", "fr": "Correction : {date}", "it": "Correzione: {date}", "es": "Corrección: {date}"
+  },
+  "admin.roles.key_prefix": {
+    "pl": "Klucz:", "en": "Key:", "de": "Schlüssel:", "fr": "Clé :", "it": "Chiave:", "es": "Clave:"
+  },
+  "admin.roles.status_prefix": {
+    "pl": "Status:", "en": "Status:", "de": "Status:", "fr": "Statut :", "it": "Stato:", "es": "Estado:"
+  },
+  "admin.anti_fraud.title": {
+    "pl": "Ochrona przed nadużyciami", "en": "Fraud protection", "de": "Missbrauchsschutz", "fr": "Protection contre les abus", "it": "Protezione dagli abusi", "es": "Protección contra abusos"
+  },
+  "admin.anti_fraud.limit": {
+    "pl": "Limit", "en": "Limit", "de": "Limit", "fr": "Limite", "it": "Limite", "es": "Límite"
+  },
+  "admin.campaigns.placement.home": {
+    "pl": "Strona główna", "en": "Home page", "de": "Startseite", "fr": "Page d’accueil", "it": "Pagina iniziale", "es": "Página de inicio"
+  },
+  "admin.campaigns.placement.article": {
+    "pl": "Pod artykułem", "en": "Below the article", "de": "Unter dem Artikel", "fr": "Sous l’article", "it": "Sotto l’articolo", "es": "Debajo del artículo"
+  },
+  "admin.campaigns.placement.campaigns": {
+    "pl": "Strona kampanii", "en": "Campaign page", "de": "Kampagnenseite", "fr": "Page de campagne", "it": "Pagina della campagna", "es": "Página de campaña"
+  },
+  "admin.campaigns.error.not_found": {
+    "pl": "Nie znaleziono kampanii.", "en": "Campaign not found.", "de": "Kampagne nicht gefunden.", "fr": "Campagne introuvable.", "it": "Campagna non trovata.", "es": "No se encontró la campaña."
+  },
+  "admin.campaigns.error.invalid_delivery_event": {
+    "pl": "Nieprawidłowe zdarzenie emisji kampanii.", "en": "Invalid campaign delivery event.", "de": "Ungültiges Kampagnenauslieferungsereignis.", "fr": "Événement de diffusion de campagne non valide.", "it": "Evento di erogazione della campagna non valido.", "es": "Evento de entrega de campaña no válido."
+  },
+  "admin.campaigns.error.invalid_type": {
+    "pl": "Wybierz prawidłowy typ kampanii.", "en": "Select a valid campaign type.", "de": "Wählen Sie einen gültigen Kampagnentyp.", "fr": "Sélectionnez un type de campagne valide.", "it": "Seleziona un tipo di campagna valido.", "es": "Selecciona un tipo de campaña válido."
+  },
+  "admin.campaigns.error.invalid_status": {
+    "pl": "Wybierz prawidłowy status kampanii.", "en": "Select a valid campaign status.", "de": "Wählen Sie einen gültigen Kampagnenstatus.", "fr": "Sélectionnez un statut de campagne valide.", "it": "Seleziona uno stato della campagna valido.", "es": "Selecciona un estado de campaña válido."
+  },
+  "admin.campaigns.error.name_required": {
+    "pl": "Podaj nazwę kampanii.", "en": "Enter the campaign name.", "de": "Geben Sie den Kampagnennamen ein.", "fr": "Saisissez le nom de la campagne.", "it": "Inserisci il nome della campagna.", "es": "Introduce el nombre de la campaña."
+  },
+  "admin.campaigns.error.client_required": {
+    "pl": "Podaj nazwę zleceniodawcy.", "en": "Enter the client name.", "de": "Geben Sie den Namen des Auftraggebers ein.", "fr": "Saisissez le nom du client.", "it": "Inserisci il nome del cliente.", "es": "Introduce el nombre del cliente."
+  },
+  "admin.campaigns.error.invalid_client_email": {
+    "pl": "Podaj poprawny adres e-mail zleceniodawcy.", "en": "Enter a valid client email address.", "de": "Geben Sie eine gültige E-Mail-Adresse des Auftraggebers ein.", "fr": "Saisissez une adresse e-mail valide pour le client.", "it": "Inserisci un indirizzo e-mail valido del cliente.", "es": "Introduce una dirección de correo válida del cliente."
+  },
+  "admin.campaigns.error.invalid_target_url": {
+    "pl": "Podaj poprawny pełny link docelowy kampanii.", "en": "Enter a valid full campaign destination URL.", "de": "Geben Sie eine gültige vollständige Ziel-URL ein.", "fr": "Saisissez une URL de destination complète et valide.", "it": "Inserisci un URL di destinazione completo e valido.", "es": "Introduce una URL de destino completa y válida."
+  },
+  "admin.campaigns.error.invalid_date_range": {
+    "pl": "Koniec kampanii musi przypadać po jej rozpoczęciu.", "en": "The campaign must end after it starts.", "de": "Die Kampagne muss nach ihrem Beginn enden.", "fr": "La campagne doit se terminer après son début.", "it": "La campagna deve terminare dopo l’inizio.", "es": "La campaña debe terminar después de comenzar."
+  },
+  "admin.campaigns.error.invalid_placement": {
+    "pl": "Wybierz miejsce emisji kampanii.", "en": "Select a campaign placement.", "de": "Wählen Sie eine Platzierung für die Kampagne.", "fr": "Sélectionnez un emplacement de campagne.", "it": "Seleziona un posizionamento per la campagna.", "es": "Selecciona una ubicación para la campaña."
+  },
+  "admin.campaigns.error.event_cost_exceeds_budget": {
+    "pl": "Cena jednego zweryfikowanego zdarzenia nie może przekraczać budżetu kampanii.", "en": "The cost of one verified event cannot exceed the campaign budget.", "de": "Die Kosten eines verifizierten Ereignisses dürfen das Kampagnenbudget nicht überschreiten.", "fr": "Le coût d’un événement vérifié ne peut pas dépasser le budget de la campagne.", "it": "Il costo di un evento verificato non può superare il budget della campagna.", "es": "El coste de un evento verificado no puede superar el presupuesto de la campaña."
+  },
+  "admin.campaigns.error.type_not_ready": {
+    "pl": "Ten typ kampanii pozostaje w szkicu, dopóki nie ma wiarygodnego potwierdzenia zdarzenia.", "en": "This campaign type remains a draft until reliable event verification is available.", "de": "Dieser Kampagnentyp bleibt ein Entwurf, bis eine verlässliche Ereignisprüfung verfügbar ist.", "fr": "Ce type de campagne reste à l’état de brouillon tant qu’une vérification fiable n’est pas disponible.", "it": "Questo tipo di campagna resta in bozza finché non è disponibile una verifica affidabile.", "es": "Este tipo de campaña permanece como borrador hasta que haya una verificación fiable."
+  },
+  "admin.campaigns.error.confirm_budget": {
+    "pl": "Przed aktywacją potwierdź przyjęcie zlecenia i budżetu reklamodawcy.", "en": "Before activation, confirm acceptance of the order and advertiser budget.", "de": "Bestätigen Sie vor der Aktivierung den Auftrag und das Budget des Werbetreibenden.", "fr": "Avant l’activation, confirmez la commande et le budget de l’annonceur.", "it": "Prima dell’attivazione, conferma l’ordine e il budget dell’inserzionista.", "es": "Antes de activar, confirma el encargo y el presupuesto del anunciante."
+  },
+  "admin.campaigns.error.active_budget_and_cost": {
+    "pl": "Aktywna kampania musi mieć dodatni budżet i cenę zweryfikowanego zdarzenia.", "en": "An active campaign must have a positive budget and verified event price.", "de": "Eine aktive Kampagne benötigt ein positives Budget und einen positiven Preis pro verifiziertem Ereignis.", "fr": "Une campagne active doit avoir un budget et un prix d’événement vérifié positifs.", "it": "Una campagna attiva deve avere un budget e un prezzo per evento verificato positivi.", "es": "Una campaña activa debe tener un presupuesto y un precio por evento verificado positivos."
+  },
+  "admin.campaigns.error.banner_requirements": {
+    "pl": "Aktywny baner wymaga obrazu i prawidłowego linku docelowego.", "en": "An active banner requires an image and a valid destination URL.", "de": "Ein aktives Banner benötigt ein Bild und eine gültige Ziel-URL.", "fr": "Une bannière active nécessite une image et une URL de destination valide.", "it": "Un banner attivo richiede un’immagine e un URL di destinazione valido.", "es": "Un banner activo requiere una imagen y una URL de destino válida."
+  },
+  "admin.campaigns.error.video_requirements": {
+    "pl": "Aktywna kampania filmowa wymaga przesłanego filmu.", "en": "An active video campaign requires an uploaded video.", "de": "Eine aktive Videokampagne benötigt ein hochgeladenes Video.", "fr": "Une campagne vidéo active nécessite une vidéo importée.", "it": "Una campagna video attiva richiede un video caricato.", "es": "Una campaña de vídeo activa requiere un vídeo subido."
+  },
+  "admin.campaigns.error.published_article_required": {
+    "pl": "Wybierz opublikowany artykuł sponsorowany.", "en": "Select a published sponsored article.", "de": "Wählen Sie einen veröffentlichten gesponserten Artikel.", "fr": "Sélectionnez un article sponsorisé publié.", "it": "Seleziona un articolo sponsorizzato pubblicato.", "es": "Selecciona un artículo patrocinado publicado."
+  },
+  "admin.campaigns.error.active_survey_required": {
+    "pl": "Wybierz aktywną ankietę.", "en": "Select an active survey.", "de": "Wählen Sie eine aktive Umfrage.", "fr": "Sélectionnez une enquête active.", "it": "Seleziona un sondaggio attivo.", "es": "Selecciona una encuesta activa."
+  },
+  "admin.campaigns.error.material_already_active": {
+    "pl": "Ten materiał jest już przypięty do innej aktywnej kampanii.", "en": "This material is already linked to another active campaign.", "de": "Dieses Material ist bereits mit einer anderen aktiven Kampagne verknüpft.", "fr": "Ce contenu est déjà associé à une autre campagne active.", "it": "Questo contenuto è già collegato a un’altra campagna attiva.", "es": "Este contenido ya está vinculado a otra campaña activa."
+  },
+  "admin.campaigns.error.talent_rule_required": {
+    "pl": "Najpierw ustaw i włącz odpowiednią regułę w Ustawienia → Program Talent.", "en": "First configure and enable the matching rule in Settings → Talent Programme.", "de": "Konfigurieren und aktivieren Sie zuerst die passende Regel unter Einstellungen → Talent-Programm.", "fr": "Configurez et activez d’abord la règle correspondante dans Paramètres → Programme Talent.", "it": "Configura e attiva prima la regola corrispondente in Impostazioni → Programma Talent.", "es": "Primero configura y activa la regla correspondiente en Ajustes → Programa Talent."
+  },
+  "admin.campaigns.error.positive_margin": {
+    "pl": "Cena zdarzenia musi być wyższa od kosztu TT ({cost}), aby kampania generowała dodatnią marżę.", "en": "The event price must exceed the TT cost ({cost}) for the campaign to generate a positive margin.", "de": "Der Ereignispreis muss über den TT-Kosten ({cost}) liegen, damit die Kampagne eine positive Marge erzielt.", "fr": "Le prix de l’événement doit dépasser le coût des TT ({cost}) pour générer une marge positive.", "it": "Il prezzo dell’evento deve superare il costo dei TT ({cost}) affinché la campagna generi un margine positivo.", "es": "El precio del evento debe superar el coste de los TT ({cost}) para que la campaña genere un margen positivo."
+  },
+  "admin.campaigns.error.amounts_numeric": {
+    "pl": "Kwoty kampanii muszą być liczbami.", "en": "Campaign amounts must be numbers.", "de": "Kampagnenbeträge müssen Zahlen sein.", "fr": "Les montants de la campagne doivent être numériques.", "it": "Gli importi della campagna devono essere numeri.", "es": "Los importes de la campaña deben ser números."
+  },
+  "admin.campaigns.error.invalid_date": {
+    "pl": "Podano nieprawidłową datę kampanii.", "en": "An invalid campaign date was provided.", "de": "Es wurde ein ungültiges Kampagnendatum angegeben.", "fr": "Une date de campagne non valide a été fournie.", "it": "È stata fornita una data della campagna non valida.", "es": "Se proporcionó una fecha de campaña no válida."
+  },
   "admin.role_panel.saving": {
     "pl": "Zapisywanie…", "en": "Saving…", "de": "Wird gespeichert…", "fr": "Enregistrement…", "it": "Salvataggio…", "es": "Guardando…"
   }

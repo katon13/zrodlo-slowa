@@ -35,6 +35,28 @@ final class UiLocalizationArchitectureTest extends TestCase
         }
     }
 
+    public function testForeignCatalogEntriesContainNoPolishLanguageResidues(): void
+    {
+        $violations = [];
+        foreach (['public.json', 'admin.json', 'safety_fund.json'] as $file) {
+            foreach ($this->catalog($file) as $key => $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
+                foreach (array_diff(self::LANGUAGES, ['pl']) as $language) {
+                    $value = (string)($entry[$language] ?? '');
+                    $checked = str_replace(['ŹRÓDŁO SŁOWA', 'zł'], '', $value);
+                    if (preg_match('/[ąćęłńśźżĄĆĘŁŃŚŹŻ]/u', $checked) === 1
+                        || preg_match('/\b(?:mogą|są|wartość|wartości|może|można|brak|aktywny|aktywna)\b/ui', $checked) === 1) {
+                        $violations[] = $file . ' / ' . $key . ' / ' . $language . ': ' . $value;
+                    }
+                }
+            }
+        }
+
+        self::assertSame([], $violations, "Polish residues in foreign translations:\n" . implode("\n", $violations));
+    }
+
     public function testEveryLiteralTranslationKeyUsedByWwwExists(): void
     {
         $catalog = array_merge(
@@ -43,7 +65,7 @@ final class UiLocalizationArchitectureTest extends TestCase
             $this->catalog('safety_fund.json'),
         );
         $missing = [];
-        foreach (array_merge($this->phpFiles('views'), $this->phpFiles('app/Controllers')) as $file) {
+        foreach (array_merge($this->phpFiles('views'), $this->phpFiles('app/Controllers'), $this->phpFiles('app/Services')) as $file) {
             $source = (string)file_get_contents($file);
             preg_match_all('/\bt\(\s*[\'\"]([^\'\"]+)[\'\"]/', $source, $matches);
             foreach ($matches[1] as $key) {
@@ -140,6 +162,77 @@ final class UiLocalizationArchitectureTest extends TestCase
             }
         }
         self::assertSame([], $violations, "Hardcoded controller UI copy:\n" . implode("\n", $violations));
+    }
+
+    public function testViewsContainNoKnownAsciiPolishUiResidues(): void
+    {
+        $violations = [];
+        $pattern = '/(?:\baktywny\b|\baktywna\b|ostatni test|brak ostatniego testu|brak metody|'
+            . 'zapisz zmiany w ankiecie|redakcja:|autor:|aktualizacja:|\bzaplanowanych\b|'
+            . '\bpozycji\b|\bodpowiedzi\b|zmiana:|korekta:)/ui';
+
+        foreach ($this->phpFiles('views') as $file) {
+            $source = (string)file_get_contents($file);
+            foreach (token_get_all($source) as $token) {
+                if (!is_array($token) || $token[0] !== T_CONSTANT_ENCAPSED_STRING) {
+                    continue;
+                }
+                $copy = trim($token[1], "'\"");
+                if (preg_match($pattern, $copy) !== 1) {
+                    continue;
+                }
+                $line = explode("\n", $source)[$token[2] - 1] ?? '';
+                if (str_contains($line, 't(') || preg_match('/^[a-z0-9_.:-]+$/i', $copy) === 1) {
+                    continue;
+                }
+                $violations[] = $this->relative($file) . ':' . $token[2] . ': ' . $copy;
+            }
+        }
+
+        self::assertSame([], $violations, "Known hardcoded Polish UI residues:\n" . implode("\n", $violations));
+    }
+
+    public function testUserFacingServiceCopyUsesJsonCatalogs(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $sources = [
+            'app/Services/ErrorReporter.php' => [
+                "t('error.reference')",
+            ],
+            'app/Services/AppReferralService.php' => [
+                "t('referral.mail.subject'",
+                "t('referral.mail.body'",
+                "t('referral.mail.failed')",
+                "t('referral.error.invalid_email')",
+            ],
+            'app/Services/AuthSecurityService.php' => [
+                "t('mail.email_verification.subject'",
+                "t('mail.email_verification.body'",
+            ],
+            'app/Services/CampaignService.php' => [
+                "t('campaign.type.ad_click')",
+                "t('admin.campaigns.placement.home')",
+                "t('admin.campaigns.error.invalid_type')",
+            ],
+        ];
+        foreach ($sources as $relative => $required) {
+            $source = (string)file_get_contents($root . '/' . $relative);
+            foreach ($required as $needle) {
+                self::assertStringContainsString($needle, $source, $relative . ': ' . $needle);
+            }
+        }
+
+        $referral = (string)file_get_contents($root . '/app/Services/AppReferralService.php');
+        self::assertDoesNotMatchRegularExpression('/throw new [^(]+\(\s*[\'\"]/', $referral);
+        self::assertStringNotContainsString('Zaproszenie do aplikacji ŹRÓDŁO', $referral);
+        self::assertStringNotContainsString('Wysyłka nie powiodła się po wszystkich próbach', $referral);
+
+        $campaign = (string)file_get_contents($root . '/app/Services/CampaignService.php');
+        self::assertDoesNotMatchRegularExpression('/throw new [^(]+\(\s*[\'\"]/', $campaign);
+        self::assertStringNotContainsString("'Aktywna'", $campaign);
+
+        $errorReporter = (string)file_get_contents($root . '/app/Services/ErrorReporter.php');
+        self::assertStringNotContainsString('Kod zgłoszenia:', $errorReporter);
     }
 
     public function testJavascriptAndViewMetadataDoNotIntroduceLiteralUiCopy(): void

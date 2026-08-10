@@ -42,6 +42,54 @@ final class OperatorPanelPresenterTest extends TestCase
         self::assertSame([], $groups);
     }
 
+    public function testTalentRulePresenterUsesRequestedAdminLanguage(): void
+    {
+        $groups = TalentRulePresenter::groups([
+            $this->rule('day_visit_bonus'),
+            $this->rule('response_publication_bonus'),
+            $this->rule('ad_click_reward'),
+        ], 'en');
+
+        self::assertSame('Getting started and active presence', $groups[0]['title']);
+        self::assertSame('Active daily visit', $groups[0]['rules'][0]['operator_title']);
+        self::assertSame('Reading and community', $groups[1]['title']);
+        self::assertSame('Published opinion or response', $groups[1]['rules'][0]['operator_title']);
+        self::assertSame('Surveys and campaigns', $groups[2]['title']);
+        self::assertSame('Advertisement click', $groups[2]['rules'][0]['operator_title']);
+        self::assertSame('WORKING', $groups[2]['rules'][0]['operator_readiness']);
+    }
+
+    public function testTalentRuleCatalogIsCompleteForEverySupportedLanguage(): void
+    {
+        foreach (['pl', 'en', 'de', 'fr', 'it', 'es'] as $language) {
+            $groups = TalentRulePresenter::groups([
+                $this->rule('registration_bonus'),
+                $this->rule('day_visit_bonus'),
+                $this->rule('article_read_bonus'),
+                $this->rule('response_publication_bonus'),
+                $this->rule('bug_report_bonus'),
+                $this->rule('survey_reward'),
+                $this->rule('ad_view_reward'),
+                $this->rule('ad_click_reward'),
+            ], $language);
+
+            self::assertCount(3, $groups, $language);
+            foreach ($groups as $group) {
+                self::assertStringNotContainsString('admin.talent.', $group['title'], $language);
+                self::assertStringNotContainsString('admin.talent.', $group['description'], $language);
+                foreach ($group['rules'] as $rule) {
+                    foreach (['operator_title', 'operator_description', 'operator_readiness', 'operator_trigger'] as $field) {
+                        self::assertStringNotContainsString('admin.talent.', (string)$rule[$field], $language . ':' . $field);
+                        self::assertNotSame('', trim((string)$rule[$field]), $language . ':' . $field);
+                    }
+                    if ($rule['operator_badge'] !== null) {
+                        self::assertStringNotContainsString('admin.talent.', (string)$rule['operator_badge'], $language . ':badge');
+                    }
+                }
+            }
+        }
+    }
+
     public function testEveryConfiguredTalentRuleHasAnOperatorDescription(): void
     {
         $types = [

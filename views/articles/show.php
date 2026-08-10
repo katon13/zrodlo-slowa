@@ -149,7 +149,7 @@ if (trim($currencyInfo) === '') {
               $pubTime = strtotime($article['published_at']);
               $updTime = strtotime($article['updated_at']);
               if ($updTime > $pubTime + 60) {
-                  echo '<span>·</span><span class="zs-updated-at" style="color: #718096; font-size: 0.9em;">Aktualizowano: ' . date('d.m.Y H:i', $updTime) . '</span>';
+                  echo '<span>·</span><span class="zs-updated-at" style="color: #718096; font-size: 0.9em;">' . e(str_replace('{date}', date('d.m.Y H:i', $updTime), t('article.updated_at', $current_language ?? null))) . '</span>';
               }
           }
         ?>

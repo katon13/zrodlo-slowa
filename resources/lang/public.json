@@ -780,8 +780,8 @@
     "en": "Talents can be used in the system or — after review — transferred to the settlement wallet.",
     "de": "Talente können im System verwendet oder — nach Prüfung — ins Abrechnungswallet übertragen werden.",
     "fr": "Les talents peuvent être utilisés dans le système ou — après contrôle — transférés vers le portefeuille de règlement.",
-    "it": "I talenti mogą być usani nel sistema oppure — dopo il controllo — trasferiti al portafoglio di regolamento.",
-    "es": "Los talentos mogą usarse en el sistema o — tras revisión — transferirse a la cartera de liquidación."
+    "it": "I Talent possono essere utilizzati nel sistema oppure, dopo una verifica, trasferiti al portafoglio di regolamento.",
+    "es": "Los Talent pueden utilizarse en el sistema o, tras una revisión, transferirlos a la cartera de liquidación."
   },
   "wallet.topup_title": {
     "pl": "Zasil portfel",
@@ -1379,9 +1379,9 @@
     "pl": "Talenty są wartością aktywnościową. Możesz je wykorzystać w systemie albo — po kontroli — przenieść do portfela rozliczeniowego.",
     "en": "Talents are activity value. You can use them in the system or — after review — transfer them to the settlement wallet.",
     "de": "Talente sind Aktivitätswerte. Du kannst sie im System nutzen oder — nach Prüfung — ins Abrechnungswallet übertragen.",
-    "fr": "Les talents są une valeur d’activité. Vous pouvez les utiliser dans le système ou — après contrôle — les transférer vers le portefeuille de règlement.",
-    "it": "I talenti sono un wartość di attività. Puoi usarli nel sistema oppure — dopo il controllo — trasferirli al portafoglio di regolamento.",
-    "es": "Los talentos są valor de actividad. Puedes usarlos en el sistema o — tras revisión — transferirlos a la cartera de liquidación."
+    "fr": "Les Talent sont une valeur d’activité. Vous pouvez les utiliser dans le système ou, après vérification, les transférer vers le portefeuille de règlement.",
+    "it": "I Talent sono un valore di attività. Puoi utilizzarli nel sistema oppure, dopo una verifica, trasferirli al portafoglio di regolamento.",
+    "es": "Los Talent son un valor de actividad. Puedes utilizarlos en el sistema o, tras una revisión, transferirlos a la cartera de liquidación."
   },
   "wallet.conversion.rate": {
     "pl": "Kurs",
@@ -6088,12 +6088,12 @@
     "es": "Progresos en la recaudación"
   },
   "ui.donations.campaign.z": {
-    "pl": "zł",
-    "en": "zł",
-    "de": "złoł",
-    "fr": "Les",
-    "it": "#",
-    "es": "zł"
+    "pl": "PLN",
+    "en": "PLN",
+    "de": "PLN",
+    "fr": "PLN",
+    "it": "PLN",
+    "es": "PLN"
   },
   "ui.layouts.error.dostep_ograniczony": {
     "pl": "Dostęp ograniczony",
@@ -7460,6 +7460,232 @@
   },
   "common.editorial": {
     "pl": "Redakcja", "en": "Editorial team", "de": "Redaktion", "fr": "Rédaction", "it": "Redazione", "es": "Redacción"
+  },
+  "reader.dashboard.items_count": {
+    "pl": "{count} pozycji",
+    "en": "{count} items",
+    "de": "{count} Einträge",
+    "fr": "{count} éléments",
+    "it": "{count} elementi",
+    "es": "{count} elementos"
+  },
+  "article.updated_at": {
+    "pl": "Aktualizowano: {date}",
+    "en": "Updated: {date}",
+    "de": "Aktualisiert: {date}",
+    "fr": "Mis à jour : {date}",
+    "it": "Aggiornato: {date}",
+    "es": "Actualizado: {date}"
+  },
+  "error.reference": {
+    "pl": "Kod zgłoszenia: {reference}.",
+    "en": "Report code: {reference}.",
+    "de": "Meldungscode: {reference}.",
+    "fr": "Code du signalement : {reference}.",
+    "it": "Codice della segnalazione: {reference}.",
+    "es": "Código del informe: {reference}."
+  },
+  "referral.mail.subject": {
+    "pl": "Zaproszenie do aplikacji ŹRÓDŁO SŁOWA – {points} TT dla każdej strony",
+    "en": "Invitation to the ŹRÓDŁO SŁOWA app – {points} TT for each person",
+    "de": "Einladung zur ŹRÓDŁO SŁOWA App – {points} TT für jede Person",
+    "fr": "Invitation à l’application ŹRÓDŁO SŁOWA – {points} TT pour chaque personne",
+    "it": "Invito all’app ŹRÓDŁO SŁOWA – {points} TT per ciascuna persona",
+    "es": "Invitación a la aplicación ŹRÓDŁO SŁOWA – {points} TT para cada persona"
+  },
+  "referral.mail.body": {
+    "pl": "Otrzymujesz zaproszenie do aplikacji ŹRÓDŁO SŁOWA.\n\nPo instalacji aplikacji, pierwszej rejestracji i pierwszej prawidłowej sesji Ty oraz osoba polecająca otrzymacie po {points} TT w Programie Talent.\n\nZaproszenie jest ważne do {expires_at} UTC.\nOtwórz zaproszenie: {link}\n\nWartość nagrody została zapisana w tym zaproszeniu i nie zmieni się po późniejszej zmianie promocji.",
+    "en": "You have received an invitation to the ŹRÓDŁO SŁOWA app.\n\nAfter installing the app, completing the first registration and starting the first valid session, you and the person who invited you will each receive {points} TT in the Talent Programme.\n\nThe invitation is valid until {expires_at} UTC.\nOpen the invitation: {link}\n\nThe reward value has been saved with this invitation and will not change if the promotion is changed later.",
+    "de": "Sie haben eine Einladung zur ŹRÓDŁO SŁOWA App erhalten.\n\nNach der Installation der App, der ersten Registrierung und der ersten gültigen Sitzung erhalten Sie und die einladende Person jeweils {points} TT im Talent-Programm.\n\nDie Einladung ist bis {expires_at} UTC gültig.\nEinladung öffnen: {link}\n\nDer Prämienwert wurde mit dieser Einladung gespeichert und ändert sich nicht, wenn die Aktion später geändert wird.",
+    "fr": "Vous avez reçu une invitation à l’application ŹRÓDŁO SŁOWA.\n\nAprès l’installation de l’application, la première inscription et la première session valide, vous et la personne qui vous a invité recevrez chacun {points} TT dans le Programme Talent.\n\nL’invitation est valable jusqu’au {expires_at} UTC.\nOuvrir l’invitation : {link}\n\nLa valeur de la récompense a été enregistrée avec cette invitation et ne changera pas si la promotion est modifiée ultérieurement.",
+    "it": "Hai ricevuto un invito all’app ŹRÓDŁO SŁOWA.\n\nDopo l’installazione dell’app, la prima registrazione e la prima sessione valida, tu e la persona che ti ha invitato riceverete ciascuno {points} TT nel Programma Talent.\n\nL’invito è valido fino al {expires_at} UTC.\nApri l’invito: {link}\n\nIl valore della ricompensa è stato salvato con questo invito e non cambierà se la promozione verrà modificata in seguito.",
+    "es": "Has recibido una invitación a la aplicación ŹRÓDŁO SŁOWA.\n\nDespués de instalar la aplicación, completar el primer registro e iniciar la primera sesión válida, tú y la persona que te invitó recibiréis {points} TT cada uno en el Programa Talent.\n\nLa invitación es válida hasta {expires_at} UTC.\nAbrir la invitación: {link}\n\nEl valor de la recompensa se ha guardado con esta invitación y no cambiará si la promoción se modifica posteriormente."
+  },
+  "referral.mail.failed": {
+    "pl": "Wysyłka nie powiodła się po wszystkich próbach.",
+    "en": "Delivery failed after all attempts.",
+    "de": "Die Zustellung ist nach allen Versuchen fehlgeschlagen.",
+    "fr": "L’envoi a échoué après toutes les tentatives.",
+    "it": "L’invio non è riuscito dopo tutti i tentativi.",
+    "es": "El envío falló después de todos los intentos."
+  },
+  "mail.email_verification.subject": {
+    "pl": "Potwierdź e-mail — ŹRÓDŁO SŁOWA",
+    "en": "Confirm your email — ŹRÓDŁO SŁOWA",
+    "de": "E-Mail bestätigen — ŹRÓDŁO SŁOWA",
+    "fr": "Confirmez votre e-mail — ŹRÓDŁO SŁOWA",
+    "it": "Conferma l’e-mail — ŹRÓDŁO SŁOWA",
+    "es": "Confirma tu correo electrónico — ŹRÓDŁO SŁOWA"
+  },
+  "mail.email_verification.body": {
+    "pl": "Potwierdź adres e-mail, otwierając ten link: {link}",
+    "en": "Confirm your email address by opening this link: {link}",
+    "de": "Bestätigen Sie Ihre E-Mail-Adresse über diesen Link: {link}",
+    "fr": "Confirmez votre adresse e-mail en ouvrant ce lien : {link}",
+    "it": "Conferma il tuo indirizzo e-mail aprendo questo link: {link}",
+    "es": "Confirma tu dirección de correo electrónico abriendo este enlace: {link}"
+  },
+  "referral.error.postgres_only": {
+    "pl": "Program poleceń aplikacji działa wyłącznie z PostgreSQL.", "en": "The app referral programme works only with PostgreSQL.", "de": "Das App-Empfehlungsprogramm funktioniert nur mit PostgreSQL.", "fr": "Le programme de parrainage de l’application fonctionne uniquement avec PostgreSQL.", "it": "Il programma di inviti dell’app funziona solo con PostgreSQL.", "es": "El programa de referidos de la aplicación funciona solo con PostgreSQL."
+  },
+  "referral.error.invalid_email": {
+    "pl": "Podaj prawidłowy adres e-mail osoby zapraszanej.", "en": "Enter a valid email address for the person you are inviting.", "de": "Geben Sie eine gültige E-Mail-Adresse der eingeladenen Person ein.", "fr": "Saisissez une adresse e-mail valide pour la personne invitée.", "it": "Inserisci un indirizzo e-mail valido per la persona invitata.", "es": "Introduce una dirección de correo válida para la persona invitada."
+  },
+  "referral.error.active_account_required": {
+    "pl": "Aktywne konto jest wymagane do wysłania zaproszenia.", "en": "An active account is required to send an invitation.", "de": "Zum Senden einer Einladung ist ein aktives Konto erforderlich.", "fr": "Un compte actif est requis pour envoyer une invitation.", "it": "Per inviare un invito è necessario un account attivo.", "es": "Se necesita una cuenta activa para enviar una invitación."
+  },
+  "referral.error.talent_wallet_required": {
+    "pl": "Program poleceń wymaga aktywnego Talentu i portfela.", "en": "The referral programme requires an active Talent account and wallet.", "de": "Das Empfehlungsprogramm erfordert ein aktives Talent-Konto und Wallet.", "fr": "Le programme de parrainage nécessite un compte Talent et un portefeuille actifs.", "it": "Il programma di inviti richiede Talent e portafoglio attivi.", "es": "El programa de referidos requiere Talent y cartera activos."
+  },
+  "referral.error.own_email": {
+    "pl": "Nie można wysłać zaproszenia na adres własnego konta.", "en": "You cannot send an invitation to your own account address.", "de": "Sie können keine Einladung an die Adresse Ihres eigenen Kontos senden.", "fr": "Vous ne pouvez pas envoyer une invitation à l’adresse de votre propre compte.", "it": "Non puoi inviare un invito all’indirizzo del tuo account.", "es": "No puedes enviar una invitación a la dirección de tu propia cuenta."
+  },
+  "referral.error.promotion_inactive": {
+    "pl": "Promocja instalacyjna nie jest teraz aktywna.", "en": "The installation promotion is not active now.", "de": "Die Installationsaktion ist derzeit nicht aktiv.", "fr": "La promotion d’installation n’est pas active actuellement.", "it": "La promozione per l’installazione non è attiva al momento.", "es": "La promoción de instalación no está activa ahora."
+  },
+  "referral.error.success_limit_reached": {
+    "pl": "Wykorzystano limit skutecznych poleceń w tej promocji.", "en": "The successful referral limit for this promotion has been reached.", "de": "Das Limit erfolgreicher Empfehlungen für diese Aktion wurde erreicht.", "fr": "La limite de parrainages réussis pour cette promotion a été atteinte.", "it": "È stato raggiunto il limite di inviti riusciti per questa promozione.", "es": "Se alcanzó el límite de referidos completados de esta promoción."
+  },
+  "referral.error.active_limit_reached": {
+    "pl": "Możesz mieć maksymalnie {limit} aktywne zaproszenia.", "en": "You can have at most {limit} active invitations.", "de": "Sie können höchstens {limit} aktive Einladungen haben.", "fr": "Vous pouvez avoir au maximum {limit} invitations actives.", "it": "Puoi avere al massimo {limit} inviti attivi.", "es": "Puedes tener como máximo {limit} invitaciones activas."
+  },
+  "referral.error.email_ineligible": {
+    "pl": "Ten adres e-mail nie kwalifikuje się do nowego zaproszenia.", "en": "This email address is not eligible for a new invitation.", "de": "Diese E-Mail-Adresse ist nicht für eine neue Einladung berechtigt.", "fr": "Cette adresse e-mail n’est pas admissible à une nouvelle invitation.", "it": "Questo indirizzo e-mail non è idoneo per un nuovo invito.", "es": "Esta dirección de correo no cumple los requisitos para una nueva invitación."
+  },
+  "referral.error.assigned_to_other_device": {
+    "pl": "To zaproszenie zostało już przypisane do innego urządzenia.", "en": "This invitation has already been assigned to another device.", "de": "Diese Einladung wurde bereits einem anderen Gerät zugewiesen.", "fr": "Cette invitation a déjà été attribuée à un autre appareil.", "it": "Questo invito è già stato assegnato a un altro dispositivo.", "es": "Esta invitación ya se ha asignado a otro dispositivo."
+  },
+  "referral.error.device_used_other_invitation": {
+    "pl": "To urządzenie wykorzystało już inne zaproszenie.", "en": "This device has already used another invitation.", "de": "Dieses Gerät hat bereits eine andere Einladung verwendet.", "fr": "Cet appareil a déjà utilisé une autre invitation.", "it": "Questo dispositivo ha già utilizzato un altro invito.", "es": "Este dispositivo ya ha utilizado otra invitación."
+  },
+  "referral.error.installation_required": {
+    "pl": "Najpierw musi zostać potwierdzona instalacja aplikacji.", "en": "The app installation must be confirmed first.", "de": "Zuerst muss die Installation der App bestätigt werden.", "fr": "L’installation de l’application doit d’abord être confirmée.", "it": "Prima deve essere confermata l’installazione dell’app.", "es": "Primero debe confirmarse la instalación de la aplicación."
+  },
+  "referral.error.registration_device_mismatch": {
+    "pl": "Rejestracja pochodzi z innego urządzenia niż instalacja.", "en": "The registration comes from a different device than the installation.", "de": "Die Registrierung stammt von einem anderen Gerät als die Installation.", "fr": "L’inscription provient d’un appareil différent de celui de l’installation.", "it": "La registrazione proviene da un dispositivo diverso da quello dell’installazione.", "es": "El registro procede de un dispositivo distinto al de la instalación."
+  },
+  "referral.error.not_waiting_for_registration": {
+    "pl": "Zaproszenie nie oczekuje już na pierwszą rejestrację.", "en": "The invitation is no longer waiting for the first registration.", "de": "Die Einladung wartet nicht mehr auf die erste Registrierung.", "fr": "L’invitation n’attend plus la première inscription.", "it": "L’invito non è più in attesa della prima registrazione.", "es": "La invitación ya no espera el primer registro."
+  },
+  "referral.error.registration_session_invalid": {
+    "pl": "Sesja rejestracji z aplikacji jest nieprawidłowa albo wygasła.", "en": "The app registration session is invalid or has expired.", "de": "Die App-Registrierungssitzung ist ungültig oder abgelaufen.", "fr": "La session d’inscription de l’application est non valide ou a expiré.", "it": "La sessione di registrazione dell’app non è valida o è scaduta.", "es": "La sesión de registro de la aplicación no es válida o ha caducado."
+  },
+  "referral.error.registration_email_mismatch": {
+    "pl": "Adres e-mail rejestracji nie zgadza się z zaproszeniem.", "en": "The registration email address does not match the invitation.", "de": "Die E-Mail-Adresse der Registrierung stimmt nicht mit der Einladung überein.", "fr": "L’adresse e-mail d’inscription ne correspond pas à l’invitation.", "it": "L’indirizzo e-mail di registrazione non corrisponde all’invito.", "es": "La dirección de correo del registro no coincide con la invitación."
+  },
+  "referral.error.own_invitation": {
+    "pl": "Nie można zrealizować własnego zaproszenia.", "en": "You cannot redeem your own invitation.", "de": "Sie können Ihre eigene Einladung nicht einlösen.", "fr": "Vous ne pouvez pas utiliser votre propre invitation.", "it": "Non puoi utilizzare il tuo stesso invito.", "es": "No puedes canjear tu propia invitación."
+  },
+  "referral.error.new_account_not_found": {
+    "pl": "Nie znaleziono nowo zarejestrowanego konta.", "en": "The newly registered account was not found.", "de": "Das neu registrierte Konto wurde nicht gefunden.", "fr": "Le compte nouvellement inscrit est introuvable.", "it": "Il nuovo account registrato non è stato trovato.", "es": "No se encontró la cuenta recién registrada."
+  },
+  "referral.error.account_must_follow_install": {
+    "pl": "Konto musi zostać utworzone po instalacji aplikacji.", "en": "The account must be created after the app is installed.", "de": "Das Konto muss nach der Installation der App erstellt werden.", "fr": "Le compte doit être créé après l’installation de l’application.", "it": "L’account deve essere creato dopo l’installazione dell’app.", "es": "La cuenta debe crearse después de instalar la aplicación."
+  },
+  "referral.error.account_used_other_invitation": {
+    "pl": "To konto wykorzystało już inne zaproszenie.", "en": "This account has already used another invitation.", "de": "Dieses Konto hat bereits eine andere Einladung verwendet.", "fr": "Ce compte a déjà utilisé une autre invitation.", "it": "Questo account ha già utilizzato un altro invito.", "es": "Esta cuenta ya ha utilizado otra invitación."
+  },
+  "referral.error.registration_session_used": {
+    "pl": "Sesja rejestracji została już wykorzystana.", "en": "The registration session has already been used.", "de": "Die Registrierungssitzung wurde bereits verwendet.", "fr": "La session d’inscription a déjà été utilisée.", "it": "La sessione di registrazione è già stata utilizzata.", "es": "La sesión de registro ya se ha utilizado."
+  },
+  "referral.error.used_by_other_account_or_device": {
+    "pl": "Zaproszenie zostało już wykorzystane przez inne konto lub urządzenie.", "en": "The invitation has already been used by another account or device.", "de": "Die Einladung wurde bereits von einem anderen Konto oder Gerät verwendet.", "fr": "L’invitation a déjà été utilisée par un autre compte ou appareil.", "it": "L’invito è già stato utilizzato da un altro account o dispositivo.", "es": "La invitación ya ha sido utilizada por otra cuenta o dispositivo."
+  },
+  "referral.error.first_session_device_mismatch": {
+    "pl": "Pierwsza sesja pochodzi z innego urządzenia niż instalacja.", "en": "The first session comes from a different device than the installation.", "de": "Die erste Sitzung stammt von einem anderen Gerät als die Installation.", "fr": "La première session provient d’un appareil différent de celui de l’installation.", "it": "La prima sessione proviene da un dispositivo diverso da quello dell’installazione.", "es": "La primera sesión procede de un dispositivo distinto al de la instalación."
+  },
+  "referral.error.account_not_registered_from_install": {
+    "pl": "Konto nie zostało zarejestrowane przez potwierdzoną instalację aplikacji.", "en": "The account was not registered through the confirmed app installation.", "de": "Das Konto wurde nicht über die bestätigte App-Installation registriert.", "fr": "Le compte n’a pas été inscrit via l’installation confirmée de l’application.", "it": "L’account non è stato registrato tramite l’installazione confermata dell’app.", "es": "La cuenta no se registró mediante la instalación confirmada de la aplicación."
+  },
+  "referral.error.first_session_inactive_account": {
+    "pl": "Pierwsza sesja nie należy do aktywnego konta.", "en": "The first session does not belong to an active account.", "de": "Die erste Sitzung gehört nicht zu einem aktiven Konto.", "fr": "La première session n’appartient pas à un compte actif.", "it": "La prima sessione non appartiene a un account attivo.", "es": "La primera sesión no pertenece a una cuenta activa."
+  },
+  "referral.error.inviter_reward_queue_failed": {
+    "pl": "Nie udało się zakolejkować nagrody osoby polecającej.", "en": "The inviter’s reward could not be queued.", "de": "Die Belohnung der einladenden Person konnte nicht in die Warteschlange gestellt werden.", "fr": "La récompense de la personne invitante n’a pas pu être mise en file d’attente.", "it": "Non è stato possibile accodare la ricompensa della persona invitante.", "es": "No se pudo poner en cola la recompensa de la persona que invitó."
+  },
+  "referral.error.invitee_reward_queue_failed": {
+    "pl": "Nie udało się zakolejkować nagrody osoby zaproszonej.", "en": "The invited person’s reward could not be queued.", "de": "Die Belohnung der eingeladenen Person konnte nicht in die Warteschlange gestellt werden.", "fr": "La récompense de la personne invitée n’a pas pu être mise en file d’attente.", "it": "Non è stato possibile accodare la ricompensa della persona invitata.", "es": "No se pudo poner en cola la recompensa de la persona invitada."
+  },
+  "referral.error.reward_range": {
+    "pl": "Wartość promocji musi mieścić się w zakresie 1–1 000 000 TT.", "en": "The promotion value must be between 1 and 1,000,000 TT.", "de": "Der Aktionswert muss zwischen 1 und 1.000.000 TT liegen.", "fr": "La valeur de la promotion doit être comprise entre 1 et 1 000 000 TT.", "it": "Il valore della promozione deve essere compreso tra 1 e 1.000.000 TT.", "es": "El valor de la promoción debe estar entre 1 y 1.000.000 TT."
+  },
+  "referral.error.limits_range": {
+    "pl": "Limity promocji muszą mieścić się w zakresie 1–100.", "en": "Promotion limits must be between 1 and 100.", "de": "Die Aktionslimits müssen zwischen 1 und 100 liegen.", "fr": "Les limites de la promotion doivent être comprises entre 1 et 100.", "it": "I limiti della promozione devono essere compresi tra 1 e 100.", "es": "Los límites de la promoción deben estar entre 1 y 100."
+  },
+  "referral.error.validity_range": {
+    "pl": "Ważność zaproszenia musi mieścić się w zakresie 1–365 dni.", "en": "Invitation validity must be between 1 and 365 days.", "de": "Die Gültigkeit der Einladung muss zwischen 1 und 365 Tagen liegen.", "fr": "La validité de l’invitation doit être comprise entre 1 et 365 jours.", "it": "La validità dell’invito deve essere compresa tra 1 e 365 giorni.", "es": "La validez de la invitación debe estar entre 1 y 365 días."
+  },
+  "referral.error.invalid_promotion_dates": {
+    "pl": "Data zakończenia promocji musi być późniejsza od daty rozpoczęcia.", "en": "The promotion end date must be later than its start date.", "de": "Das Enddatum der Aktion muss nach dem Startdatum liegen.", "fr": "La date de fin de la promotion doit être postérieure à sa date de début.", "it": "La data di fine della promozione deve essere successiva alla data di inizio.", "es": "La fecha de fin de la promoción debe ser posterior a la fecha de inicio."
+  },
+  "referral.error.promotion_not_found": {
+    "pl": "Nie znaleziono promocji Talent.", "en": "The Talent promotion was not found.", "de": "Die Talent-Aktion wurde nicht gefunden.", "fr": "La promotion Talent est introuvable.", "it": "La promozione Talent non è stata trovata.", "es": "No se encontró la promoción Talent."
+  },
+  "referral.error.invitation_invalid": {
+    "pl": "Zaproszenie jest nieprawidłowe albo nie istnieje.", "en": "The invitation is invalid or does not exist.", "de": "Die Einladung ist ungültig oder nicht vorhanden.", "fr": "L’invitation est non valide ou n’existe pas.", "it": "L’invito non è valido o non esiste.", "es": "La invitación no es válida o no existe."
+  },
+  "referral.error.invitation_expired": {
+    "pl": "Zaproszenie wygasło.", "en": "The invitation has expired.", "de": "Die Einladung ist abgelaufen.", "fr": "L’invitation a expiré.", "it": "L’invito è scaduto.", "es": "La invitación ha caducado."
+  },
+  "referral.error.invitation_inactive": {
+    "pl": "Zaproszenie nie jest już aktywne.", "en": "The invitation is no longer active.", "de": "Die Einladung ist nicht mehr aktiv.", "fr": "L’invitation n’est plus active.", "it": "L’invito non è più attivo.", "es": "La invitación ya no está activa."
+  },
+  "referral.error.rate_limit": {
+    "pl": "Przekroczono bezpieczny limit prób. Spróbuj ponownie później.", "en": "The safe attempt limit has been exceeded. Try again later.", "de": "Das sichere Versuchslimit wurde überschritten. Versuchen Sie es später erneut.", "fr": "La limite de tentatives a été dépassée. Réessayez plus tard.", "it": "È stato superato il limite di tentativi. Riprova più tardi.", "es": "Se ha superado el límite seguro de intentos. Inténtalo más tarde."
+  },
+  "referral.error.invalid_device_id": {
+    "pl": "Nieprawidłowy identyfikator instalacji aplikacji.", "en": "Invalid app installation identifier.", "de": "Ungültige Kennung der App-Installation.", "fr": "Identifiant d’installation de l’application non valide.", "it": "Identificatore di installazione dell’app non valido.", "es": "Identificador de instalación de la aplicación no válido."
+  },
+  "referral.error.application_key_missing": {
+    "pl": "Brak klucza aplikacji wymaganego do ochrony zaproszeń.", "en": "The application key required to protect invitations is missing.", "de": "Der zum Schutz der Einladungen erforderliche Anwendungsschlüssel fehlt.", "fr": "La clé d’application requise pour protéger les invitations est absente.", "it": "Manca la chiave dell’applicazione necessaria per proteggere gli inviti.", "es": "Falta la clave de la aplicación necesaria para proteger las invitaciones."
+  },
+  "referral.error.invalid_token": {
+    "pl": "Nieprawidłowy token zaproszenia.", "en": "Invalid invitation token.", "de": "Ungültiges Einladungstoken.", "fr": "Jeton d’invitation non valide.", "it": "Token di invito non valido.", "es": "Token de invitación no válido."
+  },
+  "referral.error.invalid_registration_nonce": {
+    "pl": "Nieprawidłowa sesja rejestracji z aplikacji.", "en": "Invalid app registration session.", "de": "Ungültige App-Registrierungssitzung.", "fr": "Session d’inscription de l’application non valide.", "it": "Sessione di registrazione dell’app non valida.", "es": "Sesión de registro de la aplicación no válida."
+  },
+  "referral.error.invalid_promotion_datetime": {
+    "pl": "Podaj prawidłową datę i godzinę promocji.", "en": "Enter a valid promotion date and time.", "de": "Geben Sie ein gültiges Datum und eine gültige Uhrzeit für die Aktion ein.", "fr": "Saisissez une date et une heure valides pour la promotion.", "it": "Inserisci una data e un’ora valide per la promozione.", "es": "Introduce una fecha y hora válidas para la promoción."
+  },
+  "campaign.error.not_active": {
+    "pl": "Ta kampania nie jest teraz aktywna.", "en": "This campaign is not active now.", "de": "Diese Kampagne ist derzeit nicht aktiv.", "fr": "Cette campagne n’est pas active actuellement.", "it": "Questa campagna non è attiva al momento.", "es": "Esta campaña no está activa ahora."
+  },
+  "campaign.error.invalid_action": {
+    "pl": "Ta akcja nie jest właściwa dla wybranej kampanii.", "en": "This action does not match the selected campaign.", "de": "Diese Aktion passt nicht zur ausgewählten Kampagne.", "fr": "Cette action ne correspond pas à la campagne sélectionnée.", "it": "Questa azione non corrisponde alla campagna selezionata.", "es": "Esta acción no corresponde a la campaña seleccionada."
+  },
+  "campaign.error.minimum_time": {
+    "pl": "Materiał nie był oglądany przez wymagany czas kampanii.", "en": "The material was not viewed for the required campaign time.", "de": "Das Material wurde nicht für die erforderliche Kampagnenzeit angesehen.", "fr": "Le contenu n’a pas été consulté pendant la durée requise.", "it": "Il contenuto non è stato visualizzato per il tempo richiesto.", "es": "El contenido no se vio durante el tiempo requerido."
+  },
+  "campaign.error.talent_rule_inactive": {
+    "pl": "Kampania została bezpiecznie zatrzymana, ponieważ jej reguła Talent nie jest aktywna.", "en": "The campaign was safely stopped because its Talent rule is not active.", "de": "Die Kampagne wurde sicher gestoppt, weil ihre Talent-Regel nicht aktiv ist.", "fr": "La campagne a été arrêtée en toute sécurité car sa règle Talent n’est pas active.", "it": "La campagna è stata arrestata in sicurezza perché la regola Talent non è attiva.", "es": "La campaña se detuvo de forma segura porque su regla Talent no está activa."
+  },
+  "campaign.error.rate_below_talent_cost": {
+    "pl": "Kampania została zatrzymana, ponieważ aktualna stawka nie pokrywa kosztu TT.", "en": "The campaign was stopped because the current rate does not cover the TT cost.", "de": "Die Kampagne wurde gestoppt, weil der aktuelle Satz die TT-Kosten nicht deckt.", "fr": "La campagne a été arrêtée car le tarif actuel ne couvre pas le coût des TT.", "it": "La campagna è stata arrestata perché la tariffa attuale non copre il costo dei TT.", "es": "La campaña se detuvo porque la tarifa actual no cubre el coste de los TT."
+  },
+  "campaign.error.event_limit_reached": {
+    "pl": "Limit zweryfikowanych zdarzeń tej kampanii został osiągnięty.", "en": "This campaign’s verified event limit has been reached.", "de": "Das Limit verifizierter Ereignisse dieser Kampagne wurde erreicht.", "fr": "La limite d’événements vérifiés de cette campagne a été atteinte.", "it": "È stato raggiunto il limite di eventi verificati della campagna.", "es": "Se alcanzó el límite de eventos verificados de la campaña."
+  },
+  "campaign.error.budget_exhausted": {
+    "pl": "Budżet tej kampanii został wykorzystany.", "en": "This campaign’s budget has been exhausted.", "de": "Das Budget dieser Kampagne ist aufgebraucht.", "fr": "Le budget de cette campagne est épuisé.", "it": "Il budget di questa campagna è esaurito.", "es": "El presupuesto de esta campaña se ha agotado."
+  },
+  "campaign.error.reward_queue_failed": {
+    "pl": "Nie udało się zakolejkować należnych TT. Zdarzenie nie zostało rozliczone.", "en": "The TT due could not be queued. The event was not settled.", "de": "Die fälligen TT konnten nicht in die Warteschlange gestellt werden. Das Ereignis wurde nicht abgerechnet.", "fr": "Les TT dus n’ont pas pu être mis en file d’attente. L’événement n’a pas été réglé.", "it": "Non è stato possibile accodare i TT dovuti. L’evento non è stato contabilizzato.", "es": "No se pudieron poner en cola los TT debidos. El evento no se liquidó."
+  },
+  "campaign.error.reward_not_queued": {
+    "pl": "Kampania nie została rozliczona, ponieważ należne TT nie trafiły do kolejki Talent.", "en": "The campaign was not settled because the TT due did not reach the Talent queue.", "de": "Die Kampagne wurde nicht abgerechnet, weil die fälligen TT nicht in die Talent-Warteschlange gelangten.", "fr": "La campagne n’a pas été réglée car les TT dus n’ont pas atteint la file Talent.", "it": "La campagna non è stata contabilizzata perché i TT dovuti non sono arrivati alla coda Talent.", "es": "La campaña no se liquidó porque los TT debidos no llegaron a la cola Talent."
+  },
+  "campaign.error.invalid_talent_job": {
+    "pl": "Zadanie Talent nie odpowiada potwierdzonemu działaniu kampanii.", "en": "The Talent job does not match the confirmed campaign action.", "de": "Der Talent-Auftrag entspricht nicht der bestätigten Kampagnenaktion.", "fr": "La tâche Talent ne correspond pas à l’action de campagne confirmée.", "it": "L’attività Talent non corrisponde all’azione confermata della campagna.", "es": "La tarea Talent no corresponde a la acción confirmada de la campaña."
+  },
+  "campaign.error.event_mismatch": {
+    "pl": "Kampania nie odpowiada potwierdzonemu działaniu.", "en": "The campaign does not match the confirmed action.", "de": "Die Kampagne entspricht nicht der bestätigten Aktion.", "fr": "La campagne ne correspond pas à l’action confirmée.", "it": "La campagna non corrisponde all’azione confermata.", "es": "La campaña no corresponde a la acción confirmada."
+  },
+  "campaign.error.reward_disabled": {
+    "pl": "Kampania została wstrzymana, ponieważ odpowiadająca nagroda TT jest wyłączona.", "en": "The campaign was paused because the matching TT reward is disabled.", "de": "Die Kampagne wurde pausiert, weil die entsprechende TT-Belohnung deaktiviert ist.", "fr": "La campagne a été suspendue car la récompense TT correspondante est désactivée.", "it": "La campagna è stata sospesa perché la ricompensa TT corrispondente è disattivata.", "es": "La campaña se pausó porque la recompensa TT correspondiente está desactivada."
+  },
+  "campaign.error.rate_below_reward": {
+    "pl": "Kampania została wstrzymana, ponieważ stawka nie pokrywa nagrody TT.", "en": "The campaign was paused because the rate does not cover the TT reward.", "de": "Die Kampagne wurde pausiert, weil der Satz die TT-Belohnung nicht deckt.", "fr": "La campagne a été suspendue car le tarif ne couvre pas la récompense TT.", "it": "La campagna è stata sospesa perché la tariffa non copre la ricompensa TT.", "es": "La campaña se pausó porque la tarifa no cubre la recompensa TT."
   },
   "article.read_more": {
     "pl": "Czytaj dalej",

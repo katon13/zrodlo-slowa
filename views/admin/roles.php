@@ -36,7 +36,7 @@
           <td>
             <div class="zs-user-info">
               <strong class="zs-user-name"><?php echo e($role['label']); ?></strong>
-              <small class="zs-user-email">klucz: <?php echo e($code); ?></small>
+              <small class="zs-user-email"><?= e(t('admin.roles.key_prefix')) ?> <?php echo e($code); ?></small>
             </div>
           </td>
           <td><strong><?php echo e($role['tile']); ?></strong></td>
@@ -78,7 +78,7 @@
             <div class="zs-user-info">
               <strong class="zs-user-name"><?php echo e($user['display_name'] ?: str_replace('{id}', (string)$user['id'], t('admin.roles.user_number'))); ?></strong>
               <small class="zs-user-email"><?php echo e($user['email']); ?></small>
-              <small class="zs-user-email">status: <?php echo e($user['status']); ?></small>
+              <small class="zs-user-email"><?= e(t('admin.roles.status_prefix')) ?> <?php echo e($user['status']); ?></small>
             </div>
           </td>
           <td style="width: 200px;">

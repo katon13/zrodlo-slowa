@@ -15,7 +15,7 @@ Podział katalogów:
 - `resources/lang/safety_fund.json` — ekonomia, Talent, ledger i Safety Fund;
 - `resources/lang/dors3.json` — interfejs bezpieczeństwa 3DORS.
 
-Łącznie płaskie katalogi zawierają 2477 kluczy: publiczny 940, administracyjny 1330 i Safety Fund 207. Każdy wpis ma komplet sześciu wersji językowych. Drzewo 3DORS ma identyczną strukturę dla wszystkich języków.
+Łącznie płaskie katalogi zawierają 2623 klucze: publiczny 1002, administracyjny 1414 i Safety Fund 207. Każdy wpis ma komplet sześciu wersji językowych. Drzewo 3DORS ma identyczną strukturę dla wszystkich języków.
 
 ## Zmiany widoczne
 
@@ -23,6 +23,9 @@ Podział katalogów:
 - ujednolicono nazwy ról, stanów artykułów, ankiet, kampanii, poleceń aplikacji, wypłat, maili i antyfraudu;
 - usunięto z paneli identyfikatory zadań i transakcji, których operator nie potrzebuje do obsługi;
 - komunikaty AJAX korzystają z tych samych tłumaczeń co widoki serwerowe;
+- język wybrany w panelu admina pozostaje aktywny także po przejściu zwykłym linkiem `/admin/*`;
+- do JSON przeniesiono komunikaty referral, treść zaproszenia, e-mail weryfikacyjny, kod zgłoszenia oraz walidację kampanii;
+- poprawiono obce wersje opisów Talentu zawierające polskie słowa „mogą”, „są” i „wartość”;
 - dodano faviconę, dzięki czemu przeglądarka nie generuje błędu zasobu;
 - zachowano dotychczasowy styl publicznego WWW i panelu administracyjnego.
 
@@ -37,6 +40,9 @@ Test `tests/Unit/UiLocalizationArchitectureTest.php` kontroluje:
 - brak tekstów UI wpisanych w kontrolerach;
 - brak literalnych komunikatów przypisywanych przez JavaScript;
 - brak literalnych etykiet i podpowiedzi w metadanych widoków.
+- brak polskich wtrąceń w EN / DE / FR / IT / ES, z zachowaniem nazwy marki;
+- brak znanych pozostałości bez polskich znaków, m.in. „Aktywna”, „Ostatni test”, „Brak metody”, „Autor:” i „Redakcja:”;
+- obecność kluczy JSON używanych przez serwisy wyświetlające wiadomości użytkownikowi.
 
 Dodatkowo skrypty `scripts/localize_static_views.py` i `scripts/localize_controller_ui.py` działają jako powtarzalny skaner. Końcowy przebieg obu narzędzi zwrócił po 0 zmian oczekujących.
 
@@ -44,9 +50,9 @@ Dodatkowo skrypty `scripts/localize_static_views.py` i `scripts/localize_control
 
 | Kontrola | Wynik |
 | --- | --- |
-| Pełne testy jednostkowe | 114/114, 51 227 asercji |
+| Pełne testy jednostkowe | 123/123, 54 502 asercje |
 | Pełne testy integracyjne | 130/130, 863 asercje, 9 scenariuszy środowiskowych pominiętych |
-| Testy architektury tłumaczeń | 10/10, 48 685 asercji |
+| Testy języka admina, presenterów i architektury tłumaczeń | 20/20, 50 423 asercje na każdym z dwóch serwerów |
 | PHPStan, tryb szeregowy | brak błędów |
 | PHP lint: `app`, `views`, `tests`, `scripts` | brak błędów składni |
 | `git diff --check` | czysto |
@@ -56,8 +62,8 @@ Dodatkowo skrypty `scripts/localize_static_views.py` i `scripts/localize_control
 
 ## Dwa serwery i przeglądarka
 
-- `app-1`: healthy, `/pl` = HTTP 200;
-- `app-2`: healthy, `/pl` = HTTP 200;
+- `app-1`: healthy, `/pl/jak-zarabiac` = HTTP 200;
+- `app-2`: healthy, `/pl/jak-zarabiac` = HTTP 200;
 - proxy `http://localhost:8080`: healthy;
 - strony `/pl`, `/en`, `/de`, `/fr`, `/it`, `/es`: HTTP 200;
 - logowanie `katon` i wejście do `/admin/settings`: HTTP 200;
@@ -67,6 +73,7 @@ Dodatkowo skrypty `scripts/localize_static_views.py` i `scripts/localize_control
 
 - [Publiczne WWW — Jak zarabiać](screenshots/lokalizacja-ui/publiczne-www-jak-zarabiac.png)
 - [Panel administracyjny — Ustawienia i Talent](screenshots/lokalizacja-ui/panel-admina-ustawienia-talent.png)
+- [Panel administracyjny po angielsku — Ustawienia i Talent](screenshots/lokalizacja-ui/panel-admina-ustawienia-talent-en.png)
 
 ## Status
 

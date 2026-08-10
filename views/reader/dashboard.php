@@ -38,7 +38,7 @@ $articleCount = count($articles ?? []);
       <p class="kicker"><?= e(t('ui.reader.dashboard.najnowsze')) ?></p>
       <h2><?= e(t('ui.reader.dashboard.teksty_dla_ciebie')) ?></h2>
     </div>
-    <span><?= $articleCount ?> pozycji</span>
+    <span><?= e(str_replace('{count}', (string)$articleCount, t('reader.dashboard.items_count', $current_language ?? null))) ?></span>
   </div>
 
   <?php if ($articleCount === 0): ?>

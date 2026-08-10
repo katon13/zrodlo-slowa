@@ -133,13 +133,19 @@ final class AuthSecurityService
 
     public function queueEmailVerification(int $userId, string $baseUrl = ''): string
     {
-        $user = $this->db->one('SELECT id,email FROM users WHERE id=:id LIMIT 1', ['id' => $userId]);
+        $user = $this->db->one('SELECT id,email,interface_language FROM users WHERE id=:id LIMIT 1', ['id' => $userId]);
         if (!$user) {
             throw new \RuntimeException('Nie znaleziono użytkownika.');
         }
         $token = $this->createEmailVerificationToken($userId);
         $link = rtrim($baseUrl, '/') . '/email/verify?token=' . urlencode($token);
-        (new MailService($this->db, $this->queueSignals))->queue($userId, (string)$user['email'], 'Potwierdź e-mail — Źródło Słowa', "Potwierdź adres e-mail klikając link: {$link}");
+        $language = (string)($user['interface_language'] ?? public_language());
+        (new MailService($this->db, $this->queueSignals))->queue(
+            $userId,
+            (string)$user['email'],
+            t('mail.email_verification.subject', $language),
+            str_replace('{link}', $link, t('mail.email_verification.body', $language)),
+        );
         return $link;
     }
 

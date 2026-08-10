@@ -23,6 +23,6 @@ final class ErrorReporter
         if (strtolower((string)env('APP_ENV', 'production')) !== 'production' && env_bool('APP_DEBUG', false)) {
             return $error->getMessage() . " [{$reference}]";
         }
-        return rtrim($fallback) . " Kod zgłoszenia: {$reference}.";
+        return rtrim($fallback) . ' ' . str_replace('{reference}', $reference, t('error.reference'));
     }
 }

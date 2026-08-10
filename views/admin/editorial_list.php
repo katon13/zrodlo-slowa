@@ -112,9 +112,9 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
                 <?php endif; ?>
               </div>
               <div class="editorial-card-dates">
-                <small>Zmiana: <?= e($updatedAt ? date('d.m.Y H:i', strtotime($updatedAt)) : '—') ?></small>
+                <small><?= e(t('admin.editorial_list.change_prefix')) ?> <?= e($updatedAt ? date('d.m.Y H:i', strtotime($updatedAt)) : '—') ?></small>
                 <?php if ($proofreadAt !== ''): ?>
-                  <small>KOREKTA: <?= e(date('d.m.Y H:i', strtotime($proofreadAt))) ?></small>
+                  <small><?= e(str_replace('{date}', date('d.m.Y H:i', strtotime($proofreadAt)), t('admin.editorial_list.proofreading_date'))) ?></small>
                 <?php endif; ?>
               </div>
             </div>

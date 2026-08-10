@@ -25,49 +25,54 @@ final class AppReferralService
         private readonly ?QueueSignalInterface $queueSignals = null,
     ) {
         if (!$this->db->isPostgres()) {
-            throw new \RuntimeException('Program poleceń aplikacji działa wyłącznie z PostgreSQL.');
+            throw new \RuntimeException(t('referral.error.postgres_only'));
         }
     }
 
     /** @return array<string,mixed> */
     public function createInvitation(int $inviterUserId, string $email): array
     {
+        $language = public_language();
         $email = strtolower(trim($email));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 190) {
-            throw new \InvalidArgumentException('Podaj prawidłowy adres e-mail osoby zapraszanej.');
+            throw new \InvalidArgumentException(t('referral.error.invalid_email'));
         }
 
         $this->hitRateLimit('referral.invite.user', (string)$inviterUserId, 6, 3600);
         $this->hitRateLimit('referral.invite.ip', RequestContext::ipAddress() ?? 'unknown', 20, 3600);
 
-        return $this->db->transaction(function (Database $db) use ($inviterUserId, $email): array {
+        return $this->db->transaction(function (Database $db) use ($inviterUserId, $email, $language): array {
             $inviter = $db->one(
                 'SELECT id,email,status,talent_enabled,wallet_enabled FROM users WHERE id=:id FOR UPDATE',
                 ['id' => $inviterUserId]
             );
             if ($inviter === null || !in_array((string)$inviter['status'], ['active', 'pending_author'], true)) {
-                throw new \RuntimeException('Aktywne konto jest wymagane do wysłania zaproszenia.');
+                throw new \RuntimeException(t('referral.error.active_account_required'));
             }
             if ((int)$inviter['talent_enabled'] !== 1 || (int)$inviter['wallet_enabled'] !== 1) {
-                throw new \RuntimeException('Program poleceń wymaga aktywnego Talentu i portfela.');
+                throw new \RuntimeException(t('referral.error.talent_wallet_required'));
             }
             if (hash_equals(strtolower((string)$inviter['email']), $email)) {
-                throw new \InvalidArgumentException('Nie można wysłać zaproszenia na adres własnego konta.');
+                throw new \InvalidArgumentException(t('referral.error.own_email'));
             }
 
             $this->synchronizeTerminalStates($inviterUserId);
             $promotion = $this->currentPromotion(true);
             if ($promotion === null) {
-                throw new \RuntimeException('Promocja instalacyjna nie jest teraz aktywna.');
+                throw new \RuntimeException(t('referral.error.promotion_inactive'));
             }
 
             $successful = $this->countForInviter($inviterUserId, self::SUCCESS_STATUSES);
             if ($successful >= (int)$promotion['successful_referral_limit']) {
-                throw new \RuntimeException('Wykorzystano limit skutecznych poleceń w tej promocji.');
+                throw new \RuntimeException(t('referral.error.success_limit_reached'));
             }
             $active = $this->countForInviter($inviterUserId, self::ACTIVE_STATUSES);
             if ($active >= (int)$promotion['active_invitation_limit']) {
-                throw new \RuntimeException('Możesz mieć maksymalnie ' . (int)$promotion['active_invitation_limit'] . ' aktywne zaproszenia.');
+                throw new \RuntimeException(str_replace(
+                    '{limit}',
+                    (string)(int)$promotion['active_invitation_limit'],
+                    t('referral.error.active_limit_reached'),
+                ));
             }
 
             $emailConflict = $db->one(
@@ -79,7 +84,7 @@ final class AppReferralService
             );
             if ($emailConflict !== null) {
                 throw new \RuntimeException(
-                    'Ten adres e-mail nie kwalifikuje się do nowego zaproszenia.',
+                    t('referral.error.email_ineligible'),
                     self::PRIVATE_ELIGIBILITY_REJECTION,
                 );
             }
@@ -90,7 +95,7 @@ final class AppReferralService
             );
             if ($existingAccount !== null) {
                 throw new \RuntimeException(
-                    'Ten adres e-mail nie kwalifikuje się do nowego zaproszenia.',
+                    t('referral.error.email_ineligible'),
                     self::PRIVATE_ELIGIBILITY_REJECTION,
                 );
             }
@@ -121,13 +126,12 @@ final class AppReferralService
 
             $link = ApplicationUrl::absolute('/app/referral/' . rawurlencode($token));
             $points = (int)$promotion['reward_points'];
-            $subject = 'Zaproszenie do aplikacji ŹRÓDŁO SŁOWA – ' . $points . ' TT dla każdej strony';
-            $body = "Otrzymujesz zaproszenie do aplikacji ŹRÓDŁO SŁOWA.\n\n"
-                . "Po instalacji aplikacji, pierwszej rejestracji i pierwszej prawidłowej sesji "
-                . "Ty oraz osoba polecająca otrzymacie po {$points} TT w Programie Talent.\n\n"
-                . "Zaproszenie jest ważne do {$expiresAt} UTC.\n"
-                . "Otwórz zaproszenie: {$link}\n\n"
-                . "Kwota nagrody została zapisana w tym zaproszeniu i nie zmieni się po późniejszej zmianie promocji.";
+            $subject = str_replace('{points}', (string)$points, t('referral.mail.subject', $language));
+            $body = strtr(t('referral.mail.body', $language), [
+                '{points}' => (string)$points,
+                '{expires_at}' => $expiresAt,
+                '{link}' => $link,
+            ]);
             $mailId = $this->mail->queue(
                 null,
                 $email,
@@ -179,7 +183,7 @@ final class AppReferralService
             $row['invited_email'] = $this->maskEmail((string)$row['invited_email']);
             $row['reward_points'] = (int)$row['reward_points'];
             $row['mail_error'] = (string)$row['mail_status'] === 'dead_letter'
-                ? 'Wysyłka nie powiodła się po wszystkich próbach.'
+                ? t('referral.mail.failed')
                 : null;
         }
         unset($row);
@@ -235,14 +239,14 @@ final class AppReferralService
             $invitation = $this->invitationByToken($token, true);
             $this->assertInvitationUsable($invitation);
             if ($invitation['device_hash'] !== null && !hash_equals((string)$invitation['device_hash'], $deviceHash)) {
-                throw new \RuntimeException('To zaproszenie zostało już przypisane do innego urządzenia.');
+                throw new \RuntimeException(t('referral.error.assigned_to_other_device'));
             }
             $otherDevice = $db->one(
                 'SELECT id FROM app_referral_invitations WHERE device_hash=:device AND id<>:id LIMIT 1',
                 ['device' => $deviceHash, 'id' => (int)$invitation['id']]
             );
             if ($otherDevice !== null) {
-                throw new \RuntimeException('To urządzenie wykorzystało już inne zaproszenie.');
+                throw new \RuntimeException(t('referral.error.device_used_other_invitation'));
             }
             if ($invitation['installed_at'] === null) {
                 $db->query(
@@ -268,13 +272,13 @@ final class AppReferralService
             $invitation = $this->invitationByToken($token, true);
             $this->assertInvitationUsable($invitation);
             if ($invitation['installed_at'] === null || $invitation['device_hash'] === null) {
-                throw new \RuntimeException('Najpierw musi zostać potwierdzona instalacja aplikacji.');
+                throw new \RuntimeException(t('referral.error.installation_required'));
             }
             if (!hash_equals((string)$invitation['device_hash'], $deviceHash)) {
-                throw new \RuntimeException('Rejestracja pochodzi z innego urządzenia niż instalacja.');
+                throw new \RuntimeException(t('referral.error.registration_device_mismatch'));
             }
             if ((string)$invitation['status'] !== 'installed' || $invitation['invitee_user_id'] !== null) {
-                throw new \RuntimeException('Zaproszenie nie oczekuje już na pierwszą rejestrację.');
+                throw new \RuntimeException(t('referral.error.not_waiting_for_registration'));
             }
 
             $nonce = $this->newToken();
@@ -323,7 +327,7 @@ final class AppReferralService
                 ['expires' => (string)$invitation['registration_nonce_expires_at']]
             )
         ) {
-            throw new \RuntimeException('Sesja rejestracji z aplikacji jest nieprawidłowa albo wygasła.');
+            throw new \RuntimeException(t('referral.error.registration_session_invalid'));
         }
         return $invitation;
     }
@@ -334,10 +338,10 @@ final class AppReferralService
             $invitation = $this->registrationContext($nonce, true);
             $email = strtolower(trim($email));
             if (!hash_equals(strtolower((string)$invitation['invited_email']), $email)) {
-                throw new \RuntimeException('Adres e-mail rejestracji nie zgadza się z zaproszeniem.');
+                throw new \RuntimeException(t('referral.error.registration_email_mismatch'));
             }
             if ((int)$invitation['inviter_user_id'] === $inviteeUserId) {
-                throw new \RuntimeException('Nie można zrealizować własnego zaproszenia.');
+                throw new \RuntimeException(t('referral.error.own_invitation'));
             }
 
             $invitee = $this->db->one(
@@ -345,17 +349,17 @@ final class AppReferralService
                 ['id' => $inviteeUserId]
             );
             if ($invitee === null || !hash_equals(strtolower((string)$invitee['email']), $email)) {
-                throw new \RuntimeException('Nie znaleziono nowo zarejestrowanego konta.');
+                throw new \RuntimeException(t('referral.error.new_account_not_found'));
             }
             if (strtotime((string)$invitee['created_at']) < strtotime((string)$invitation['installed_at'])) {
-                throw new \RuntimeException('Konto musi zostać utworzone po instalacji aplikacji.');
+                throw new \RuntimeException(t('referral.error.account_must_follow_install'));
             }
             $existingAccount = $this->db->one(
                 'SELECT id FROM app_referral_invitations WHERE invitee_user_id=:user AND id<>:id LIMIT 1',
                 ['user' => $inviteeUserId, 'id' => (int)$invitation['id']]
             );
             if ($existingAccount !== null) {
-                throw new \RuntimeException('To konto wykorzystało już inne zaproszenie.');
+                throw new \RuntimeException(t('referral.error.account_used_other_invitation'));
             }
 
             $updated = $this->db->query(
@@ -366,7 +370,7 @@ final class AppReferralService
                 ['invitee' => $inviteeUserId, 'id' => (int)$invitation['id']]
             );
             if ($updated->rowCount() !== 1) {
-                throw new \RuntimeException('Sesja rejestracji została już wykorzystana.');
+                throw new \RuntimeException(t('referral.error.registration_session_used'));
             }
         });
     }
@@ -383,16 +387,16 @@ final class AppReferralService
             if (in_array((string)$invitation['status'], self::SUCCESS_STATUSES, true)) {
                 if ((int)$invitation['invitee_user_id'] !== $inviteeUserId
                     || !hash_equals((string)$invitation['device_hash'], $deviceHash)) {
-                    throw new \RuntimeException('Zaproszenie zostało już wykorzystane przez inne konto lub urządzenie.');
+                    throw new \RuntimeException(t('referral.error.used_by_other_account_or_device'));
                 }
                 return ['ok' => true, 'completed' => true, 'duplicate' => true];
             }
             $this->assertInvitationUsable($invitation);
             if ($invitation['installed_at'] === null || $invitation['device_hash'] === null) {
-                throw new \RuntimeException('Najpierw musi zostać potwierdzona instalacja aplikacji.');
+                throw new \RuntimeException(t('referral.error.installation_required'));
             }
             if (!hash_equals((string)$invitation['device_hash'], $deviceHash)) {
-                throw new \RuntimeException('Pierwsza sesja pochodzi z innego urządzenia niż instalacja.');
+                throw new \RuntimeException(t('referral.error.first_session_device_mismatch'));
             }
             if (
                 (string)$invitation['status'] !== 'registered'
@@ -400,10 +404,10 @@ final class AppReferralService
                 || $invitation['registered_at'] === null
                 || $invitation['registration_nonce_used_at'] === null
             ) {
-                throw new \RuntimeException('Konto nie zostało zarejestrowane przez potwierdzoną instalację aplikacji.');
+                throw new \RuntimeException(t('referral.error.account_not_registered_from_install'));
             }
             if ((int)$invitation['inviter_user_id'] === $inviteeUserId) {
-                throw new \RuntimeException('Nie można zrealizować własnego zaproszenia.');
+                throw new \RuntimeException(t('referral.error.own_invitation'));
             }
 
             $lockIds = [(int)$invitation['inviter_user_id'], $inviteeUserId];
@@ -419,28 +423,28 @@ final class AppReferralService
             }
             $invitee = $byId[$inviteeUserId] ?? null;
             if ($invitee === null || !in_array((string)$invitee['status'], ['active', 'pending_author'], true)) {
-                throw new \RuntimeException('Pierwsza sesja nie należy do aktywnego konta.');
+                throw new \RuntimeException(t('referral.error.first_session_inactive_account'));
             }
             if ((int)$invitee['talent_enabled'] !== 1 || (int)$invitee['wallet_enabled'] !== 1) {
-                throw new \RuntimeException('Konto nie ma aktywnego Talentu i portfela.');
+                throw new \RuntimeException(t('referral.error.talent_wallet_required'));
             }
             if (!hash_equals(strtolower((string)$invitation['invited_email']), strtolower((string)$invitee['email']))) {
-                throw new \RuntimeException('Adres e-mail pierwszej rejestracji nie zgadza się z zaproszeniem.');
+                throw new \RuntimeException(t('referral.error.registration_email_mismatch'));
             }
             if (strtotime((string)$invitee['created_at']) < strtotime((string)$invitation['installed_at'])) {
-                throw new \RuntimeException('Konto musi zostać utworzone po instalacji aplikacji.');
+                throw new \RuntimeException(t('referral.error.account_must_follow_install'));
             }
             $existingAccount = $db->one(
                 'SELECT id FROM app_referral_invitations WHERE invitee_user_id=:user AND id<>:id LIMIT 1',
                 ['user' => $inviteeUserId, 'id' => (int)$invitation['id']]
             );
             if ($existingAccount !== null) {
-                throw new \RuntimeException('To konto wykorzystało już inne zaproszenie.');
+                throw new \RuntimeException(t('referral.error.account_used_other_invitation'));
             }
 
             $successful = $this->countForInviter((int)$invitation['inviter_user_id'], self::SUCCESS_STATUSES);
             if ($successful >= (int)$invitation['successful_referral_limit']) {
-                throw new \RuntimeException('Osoba polecająca wykorzystała już limit skutecznych poleceń.');
+                throw new \RuntimeException(t('referral.error.success_limit_reached'));
             }
 
             $db->query(
@@ -457,7 +461,7 @@ final class AppReferralService
                 (int)$invitation['id'],
             );
             if (($inviterJob['queued'] ?? false) !== true) {
-                throw new \RuntimeException('Nie udało się zakolejkować nagrody osoby polecającej.');
+                throw new \RuntimeException(t('referral.error.inviter_reward_queue_failed'));
             }
             $inviteeJob = $this->earnings->queueTalentAward(
                 $inviteeUserId,
@@ -466,7 +470,7 @@ final class AppReferralService
                 (int)$invitation['id'],
             );
             if (($inviteeJob['queued'] ?? false) !== true) {
-                throw new \RuntimeException('Nie udało się zakolejkować nagrody osoby zaproszonej.');
+                throw new \RuntimeException(t('referral.error.invitee_reward_queue_failed'));
             }
 
             $db->query(
@@ -523,18 +527,18 @@ final class AppReferralService
         $successLimit = (int)($input['successful_referral_limit'] ?? 0);
         $validDays = (int)($input['invitation_valid_days'] ?? 0);
         if ($reward < 1 || $reward > 1_000_000) {
-            throw new \InvalidArgumentException('Wartość promocji musi mieścić się w zakresie 1–1 000 000 TT.');
+            throw new \InvalidArgumentException(t('referral.error.reward_range'));
         }
         if ($activeLimit < 1 || $activeLimit > 100 || $successLimit < 1 || $successLimit > 100) {
-            throw new \InvalidArgumentException('Limity promocji muszą mieścić się w zakresie 1–100.');
+            throw new \InvalidArgumentException(t('referral.error.limits_range'));
         }
         if ($validDays < 1 || $validDays > 365) {
-            throw new \InvalidArgumentException('Ważność zaproszenia musi mieścić się w zakresie 1–365 dni.');
+            throw new \InvalidArgumentException(t('referral.error.validity_range'));
         }
         $startsAt = $this->normalizeDateTime((string)($input['starts_at'] ?? ''));
         $endsAt = $this->normalizeDateTime((string)($input['ends_at'] ?? ''), true);
         if ($endsAt !== null && strtotime($endsAt) <= strtotime($startsAt)) {
-            throw new \InvalidArgumentException('Data zakończenia promocji musi być późniejsza od daty rozpoczęcia.');
+            throw new \InvalidArgumentException(t('referral.error.invalid_promotion_dates'));
         }
 
         $this->db->query(
@@ -557,7 +561,7 @@ final class AppReferralService
                 'code' => self::PROMOTION_CODE,
             ]
         );
-        return $this->latestPromotion() ?? throw new \RuntimeException('Nie znaleziono promocji Talent.');
+        return $this->latestPromotion() ?? throw new \RuntimeException(t('referral.error.promotion_not_found'));
     }
 
     /** @return array<string,mixed>|null */
@@ -632,7 +636,7 @@ final class AppReferralService
             ['token' => $this->hashToken($token)]
         );
         if ($row === null) {
-            throw new \RuntimeException('Zaproszenie jest nieprawidłowe albo nie istnieje.');
+            throw new \RuntimeException(t('referral.error.invitation_invalid'));
         }
         return $row;
     }
@@ -645,10 +649,10 @@ final class AppReferralService
                 "UPDATE app_referral_invitations SET status='expired',updated_at=NOW() WHERE id=:id",
                 ['id' => (int)$invitation['id']]
             );
-            throw new \RuntimeException('Zaproszenie wygasło.');
+            throw new \RuntimeException(t('referral.error.invitation_expired'));
         }
         if (in_array((string)$invitation['status'], ['mail_dead_letter', 'cancelled', 'expired'], true)) {
-            throw new \RuntimeException('Zaproszenie nie jest już aktywne.');
+            throw new \RuntimeException(t('referral.error.invitation_inactive'));
         }
     }
 
@@ -692,7 +696,7 @@ final class AppReferralService
             ]
         );
         if ((int)($row['attempt_count'] ?? 0) > $maximum) {
-            throw new \RuntimeException('Przekroczono bezpieczny limit prób. Spróbuj ponownie później.');
+            throw new \RuntimeException(t('referral.error.rate_limit'));
         }
     }
 
@@ -700,7 +704,7 @@ final class AppReferralService
     {
         $deviceId = trim($deviceId);
         if (preg_match('/^[A-Za-z0-9._:-]{16,128}$/D', $deviceId) !== 1) {
-            throw new \InvalidArgumentException('Nieprawidłowy identyfikator instalacji aplikacji.');
+            throw new \InvalidArgumentException(t('referral.error.invalid_device_id'));
         }
         return hash_hmac('sha256', 'app-referral-device|' . $deviceId, $this->secret());
     }
@@ -728,7 +732,7 @@ final class AppReferralService
             $secret = (string)\env('PASSWORD_PEPPER', '');
         }
         if (strlen($secret) < 16) {
-            throw new \RuntimeException('Brak klucza aplikacji wymaganego do ochrony zaproszeń.');
+            throw new \RuntimeException(t('referral.error.application_key_missing'));
         }
         return $secret;
     }
@@ -736,14 +740,14 @@ final class AppReferralService
     private function assertToken(string $token): void
     {
         if (preg_match('/^[A-Za-z0-9_-]{43}$/D', $token) !== 1) {
-            throw new \InvalidArgumentException('Nieprawidłowy token zaproszenia.');
+            throw new \InvalidArgumentException(t('referral.error.invalid_token'));
         }
     }
 
     private function assertRegistrationNonce(string $nonce): void
     {
         if (preg_match('/^[A-Za-z0-9_-]{43}$/D', $nonce) !== 1) {
-            throw new \InvalidArgumentException('Nieprawidłowa sesja rejestracji z aplikacji.');
+            throw new \InvalidArgumentException(t('referral.error.invalid_registration_nonce'));
         }
     }
 
@@ -778,7 +782,7 @@ final class AppReferralService
         try {
             $date = new \DateTimeImmutable($value, new \DateTimeZone('Europe/Warsaw'));
         } catch (\Throwable) {
-            throw new \InvalidArgumentException('Podaj prawidłową datę i godzinę promocji.');
+            throw new \InvalidArgumentException(t('referral.error.invalid_promotion_datetime'));
         }
         return $date->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
     }

@@ -136,7 +136,7 @@ $statusBadge = function($status, $map) {
             <li>
                 <span class="label"><?= e(t('admin.finance_report.ankiety_i_badania')) ?></span>
                 <span class="value"><?= $money($economy_summary['surveys']['rewards'] ?? 0) ?></span>
-                <small><?= (int)($economy_summary['surveys']['cnt'] ?? 0) ?> odpowiedzi</small>
+                <small><?= e(str_replace('{count}', (string)(int)($economy_summary['surveys']['cnt'] ?? 0), t('admin.finance_report.answers_count'))) ?></small>
             </li>
             <li>
                 <span class="label"><?= e(t('admin.finance_report.kampanie_reklamowe')) ?></span>

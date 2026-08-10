@@ -59,11 +59,11 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
               <p><?= e(mb_strimwidth((string)$a['lead'], 0, 220, '…', 'UTF-8')) ?></p>
             <?php endif; ?>
             <div class="chief-editor-meta">
-              <span>Autor: <?= e((string)($a['author_name'] ?? '—')) ?></span>
+              <span><?= e(t('admin.articles.author_prefix')) ?> <?= e((string)($a['author_name'] ?? '—')) ?></span>
               <span><?= e(t('admin.articles.status')) ?> <b><?= e($statusLabels[$status] ?? $status) ?></b></span>
-              <span>Aktualizacja: <?= e($updatedAt ?: '—') ?></span>
+              <span><?= e(t('admin.role_panel.updated_prefix')) ?> <?= e($updatedAt ?: '—') ?></span>
               <?php if (!empty($a['response_to_article_id'])): ?>
-                <span><?= e(t('admin.articles.talent')) ?> <b><?= $a['response_reward_qualified'] === null ? 'snapshot dopiero przy publikacji' : (!empty($a['response_reward_qualified']) ? ((int)$a['response_reward_points'] . ' TT · job ' . e((string)$a['response_reward_job_public_id'])) : t('admin.articles.0_tt_regua_nieaktywna_przy_publikacji')) ?></b></span>
+                <span><?= e(t('admin.articles.talent')) ?> <b><?= $a['response_reward_qualified'] === null ? e(t('admin.articles.reward_decided_at_publication')) : (!empty($a['response_reward_qualified']) ? e(str_replace('{points}', (string)(int)$a['response_reward_points'], t('admin.articles.reward_points'))) : e(t('admin.articles.0_tt_regua_nieaktywna_przy_publikacji'))) ?></b></span>
               <?php endif; ?>
               <?php if ($isAuthorBlocked): ?>
                 <span class="author-submit-blocked"><?= e(t('admin.articles.autor_zablokowany_do')) ?> <b><?= e((string)$blockedUntil) ?></b></span>
@@ -143,7 +143,7 @@ $articleStatusCounts = array_count_values(array_map(static fn(array $article): s
   <div class="zs-pagination-bar">
     <?php $prev = max(1, (int)($snajper_page ?? 1) - 1); $next = (int)($snajper_page ?? 1) + 1; ?>
     <a class="zs-btn-small" href="/admin/articles?page=<?= $prev ?>"><?= e(t('admin.articles.laquo_poprzednia_strona')) ?></a>
-    <span class="zs-pagination-info">Strona <?= (int)($snajper_page ?? 1); ?></span>
+    <span class="zs-pagination-info"><?= e(str_replace('{page}', (string)(int)($snajper_page ?? 1), t('admin.common.page_number'))) ?></span>
     <a class="zs-btn-small" href="/admin/articles?page=<?= $next ?>"><?= e(t('admin.articles.nastepna_strona_raquo')) ?></a>
   </div>
 </section>

@@ -46,7 +46,7 @@ $surveyQuestions = array_sum(array_map(static fn(array $survey): int => (int)($s
     <label><span><?= e(t('admin.surveys.data_rozpoczecia')) ?></span><input type="datetime-local" name="starts_at" value="<?= !empty($editing['starts_at']) ? e(date('Y-m-d\TH:i', strtotime((string)$editing['starts_at']))) : '' ?>"></label>
     <label><span><?= e(t('admin.surveys.data_zakonczenia')) ?></span><input type="datetime-local" name="ends_at" value="<?= !empty($editing['ends_at']) ? e(date('Y-m-d\TH:i', strtotime((string)$editing['ends_at']))) : '' ?>"></label>
     <label class="field-full"><span><?= e(t('admin.surveys.opis_ankiety_i_cel_badania')) ?></span><textarea name="description" rows="4" placeholder="<?= e(t('admin.surveys.opisz_krotko_czego_dotyczy_badanie')) ?>"><?= e((string)($editing['description'] ?? '')) ?></textarea></label>
-    <div class="field-full"><button class="btn-red" type="submit"><?= $editing ? 'Zapisz zmiany w ankiecie' : t('admin.surveys.utworz_nowa_ankiete') ?></button></div>
+    <div class="field-full"><button class="btn-red" type="submit"><?= e(t($editing ? 'admin.surveys.save_changes' : 'admin.surveys.utworz_nowa_ankiete')) ?></button></div>
   </form>
 </section>
 
@@ -59,7 +59,7 @@ $surveyQuestions = array_sum(array_map(static fn(array $survey): int => (int)($s
     <div class="zs-question-card">
       <strong>#<?= (int)$q['sort_order'] ?> &nbsp; <?= e($q['question_text']) ?></strong>
       <div class="admin-note">
-        Typ: <?= e($q['question_type']) ?> 
+        <?= e(t('admin.surveys.type_prefix')) ?> <?= e($q['question_type']) ?>
         <span style="color: var(--zs-line); margin: 0 8px;">|</span>
               <?= (int)$q['is_required'] === 1 ? ' <span style="color: var(--zs-red);">' . e(t('admin.surveys.required')) . '</span>' : e(t('admin.surveys.optional')) ?>
       </div>
