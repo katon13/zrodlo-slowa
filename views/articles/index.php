@@ -169,31 +169,8 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
       <strong><?= e(t('home.premium.title', $currentLanguage)) ?></strong><br>
       <?= e(t('home.premium.description', $currentLanguage)) ?>
     </div>
-    <a class="read-more" href="/jak-zarabiac"><?= e(t('home.hero.cta_earning', $currentLanguage)) ?> <span>→</span></a>
+    <a class="read-more" href="<?= e(public_language_url($currentLanguage, '/jak-zarabiac')) ?>"><?= e(t('home.hero.cta_earning', $currentLanguage)) ?> <span>→</span></a>
   </section>
-
-
-
-  <?php if (!empty($money_flows)): ?>
-    <section class="money-home-section">
-      <div class="admin-section-head">
-        <div>
-          <p class="kicker"><?= e(t('home.value_flow.kicker', $currentLanguage)) ?></p>
-          <h2><?= e(t('home.value_flow.title', $currentLanguage)) ?></h2>
-        </div>
-        <a class="text-link" href="/jak-zarabiac"><?= e(t('home.value_flow.full_map', $currentLanguage)) ?></a>
-      </div>
-      <div class="money-home-grid">
-        <?php foreach (array_slice($money_flows, 0, 4) as $flow): ?>
-          <article class="money-home-card">
-            <span><?= e($flow['label']) ?></span>
-            <strong><?= e($flow['receiver']) ?></strong>
-            <small><?= e($flow['note']) ?></small>
-          </article>
-        <?php endforeach; ?>
-      </div>
-    </section>
-  <?php endif; ?>
 
   <section class="latest">
     <h2><?= e(t('home.latest.title', $currentLanguage)) ?></h2>
@@ -224,6 +201,62 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
       <?php if (!$latestToShow && $isHome): ?><p><?= e(t('home.latest.empty', $currentLanguage)) ?></p><?php endif; ?>
     </div>
   </section>
+
+  <?php
+  $homeArticleFlow = is_array($money_flows[0] ?? null) ? $money_flows[0] : null;
+  $homeArticleSplit = is_array($homeArticleFlow['split'] ?? null) ? $homeArticleFlow['split'] : [];
+  ?>
+  <?php if ($homeArticleFlow !== null && $homeArticleSplit !== []): ?>
+    <section class="zs-home-value-strip" aria-labelledby="zs-home-value-title">
+      <header class="zs-home-value-head">
+        <div>
+          <p class="kicker"><?= e(t('home.value_flow.kicker', $currentLanguage)) ?></p>
+          <h2 id="zs-home-value-title"><?= e(t('home.value_flow.title', $currentLanguage)) ?></h2>
+        </div>
+        <a class="zs-home-value-link" href="<?= e(public_language_url($currentLanguage, '/jak-zarabiac')) ?>">
+          <?= e(t('home.value_flow.full_map', $currentLanguage)) ?> <span aria-hidden="true">&rarr;</span>
+        </a>
+      </header>
+
+      <div class="zs-home-value-axes">
+        <article class="zs-home-value-axis is-creator">
+          <span class="zs-home-value-axis-label"><?= e(t('home.value_flow.creator_benefit_label', $currentLanguage)) ?></span>
+          <div class="zs-home-value-journey">
+            <strong><?= e(t('home.value_flow.step_create_label', $currentLanguage)) ?> <?= e(t('home.value_flow.step_create', $currentLanguage)) ?></strong>
+            <span aria-hidden="true">&rarr;</span>
+            <strong><?= e(t('home.value_flow.step_purchase_label', $currentLanguage)) ?> <?= e(t('home.value_flow.step_purchase', $currentLanguage)) ?></strong>
+          </div>
+          <div class="zs-home-value-split">
+            <small><?= e(t('home.value_flow.split_label', $currentLanguage)) ?></small>
+            <div
+              class="zs-home-value-bar"
+              role="img"
+              aria-label="<?= e(str_replace('{split}', (string)$homeArticleFlow['receiver'], t('home.value_flow.split_aria', $currentLanguage))) ?>"
+            >
+              <?php foreach ($homeArticleSplit as $index => $segment): ?>
+                <?php $share = max(0, min(100, ((int)($segment['basis_points'] ?? 0)) / 100)); ?>
+                <span class="is-segment-<?= (int)$index + 1 ?>" style="width: <?= e((string)$share) ?>%">
+                  <?= e((string)($segment['percentage'] ?? '')) ?>
+                </span>
+              <?php endforeach; ?>
+            </div>
+            <div class="zs-home-value-legend">
+              <?php foreach ($homeArticleSplit as $index => $segment): ?>
+                <span><i class="is-segment-<?= (int)$index + 1 ?>" aria-hidden="true"></i><?= e((string)($segment['label'] ?? '')) ?></span>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        </article>
+
+        <article class="zs-home-value-axis is-reader">
+          <span class="zs-home-value-axis-label"><?= e(t('home.value_flow.reader_benefit_label', $currentLanguage)) ?></span>
+          <h3><?= e(t('home.value_flow.reader_axis_title', $currentLanguage)) ?></h3>
+          <p><?= e(t('home.value_flow.reader_benefit', $currentLanguage)) ?></p>
+          <p class="zs-home-value-more"><?= e(t('home.value_flow.more', $currentLanguage)) ?></p>
+        </article>
+      </div>
+    </section>
+  <?php endif; ?>
 <?php else: ?>
   <div class="kicker"><?= e(t('articles.index.kicker', $currentLanguage)) ?></div>
   <h1 class="article-title"><?= e(t('articles.index.title', $currentLanguage)) ?></h1>

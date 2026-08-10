@@ -19,8 +19,31 @@ async function main() {
     if (response.status() >= 400) failedResponses.push(`${response.status()} ${response.url()}`);
   });
 
+  const homepageResponse = await page.goto('http://localhost:8080/pl', { waitUntil: 'networkidle' });
+  if (!homepageResponse || !homepageResponse.ok()) throw new Error('Homepage did not return HTTP 200.');
+  await page.locator('.zs-home-value-strip').waitFor();
+  const homepageFlowSegmentCount = await page.locator('.zs-home-value-bar > span').count();
+  if (homepageFlowSegmentCount !== 3) throw new Error(`Homepage value bar has ${homepageFlowSegmentCount} segments instead of 3.`);
+  const homepageFlowBeforeFooter = await page.evaluate(() => {
+    const strip = document.querySelector('.zs-home-value-strip');
+    const main = document.querySelector('main');
+    return Boolean(strip && main && strip === main.lastElementChild);
+  });
+  if (!homepageFlowBeforeFooter) throw new Error('Homepage value strip is not the final section before the footer.');
+  const homepageHasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  if (homepageHasHorizontalOverflow) throw new Error('Homepage has horizontal overflow.');
+  await page.screenshot({ path: path.join(outputDirectory, 'publiczne-www-strona-glowna.png'), fullPage: true });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://localhost:8080/pl', { waitUntil: 'networkidle' });
+  await page.locator('.zs-home-value-strip').waitFor();
+  const mobileHomepageHasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  if (mobileHomepageHasHorizontalOverflow) throw new Error('Mobile homepage has horizontal overflow.');
+  await page.screenshot({ path: path.join(outputDirectory, 'publiczne-www-strona-glowna-mobile.png'), fullPage: true });
+  await page.setViewportSize({ width: 1600, height: 1000 });
+
   const publicResponse = await page.goto('http://localhost:8080/pl/jak-zarabiac', { waitUntil: 'networkidle' });
-  if (!publicResponse || !publicResponse.ok()) throw new Error('Public page did not return HTTP 200.');
+  if (!publicResponse || !publicResponse.ok()) throw new Error('Public earning page did not return HTTP 200.');
   await page.screenshot({ path: path.join(outputDirectory, 'publiczne-www-jak-zarabiac.png'), fullPage: true });
 
   await page.goto('http://localhost:8080/pl/login', { waitUntil: 'domcontentloaded' });
@@ -81,6 +104,11 @@ async function main() {
   const leakedKeys = body.match(/\b(?:admin|ui|controller)\.[a-z0-9_.]+\b/g) || [];
   await browser.close();
   process.stdout.write(JSON.stringify({
+    homepageStatus: homepageResponse.status(),
+    homepageFlowSegmentCount,
+    homepageFlowBeforeFooter,
+    homepageHasHorizontalOverflow,
+    mobileHomepageHasHorizontalOverflow,
     publicStatus: publicResponse.status(),
     adminStatus: adminResponse.status(),
     adminEnglishStatus: adminEnglishResponse.status(),

@@ -264,12 +264,12 @@
     "es": "Cómo fluye el valor"
   },
   "home.value_flow.title": {
-    "pl": "Tu widać, za co zarabiasz",
-    "en": "Here you see what you earn for",
-    "de": "Hier sieht man, wofür du verdienst",
-    "fr": "Ici, vous voyez ce qui vous rapporte",
-    "it": "Qui vedi per cosa guadagni",
-    "es": "Aquí ves por qué ganas"
+    "pl": "Jak zyskują twórca i czytelnik",
+    "en": "How creators and readers benefit",
+    "de": "Wie Kreative und Leser profitieren",
+    "fr": "Comment créateurs et lecteurs en bénéficient",
+    "it": "Come ne beneficiano creatori e lettori",
+    "es": "Cómo se benefician creadores y lectores"
   },
   "home.value_flow.full_map": {
     "pl": "Pełna mapa pieniędzy",
@@ -278,6 +278,94 @@
     "fr": "Carte complète de l’argent",
     "it": "Mappa completa del denaro",
     "es": "Mapa completa del dinero"
+  },
+  "home.value_flow.step_create_label": {
+    "pl": "Tworzysz",
+    "en": "You create",
+    "de": "Du erstellst",
+    "fr": "Vous créez",
+    "it": "Tu crei",
+    "es": "Tú creas"
+  },
+  "home.value_flow.step_create": {
+    "pl": "wartościowy tekst",
+    "en": "a valuable article",
+    "de": "einen wertvollen Text",
+    "fr": "un article de qualité",
+    "it": "un articolo di valore",
+    "es": "un artículo de valor"
+  },
+  "home.value_flow.step_purchase_label": {
+    "pl": "Czytelnik",
+    "en": "The reader",
+    "de": "Der Leser",
+    "fr": "Le lecteur",
+    "it": "Il lettore",
+    "es": "El lector"
+  },
+  "home.value_flow.step_purchase": {
+    "pl": "kupuje dostęp",
+    "en": "buys access",
+    "de": "kauft den Zugang",
+    "fr": "achète l’accès",
+    "it": "acquista l’accesso",
+    "es": "compra el acceso"
+  },
+  "home.value_flow.split_label": {
+    "pl": "Przychód dzieli się automatycznie",
+    "en": "Revenue is split automatically",
+    "de": "Der Erlös wird automatisch aufgeteilt",
+    "fr": "Le revenu est réparti automatiquement",
+    "it": "Il ricavo viene ripartito automaticamente",
+    "es": "El ingreso se reparte automáticamente"
+  },
+  "home.value_flow.split_aria": {
+    "pl": "Podział przychodu: {split}",
+    "en": "Revenue split: {split}",
+    "de": "Erlösaufteilung: {split}",
+    "fr": "Répartition du revenu : {split}",
+    "it": "Ripartizione del ricavo: {split}",
+    "es": "Reparto del ingreso: {split}"
+  },
+  "home.value_flow.more": {
+    "pl": "Za aktywności objęte Talentem, reklamy i kampanie czytelnik zdobywa TT. Twórca otrzymuje TT także za opublikowaną polemikę.",
+    "en": "Readers earn TT for eligible Talent activities, advertising and campaigns. Creators also receive TT for a published response.",
+    "de": "Leser verdienen TT für berechtigte Talent-Aktivitäten, Werbung und Kampagnen. Kreative erhalten TT auch für eine veröffentlichte Replik.",
+    "fr": "Le lecteur gagne des TT pour les activités Talent éligibles, la publicité et les campagnes. Le créateur en reçoit aussi pour une réponse publiée.",
+    "it": "Il lettore guadagna TT per le attività Talent idonee, la pubblicità e le campagne. Il creatore li riceve anche per una replica pubblicata.",
+    "es": "El lector gana TT por actividades Talent elegibles, publicidad y campañas. El creador también los recibe por una réplica publicada."
+  },
+  "home.value_flow.reader_benefit_label": {
+    "pl": "Dla czytelnika",
+    "en": "For the reader",
+    "de": "Für den Leser",
+    "fr": "Pour le lecteur",
+    "it": "Per il lettore",
+    "es": "Para el lector"
+  },
+  "home.value_flow.creator_benefit_label": {
+    "pl": "Dla twórcy",
+    "en": "For the creator",
+    "de": "Für Kreative",
+    "fr": "Pour le créateur",
+    "it": "Per il creatore",
+    "es": "Para el creador"
+  },
+  "home.value_flow.reader_axis_title": {
+    "pl": "Czytasz. Zdobywasz TT. Możesz publikować.",
+    "en": "Read. Earn TT. Become a columnist.",
+    "de": "Lesen. TT verdienen. Selbst publizieren.",
+    "fr": "Lire. Gagner des TT. Devenir chroniqueur.",
+    "it": "Leggi. Guadagna TT. Diventa editorialista.",
+    "es": "Lee. Gana TT. Conviértete en articulista."
+  },
+  "home.value_flow.reader_benefit": {
+    "pl": "Dostaje wartościowy tekst i widzi, kogo wspiera zakup. Może też zostać publicystą — przygotować własny tekst lub polemikę.",
+    "en": "Readers get valuable work and see whom their purchase supports. They can also become columnists and prepare their own article or response.",
+    "de": "Leser erhalten wertvolle Inhalte und sehen, wen ihr Kauf unterstützt. Sie können auch publizieren und einen eigenen Text oder eine Replik verfassen.",
+    "fr": "Le lecteur accède à un contenu de qualité et voit qui bénéficie de son achat. Il peut aussi devenir chroniqueur et préparer son article ou sa réponse.",
+    "it": "Il lettore accede a contenuti di valore e vede chi sostiene con l’acquisto. Può anche diventare editorialista e preparare un proprio articolo o una replica.",
+    "es": "El lector accede a contenido de valor y ve a quién apoya con su compra. También puede ser articulista y preparar su propio texto o réplica."
   },
   "home.premium.title": {
     "pl": "Źródło Słowa Premium",
@@ -288,12 +376,12 @@
     "es": "Fuente de Palabras Premium"
   },
   "home.premium.description": {
-    "pl": "Teksty premium i unikalne finansują autora, redakcję i ochronę autorów. Wpływ z zakupu dzielimy: 40% autor / 40% serwis / 20% Safety Fund.",
-    "en": "Premium and unique texts fund the author, the newsroom and author protection. Purchase revenue is split: 40% author / 40% service / 20% Safety Fund.",
-    "de": "Premium- und einzigartige Texte finanzieren Autor, Redaktion und Autorenschutz. Einnahmen aus Käufen werden geteilt: 40% Autor / 40% Dienst / 20% Safety Fund.",
-    "fr": "Les textes premium et uniques financent l’auteur, la rédaction et la protection des auteurs. Le revenu d’achat est réparti : 40 % auteur / 40 % service / 20 % Safety Fund.",
-    "it": "I testi premium e unici finanziano l’autore, la redazione e la protezione degli autori. Il ricavo dell’acquisto è diviso: 40% autore / 40% servizio / 20% Safety Fund.",
-    "es": "Los textos premium y únicos financian al autor, la redacción y la protección de autores. El ingreso de la compra se divide: 40% autor / 40% servicio / 20% Safety Fund."
+    "pl": "Teksty premium i unikalne finansują autora, redakcję i ochronę autorów. Każdy zakup dzieli wartość według jasnej zasady.",
+    "en": "Premium and unique articles fund the author, the newsroom and author protection. Every purchase shares value according to a clear rule.",
+    "de": "Premium- und einzigartige Texte finanzieren Autor, Redaktion und Autorenschutz. Jeder Kauf verteilt den Wert nach einer klaren Regel.",
+    "fr": "Les articles premium et uniques financent l’auteur, la rédaction et la protection des auteurs. Chaque achat répartit la valeur selon une règle claire.",
+    "it": "Gli articoli premium e unici finanziano l’autore, la redazione e la protezione degli autori. Ogni acquisto ripartisce il valore secondo una regola chiara.",
+    "es": "Los artículos premium y únicos financian al autor, la redacción y la protección de autores. Cada compra reparte el valor según una regla clara."
   },
   "articles.index.kicker": {
     "pl": "Teksty",

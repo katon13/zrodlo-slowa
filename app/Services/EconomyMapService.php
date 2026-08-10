@@ -15,6 +15,23 @@ final class EconomyMapService
             'platform' => $this->percent((int)$policy['platform_basis_points']),
             'fund' => $this->percent((int)$policy['safety_fund_basis_points']),
         ]);
+        $articleSplit = [
+            [
+                'label' => $this->text('economy.policy.author', $language),
+                'basis_points' => (int)$policy['author_basis_points'],
+                'percentage' => $this->percent((int)$policy['author_basis_points']),
+            ],
+            [
+                'label' => $this->text('economy.policy.platform', $language),
+                'basis_points' => (int)$policy['platform_basis_points'],
+                'percentage' => $this->percent((int)$policy['platform_basis_points']),
+            ],
+            [
+                'label' => $this->text('economy.policy.fund', $language),
+                'basis_points' => (int)$policy['safety_fund_basis_points'],
+                'percentage' => $this->percent((int)$policy['safety_fund_basis_points']),
+            ],
+        ];
         return [
             [
                 'label' => $this->text('economy.flow.article.label', $language),
@@ -28,6 +45,7 @@ final class EconomyMapService
                     'article_sale_safety_fund_share' => ActivityUiHelper::getLabel('article_sale_safety_fund_share', $language),
                 ],
                 'note' => $this->text('economy.flow.article.note', $language),
+                'split' => $articleSplit,
                 'icon' => 'article'
             ],
             [
