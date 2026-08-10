@@ -59,9 +59,10 @@
     $antiFraudCfg = $snajper['anti_fraud'] ?? [];
     $uiCfg = $snajper['ui'] ?? [];
     $talentRuleGroups = is_array($talent_rule_groups ?? null) ? $talent_rule_groups : [];
-    $talentRuleCount = count(is_array($rules ?? null) ? $rules : []);
+    $visibleTalentRules = array_merge(...array_map(static fn(array $group): array => $group['rules'] ?? [], $talentRuleGroups));
+    $talentRuleCount = count($visibleTalentRules);
     $activeTalentRuleCount = count(array_filter(
-        is_array($rules ?? null) ? $rules : [],
+        $visibleTalentRules,
         static fn(array $rule): bool => !empty($rule['is_active'])
     ));
     $referralOverview = is_array($referral_overview ?? null) ? $referral_overview : [];
@@ -112,7 +113,6 @@
                             <input type="text" name="settings[<?php echo e($s['name']); ?>]" value="<?php echo e($s['value']); ?>" class="zs-setting-input">
                         </div>
                         <div class="zs-setting-meta">
-                            <span class="zs-setting-key">Klucz: <?php echo e($s['name']); ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -140,7 +140,6 @@
                             <input type="text" name="settings[<?php echo e($s['name']); ?>]" value="<?php echo e($s['value']); ?>" class="zs-setting-input">
                         </div>
                         <div class="zs-setting-meta">
-                            <span class="zs-setting-key">Klucz: <?php echo e($s['name']); ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -245,7 +244,7 @@
                 </div>
             </div>
 
-            <h3>Limity ładowania (Snajper)</h3>
+            <h3>Liczba pozycji wyświetlanych w panelach</h3>
             <div class="zs-settings-grid">
                 <?php
                 $limitLabels = [
@@ -268,7 +267,7 @@
                 <?php endforeach; ?>
             </div>
 
-            <h3>Ostre opcje systemowe</h3>
+            <h3>Działania o podwyższonym ryzyku</h3>
             <div class="zs-settings-grid">
                 <?php
                 $antiLabels = [
@@ -299,7 +298,7 @@
     <!-- 4. ANTYFRAUD / STRAŻNIK SŁOWA -->
     <section class="zs-settings-section zs-operator-settings-section">
         <div class="zs-operator-section-head">
-            <div><p class="kicker">Ochrona finansowa</p><h2>Antyfraud i Strażnik Słowa</h2><p>Zasady zatrzymywania podejrzanych nagród i wypłat przed zaksięgowaniem.</p></div>
+            <div><p class="kicker">Ochrona finansowa</p><h2>Ochrona nagród i wypłat</h2><p>Ustal, kiedy system ma zatrzymać nietypową nagrodę lub wypłatę do sprawdzenia.</p></div>
             <span>Kontrola ryzyka</span>
         </div>
         <form action="/admin/settings/slowo-snajper" method="POST">
@@ -307,7 +306,7 @@
             <label class="zs-setting-label zs-critical-password"><span>Potwierdź hasłem administratora</span><input type="password" name="critical_password" required autocomplete="current-password" class="zs-setting-input" placeholder="Hasło chroniące zmianę"></label>
             <div class="zs-settings-grid">
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Antyfraud / Strażnik Słowa</label>
+                    <label class="zs-setting-label">Automatyczna kontrola ryzyka</label>
                     <div class="zs-setting-control">
                         <select name="snajper[anti_fraud][enabled]" class="zs-setting-input">
                             <option value="1" <?php echo !empty($antiFraudCfg['enabled']) ? 'selected' : ''; ?>>Włączony</option>
@@ -334,17 +333,17 @@
                     </div>
                 </div>
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Próg wstrzymania wypłaty (score)</label>
+                    <label class="zs-setting-label">Poziom ryzyka wstrzymujący wypłatę (0–100)</label>
                     <div class="zs-setting-control">
                         <input type="number" name="snajper[sensitivity][risk_score_hold_payout]" value="<?php echo e((string)($sens['risk_score_hold_payout'] ?? 80)); ?>" class="zs-setting-input">
                     </div>
                 </div>
             </div>
 
-            <h3>Progi ryzyka i parametry</h3>
+            <h3>Poziomy kontroli</h3>
             <div class="zs-settings-grid">
                 <div class="zs-setting-item">
-                    <label class="zs-setting-label">Próg ostrzeżenia risk_score</label>
+                    <label class="zs-setting-label">Poziom ryzyka pokazujący ostrzeżenie (0–100)</label>
                     <div class="zs-setting-control">
                         <input type="number" name="snajper[sensitivity][risk_score_warn]" value="<?php echo e((string)($sens['risk_score_warn'] ?? 60)); ?>" class="zs-setting-input">
                     </div>
@@ -369,7 +368,7 @@
             <div>
                 <p class="kicker">PROGRAM AKTYWNOŚCI</p>
                 <h2>Program Talent</h2>
-                <p>Ustal wartości wyłącznie dla działań z wiarygodnym punktem wyzwolenia. Reguły historyczne, samozgłaszane i bez dowodu pozostają widoczne do kontroli, ale ich aktywacja jest zablokowana.</p>
+                <p>Ustal nagrody TT dla ośmiu działań, które system potrafi rzeczywiście potwierdzić. Wyłączona zasada nie przyznaje nowych nagród.</p>
             </div>
             <div class="zs-talent-summary" aria-label="Podsumowanie reguł programu Talent">
                 <div><strong><?php echo $activeTalentRuleCount; ?></strong><span>aktywnych</span></div>
@@ -399,7 +398,7 @@
             <div class="zs-referral-admin-stats">
                 <article><strong><?= (int)($referralCounts['mail_queued'] ?? 0) + (int)($referralCounts['sent'] ?? 0) + (int)($referralCounts['link_opened'] ?? 0) + (int)($referralCounts['installed'] ?? 0) + (int)($referralCounts['registered'] ?? 0) ?></strong><span>aktywnych zaproszeń</span></article>
                 <article><strong><?= (int)($referralCounts['reward_queued'] ?? 0) + (int)($referralCounts['rewarded'] ?? 0) ?></strong><span>skutecznych poleceń</span></article>
-                <article><strong><?= (int)($referralCounts['mail_dead_letter'] ?? 0) ?></strong><span>dead letter e-mail</span></article>
+                <article><strong><?= (int)($referralCounts['mail_dead_letter'] ?? 0) ?></strong><span>wiadomości wymagających uwagi</span></article>
             </div>
 
             <form action="/admin/settings/talent-promotion" method="POST" class="zs-talent-form zs-referral-promotion-form">
@@ -441,12 +440,12 @@
 
             <div class="zs-referral-admin-history-head">
                 <h4>Ostatnie zaproszenia</h4>
-                <p>Historia pokazuje zapisany snapshot TT, stan realizacji oraz wynik wysyłki e-mail.</p>
+                <p>Historia pokazuje kwotę zapisaną przy wysłaniu, stan realizacji oraz wynik wysyłki e-mail.</p>
             </div>
             <?php if ($referralRecent !== []): ?>
                 <div class="table-wrap zs-referral-admin-table">
                     <table>
-                        <thead><tr><th>Data</th><th>Polecający</th><th>Zaproszony e-mail</th><th>Snapshot</th><th>Status</th><th>Poczta</th></tr></thead>
+                        <thead><tr><th>Data</th><th>Polecający</th><th>Zaproszony e-mail</th><th>Zapisana kwota</th><th>Status</th><th>Poczta</th></tr></thead>
                         <tbody>
                         <?php foreach ($referralRecent as $invitation): ?>
                             <tr>
@@ -454,8 +453,8 @@
                                 <td><?= e((string)$invitation['inviter_email']) ?></td>
                                 <td><?= e((string)$invitation['invited_email']) ?></td>
                                 <td><strong><?= number_format((int)$invitation['reward_points'], 0, ',', ' ') ?> TT</strong></td>
-                                <td><?= e((string)$invitation['status']) ?></td>
-                                <td><?= e((string)($invitation['mail_status'] ?? '—')) ?><?= (string)($invitation['mail_status'] ?? '') === 'dead_letter' ? ' — wymaga kontroli' : '' ?></td>
+                                <td><?= e(match((string)$invitation['status']) { 'mail_queued'=>'Wysyłanie', 'sent'=>'Wysłane', 'link_opened'=>'Link otwarty', 'installed'=>'Aplikacja zainstalowana', 'registered'=>'Konto założone', 'reward_queued'=>'Nagroda w realizacji', 'rewarded'=>'Nagroda przyznana', default=>'Zakończone' }) ?></td>
+                                <td><?= e(match((string)($invitation['mail_status'] ?? '')) { 'queued'=>'Oczekuje na wysłanie', 'sent'=>'Dostarczone do wysyłki', 'dead_letter'=>'Wymaga ponowienia', default=>'—' }) ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -489,8 +488,7 @@
                             $fieldId = 'talent-' . str_replace('_', '-', $ruleType);
                             $isActive = !empty($r['is_active']);
                             $isResponsePublicationRule = $ruleType === 'response_publication_bonus';
-                            $isSurveyRule = $ruleType === 'survey_reward';
-                            $isTalentOnlyRule = $isResponsePublicationRule || $isSurveyRule;
+                            $hasDailyLimit = $ruleType === 'article_read_bonus';
                             ?>
                             <article class="zs-talent-rule-card<?php echo $isActive ? ' is-active' : ''; ?><?php echo ($r['operator_tone'] ?? '') === 'warning' ? ' is-warning' : ''; ?>" data-talent-rule>
                                 <div class="zs-talent-rule-main">
@@ -503,10 +501,7 @@
                                             <?php endif; ?>
                                         </div>
                                         <p><?php echo e((string)$r['operator_description']); ?></p>
-                                        <div class="zs-talent-rule-readiness<?php echo !empty($r['operator_activation_locked']) ? ' is-locked' : ' is-ready'; ?>">
-                                          <strong><?php echo e((string)($r['operator_readiness'] ?? 'NIEZWERYFIKOWANE')); ?></strong>
-                                          <span><?php echo e((string)($r['operator_trigger'] ?? '')); ?></span>
-                                        </div>
+                                        <small class="zs-talent-human-trigger"><?php echo e((string)($r['operator_trigger'] ?? '')); ?></small>
                                     </div>
                                     <span class="zs-talent-state<?php echo $isActive ? ' is-active' : ''; ?>" data-talent-state><?php echo $isActive ? 'Aktywna' : 'Wyłączona'; ?></span>
                                 </div>
@@ -526,43 +521,21 @@
                                             <input id="<?php echo e($fieldId); ?>-deposit" type="number" min="0" max="1000000" step="1" required name="rules[<?php echo e($ruleType); ?>][submission_deposit_points]" value="<?php echo e((string)($r['submission_deposit_points'] ?? 0)); ?>">
                                             <b>TT</b>
                                         </div>
-                                        <small>0 wyłącza kaucję. Kwota jest zapisywana przy pierwszym wysłaniu i nie zmienia się dla tej polemiki. Przełącznik nagrody poniżej nie wyłącza kaucji.</small>
+                                        <small>0 wyłącza kaucję. Pobieramy ją tylko raz przy wysłaniu; po publikacji wraca do użytkownika.</small>
                                     </label>
                                     <?php endif; ?>
-                                    <?php if ($isTalentOnlyRule): ?>
-                                      <input type="hidden" name="rules[<?php echo e($ruleType); ?>][money]" value="0">
-                                      <input type="hidden" name="rules[<?php echo e($ruleType); ?>][limit]" value="0">
-                                      <div class="zs-talent-tt-only">
-                                        <?php if ($isResponsePublicationRule): ?>
-                                          <strong>Nagroda i kaucja wyłącznie w TT</strong>
-                                          <span>Kaucja jest pobierana tylko raz przy pierwszym wysłaniu. Wraca po publikacji, a po odrzuceniu przechodzi na rzecz serwisu. Nagroda za publikację ma osobny snapshot.</span>
-                                        <?php else: ?>
-                                          <strong>Ta karta kontroluje wyłącznie TT</strong>
-                                          <span>Kwotę PLN, budżet i limit odpowiedzi ustalasz w konkretnej ankiecie. Wyłączenie tej reguły daje 0 TT, ale nie odbiera należnych PLN.</span>
-                                        <?php endif; ?>
-                                      </div>
+                                    <input type="hidden" name="rules[<?php echo e($ruleType); ?>][money]" value="0">
+                                    <?php if ($hasDailyLimit): ?>
+                                      <label for="<?php echo e($fieldId); ?>-limit"><span>Maksymalnie dziennie</span><div class="zs-input-with-unit"><input id="<?php echo e($fieldId); ?>-limit" type="number" min="0" max="1000" step="1" required name="rules[<?php echo e($ruleType); ?>][limit]" value="<?php echo e((string)$r['daily_limit']); ?>"><b>tekstów</b></div><small>0 oznacza brak dodatkowego limitu.</small></label>
                                     <?php else: ?>
-                                    <label for="<?php echo e($fieldId); ?>-money">
-                                        <span>Kwota pieniężna</span>
-                                        <div class="zs-input-with-unit">
-                                            <input id="<?php echo e($fieldId); ?>-money" type="text" inputmode="decimal" required name="rules[<?php echo e($ruleType); ?>][money]" value="<?php echo number_format(((int)($r['amount_minor'] ?? 0)) / 100, 2, ',', ''); ?>">
-                                            <b>PLN</b>
-                                        </div>
-                                    </label>
-                                    <label for="<?php echo e($fieldId); ?>-limit">
-                                        <span>Maks. dziennie</span>
-                                        <div class="zs-input-with-unit">
-                                            <input id="<?php echo e($fieldId); ?>-limit" type="number" min="0" max="100000" step="1" required name="rules[<?php echo e($ruleType); ?>][limit]" value="<?php echo e((string)$r['daily_limit']); ?>">
-                                            <b>razy</b>
-                                        </div>
-                                        <small>0 oznacza brak limitu</small>
-                                    </label>
+                                      <input type="hidden" name="rules[<?php echo e($ruleType); ?>][limit]" value="<?= $ruleType === 'day_visit_bonus' ? '1' : '0' ?>">
                                     <?php endif; ?>
+                                    <?php if ($isResponsePublicationRule): ?><div class="zs-talent-tt-only"><strong>Nagroda i kaucja są wyłącznie w TT</strong><span>Odrzucenie oznacza przepadek kaucji, a poprawka tej samej polemiki nie pobiera jej drugi raz.</span></div><?php endif; ?>
                                     <label class="zs-talent-switch" for="<?php echo e($fieldId); ?>-active">
                                         <input type="hidden" name="rules[<?php echo e($ruleType); ?>][exists]" value="1">
-                                        <input id="<?php echo e($fieldId); ?>-active" type="checkbox" name="rules[<?php echo e($ruleType); ?>][active]" <?php echo $isActive ? 'checked' : ''; ?> <?php echo !empty($r['operator_activation_locked']) ? 'disabled' : ''; ?> data-talent-toggle>
+                                        <input id="<?php echo e($fieldId); ?>-active" type="checkbox" name="rules[<?php echo e($ruleType); ?>][active]" <?php echo $isActive ? 'checked' : ''; ?> data-talent-toggle>
                                         <span class="zs-talent-switch-track" aria-hidden="true"><i></i></span>
-                                        <span><?php echo !empty($r['operator_activation_locked']) ? 'Aktywacja zablokowana do czasu wiarygodnego dowodu' : 'Przyznawaj tę nagrodę'; ?></span>
+                                        <span>Przyznawaj tę nagrodę</span>
                                     </label>
                                 </div>
                             </article>
@@ -604,7 +577,6 @@
                             <input type="text" name="settings[<?php echo e($s['name']); ?>]" value="<?php echo e($s['value']); ?>" class="zs-setting-input">
                         </div>
                         <div class="zs-setting-meta">
-                            <span class="zs-setting-key">Klucz: <?php echo e($s['name']); ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>

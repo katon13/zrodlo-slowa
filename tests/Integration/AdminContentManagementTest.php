@@ -243,11 +243,12 @@ final class AdminContentManagementTest extends DatabaseTestCase
         ));
     }
 
-    public function testUnverifiedPpvCampaignCannotBeActivated(): void
+    public function testPpvIsNotAnAvailableCampaignType(): void
     {
         $service = $this->campaignService();
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('wiarygodnego dowodu');
+        self::assertArrayNotHasKey('ppv', $service->typeDefinitions());
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('prawidłowy typ kampanii');
         $service->create($this->adminId(), [
             'client_name' => 'Klient PHPUnit',
             'name' => 'PPV bez dowodu',
@@ -274,6 +275,8 @@ final class AdminContentManagementTest extends DatabaseTestCase
             'type' => 'ad_click',
             'status' => 'active',
             'target_url' => 'https://example.test/landing',
+            'creative_path' => '/uploads/campaigns/phpunit-banner.webp',
+            'creative_mime' => 'image/webp',
             'budget' => '10,00',
             'cost_per_click' => '1,50',
             'budget_confirmed' => '1',

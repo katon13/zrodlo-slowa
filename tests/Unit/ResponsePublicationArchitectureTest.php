@@ -42,6 +42,11 @@ final class ResponsePublicationArchitectureTest extends TestCase
         self::assertStringContainsString("t('article.response.kicker'", $view);
         self::assertStringContainsString("t('article.response.title'", $view);
         self::assertStringContainsString('id="opinie-i-polemiki"', $view);
+
+        $layout = (string)file_get_contents(dirname(__DIR__, 2) . '/views/layouts/main.php');
+        $economy = (string)file_get_contents(dirname(__DIR__, 2) . '/views/economy/show.php');
+        self::assertStringNotContainsString('/jak-zarabiac#opinie-i-polemiki', $layout);
+        self::assertStringNotContainsString('economy.response.title', $economy);
     }
 
     public function testOpinionDashboardIsNotRewrittenAsAnArticleSlug(): void
@@ -58,10 +63,9 @@ final class ResponsePublicationArchitectureTest extends TestCase
         self::assertStringContainsString('$ruleType === \'response_publication_bonus\'', $settings);
         self::assertStringContainsString('Kaucja przy wysłaniu', $settings);
         self::assertStringContainsString('submission_deposit_points', $settings);
-        self::assertStringContainsString('Kaucja jest pobierana tylko raz przy pierwszym wysłaniu', $settings);
-        self::assertStringContainsString('$isSurveyRule = $ruleType === \'survey_reward\'', $settings);
-        self::assertStringContainsString('Ta karta kontroluje wyłącznie TT', $settings);
-        self::assertStringContainsString('Wyłączenie tej reguły daje 0 TT, ale nie odbiera należnych PLN', $settings);
+        self::assertStringContainsString('Pobieramy ją tylko raz przy wysłaniu', $settings);
+        self::assertStringContainsString('Nagroda i kaucja są wyłącznie w TT', $settings);
+        self::assertStringNotContainsString('$isSurveyRule', $settings);
 
         $editorial = (string)file_get_contents($root . '/views/admin/editorial_edit.php');
         self::assertStringContainsString('response_reward_qualified', $editorial);

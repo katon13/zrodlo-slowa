@@ -1,7 +1,7 @@
 <section class="admin-page-head">
   <p class="kicker">Raport ankiety</p>
   <h1><?= e($survey['title']) ?></h1>
-  <p>Podstawowy raport odpowiedzi. To pierwszy krok pod późniejsze raporty dla zleceniodawców i redakcji.</p>
+  <p>Odpowiedzi i przyznanie TT w jednym czytelnym zestawieniu.</p>
 </section>
 
 <section class="admin-panel-block">
@@ -21,16 +21,16 @@
 </section>
 
 <section class="admin-panel-block">
-  <div class="admin-section-head"><div><p class="kicker">Uczestnicy</p><h2>Historia odpowiedzi i nagród</h2></div></div>
+  <div class="admin-section-head"><div><p class="kicker">Uczestnicy</p><h2>Historia odpowiedzi i Talentu</h2></div></div>
   <div class="admin-table-wrap">
     <table class="admin-table admin-table-wide">
-      <thead><tr><th>Użytkownik</th><th>Nagroda</th><th>Status</th><th>Data</th></tr></thead>
+      <thead><tr><th>Użytkownik</th><th>Talent</th><th>Stan</th><th>Data</th></tr></thead>
       <tbody>
         <?php foreach ($responses as $r): ?>
           <tr>
             <td><?= e($r['display_name']) ?><span class="admin-note"><?= e($r['email']) ?></span></td>
-            <td><?= number_format(((int)$r['reward_amount_minor'])/100, 2, ',', ' ') ?> PLN</td>
-            <td><?= e($r['reward_status']) ?></td>
+            <td><?= (int)($survey_reward_points ?? 0) ?> TT</td>
+            <td><?= match((string)$r['reward_status']){'paid'=>'Rozliczone','pending'=>'Czeka na przetworzenie','rejected'=>'Bez nagrody',default=>'Zapisane'} ?></td>
             <td><?= e($r['completed_at']) ?></td>
           </tr>
         <?php endforeach; ?>

@@ -21,4 +21,13 @@ return [
             'webp_quality' => 86,
         ],
     ],
+    'campaigns' => [
+        'image_max_size' => 8 * 1024 * 1024,
+        'video_max_size' => 120 * 1024 * 1024,
+        'video_extensions' => ['mp4', 'webm'],
+        'video_mime_types' => ['video/mp4', 'video/webm'],
+    ],
+    'bug_reports' => [
+        'max_size' => 8 * 1024 * 1024,
+    ],
 ];

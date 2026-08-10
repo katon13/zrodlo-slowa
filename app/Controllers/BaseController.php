@@ -398,6 +398,16 @@ abstract class BaseController
         return $id;
     }
 
+    protected function campaignDeliverySessionHash(): string
+    {
+        $key = trim((string)$this->app->session->get('_campaign_delivery_key', ''));
+        if (preg_match('/^[a-f0-9]{48}$/D', $key) !== 1) {
+            $key = bin2hex(random_bytes(24));
+            $this->app->session->set('_campaign_delivery_key', $key);
+        }
+        return hash('sha256', $key);
+    }
+
     private function assertAdminSessionAccess(int $adminId): void
     {
         try {

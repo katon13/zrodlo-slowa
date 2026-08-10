@@ -54,16 +54,10 @@
     <small>Dziedziny i sekcje</small>
   </a>
 
-  <a class="admin-card zs-admin-card" href="/admin/surveys">
-    <?= function_exists('zs_icon') ? zs_icon('survey') : '' ?>
-    <span>ANKIETY I SONDAŻE</span>
-    <small>Opinie, dane, raporty</small>
-  </a>
-
   <a class="admin-card zs-admin-card" href="/admin/campaigns">
     <?= function_exists('zs_icon') ? zs_icon('ad') : '' ?>
-    <span>KAMPANIE I PPV</span>
-    <small>Reklamy, kliknięcia, live</small>
+    <span>KAMPANIE I ZAANGAŻOWANIE</span>
+    <small>Banery, filmy, artykuły sponsorowane, ankiety i zgłoszenia</small>
   </a>
 
   <a class="admin-card zs-admin-card" href="/admin/payouts">

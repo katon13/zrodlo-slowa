@@ -37,6 +37,9 @@ foreach ($iterator as $file) {
 
     $filePath = $file->getPathname();
     $relativePath = str_replace($root, '', $filePath);
+    if (str_starts_with(str_replace('\\', '/', $relativePath), '/views/admin/')) {
+        continue;
+    }
     $content = file_get_contents($filePath);
 
     // 1. Szukanie t('key') lub t("key")

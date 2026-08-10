@@ -64,4 +64,28 @@ final class AppReferralArchitectureTest extends TestCase
         self::assertStringContainsString('adres kwalifikuje się do promocji', $controller);
         self::assertStringContainsString('http_response_code(202)', $controller);
     }
+
+    public function testReferralLandingAndPromotedBadgeAreTranslatedInEveryPublicLanguage(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $catalog = json_decode(
+            (string)file_get_contents($root . '/resources/lang/public.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
+        $landing = (string)file_get_contents($root . '/views/referral/landing.php');
+        preg_match_all("/t\\('((?:referral\\.landing|referral\\.promoted)[a-z0-9_.]*)'/", $landing, $matches);
+        $keys = array_values(array_unique(array_merge($matches[1], ['referral.promoted'])));
+
+        foreach ($keys as $key) {
+            self::assertArrayHasKey($key, $catalog, $key);
+            foreach (['pl', 'en', 'de', 'fr', 'it', 'es'] as $language) {
+                self::assertNotSame('', trim((string)($catalog[$key][$language] ?? '')), $key . ':' . $language);
+            }
+        }
+
+        self::assertStringContainsString("t('referral.promoted'", (string)file_get_contents($root . '/views/wallet/show.php'));
+        self::assertStringContainsString("\$tr('referral.promoted'", (string)file_get_contents($root . '/views/economy/show.php'));
+    }
 }

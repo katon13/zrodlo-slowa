@@ -17,7 +17,7 @@ restore_exception_handler();
 date_default_timezone_set('Europe/Warsaw');
 
 $databaseHost = strtolower(trim((string)env('DB_HOST', '127.0.0.1')));
-$allowedDatabaseHosts = ['127.0.0.1', 'localhost', 'postgres', 'mariadb', 'mysql'];
+$allowedDatabaseHosts = ['127.0.0.1', 'localhost', 'postgres'];
 if (!in_array($databaseHost, $allowedDatabaseHosts, true)) {
     throw new RuntimeException(
         'PHPUnit odmówił połączenia z nieznanym hostem bazy: ' . $databaseHost
@@ -25,7 +25,7 @@ if (!in_array($databaseHost, $allowedDatabaseHosts, true)) {
 }
 
 $testRunSuffix = bin2hex(random_bytes(6));
-$databaseDriver = strtolower((string)env('DB_DRIVER', 'mysql'));
+$databaseDriver = strtolower((string)env('DB_DRIVER', 'pgsql'));
 $ownerPid = getmypid();
 
 $_ENV['DB_APPLICATION_NAME'] = 'zrodlo-slowa-phpunit-' . $testRunSuffix;
@@ -42,14 +42,8 @@ if ($databaseDriver === 'pgsql') {
     $_ENV['DB_SCHEMA'] = $isolatedSchemaName;
     $_ENV['DB_ALLOW_CREATE_SCHEMA'] = 'true';
     $_ENV['DB_ALLOW_CREATE_DATABASE'] = 'false';
-} elseif ($databaseDriver === 'mysql') {
-    $isolatedDatabaseName = 'zrodlo_slowa_test_' . $testRunSuffix;
-    $isolatedSchemaName = '';
-    $_ENV['DB_NAME'] = $isolatedDatabaseName;
-    $_ENV['DB_ALLOW_CREATE_DATABASE'] = 'true';
-    $_ENV['DB_ALLOW_CREATE_SCHEMA'] = 'false';
 } else {
-    throw new RuntimeException('PHPUnit nie obsługuje sterownika bazy: ' . $databaseDriver);
+    throw new RuntimeException('PHPUnit projektu wymaga DB_DRIVER=pgsql.');
 }
 
 $testDatabaseConfig = require $rootPath . '/config/database.php';

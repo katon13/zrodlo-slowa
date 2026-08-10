@@ -444,8 +444,7 @@ function stage8Prepare(string $rootPath): array
 
         $day = gmdate('Y-m-d');
         foreach (STAGE8_REWARD_TYPES as $type) {
-            $reference = $type === 'day_visit_bonus' ? 'presence-day:' : 'day:';
-            $state['job_keys'][$type] = "talent:{$state['user_id']}:{$type}:{$reference}{$day}";
+            $state['job_keys'][$type] = "talent:{$state['user_id']}:{$type}:presence-day:{$day}";
         }
         $state['rules'] = stage8Rules($database);
         stage8WaitForJobs($database, $state['job_keys']);

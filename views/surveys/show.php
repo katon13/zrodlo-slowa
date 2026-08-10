@@ -1,38 +1,28 @@
-<?php
-$typeLabels = [
-  'consumer' => 'ankieta konsumencka',
-  'political_poll' => 'sondaż wyborczy',
-  'social_poll' => 'sondaż społeczny',
-  'local_poll' => 'sondaż lokalny',
-  'advertising' => 'ankieta reklamowa',
-  'editorial' => 'ankieta redakcyjna',
-  'market_research' => 'badanie rynku',
-];
-?>
+<?php $lang = (string)($current_language ?? 'pl'); ?>
 <section class="admin-page-head">
-  <p class="kicker"><?= e($typeLabels[$survey['type']] ?? $survey['type']) ?></p>
+  <p class="kicker"><?= e(t('survey.type.' . (string)$survey['type'], $lang)) ?></p>
   <h1><?= e($survey['title']) ?></h1>
   <p><?= nl2br(e((string)($survey['description'] ?? ''))) ?></p>
 </section>
 
 <section class="form-card">
-  <div class="wallet-row"><span>Nagroda za udział</span><strong><?= number_format(((int)$survey['reward_amount_minor'])/100, 2, ',', ' ') ?> PLN</strong></div>
-  <div class="wallet-row"><span>Wypełnione odpowiedzi</span><strong><?= (int)($survey['responses_count'] ?? 0) ?><?= !empty($survey['max_responses']) ? ' / ' . (int)$survey['max_responses'] : '' ?></strong></div>
+  <div class="wallet-row"><span><?= e(t('survey.reward', $lang)) ?></span><strong><?= (int)($survey_reward_points ?? 0) ?> TT</strong></div>
+  <div class="wallet-row"><span><?= e(t('survey.answers', $lang)) ?></span><strong><?= (int)($survey['responses_count'] ?? 0) ?><?= !empty($survey['max_responses']) ? ' / ' . (int)$survey['max_responses'] : '' ?></strong></div>
 </section>
 
 <?php if (!empty($already_answered)): ?>
-  <section class="notice success">Już wypełniłeś tę ankietę. Nagroda została zapisana w portfelu.</section>
+  <section class="notice success"><?= e(t('survey.completed', $lang)) ?></section>
 <?php elseif (empty($_SESSION['user_id'])): ?>
   <section class="paywall-note">
-    <h2>Zaloguj się, aby wziąć udział.</h2>
-    <p>Ankiety i sondaże tworzą wartość społeczności. Nagroda trafia do portfela użytkownika po zapisaniu odpowiedzi.</p>
-    <p><a class="btn-red" href="/login">Zaloguj się</a></p>
+    <h2><?= e(t('survey.login_title', $lang)) ?></h2>
+    <p><?= e(t('survey.login_message', $lang)) ?></p>
+    <p><a class="btn-red" href="<?= e(public_language_url($lang, '/login')) ?>"><?= e(t('campaign.action.login', $lang)) ?></a></p>
   </section>
 <?php elseif (empty($questions)): ?>
-  <section class="notice error">Ta ankieta nie ma jeszcze pytań.</section>
+  <section class="notice error"><?= e(t('survey.no_questions', $lang)) ?></section>
 <?php else: ?>
   <section>
-    <form method="post" action="/survey/submit" class="zs-survey-form vertical">
+    <form method="post" action="<?= e(public_language_url($lang, '/survey/submit')) ?>" class="zs-survey-form vertical">
       <?= csrf_field() ?>
       <input type="hidden" name="survey_id" value="<?= (int)$survey['id'] ?>">
       <input type="hidden" name="answer_seconds" value="0" data-answer-seconds>
@@ -43,7 +33,7 @@ $typeLabels = [
           
           <div style="display: flex; flex-direction: column; gap: 12px;">
           <?php if ($q['question_type'] === 'text'): ?>
-            <textarea name="answers[<?= (int)$q['id'] ?>]" rows="4" placeholder="Twoja odpowiedź..."></textarea>
+            <textarea name="answers[<?= (int)$q['id'] ?>]" rows="4" placeholder="<?= e(t('survey.text_placeholder', $lang)) ?>"></textarea>
           <?php elseif ($q['question_type'] === 'multiple_choice'): ?>
             <?php foreach ($options as $option): ?>
               <label style="flex-direction: row !important; align-items: center; gap: 10px; cursor: pointer;">
@@ -63,7 +53,7 @@ $typeLabels = [
         </div>
       <?php endforeach; ?>
       <div style="padding-top: 10px;">
-        <button class="btn-red" type="submit" style="padding: 18px 40px; font-size: 16px;">Zapisz odpowiedzi i odbierz nagrodę</button>
+        <button class="btn-red" type="submit" style="padding: 18px 40px; font-size: 16px;"><?= e(t('survey.submit', $lang)) ?></button>
       </div>
     </form>
   </section>

@@ -9,7 +9,10 @@ if (file_exists($envPath)) {
     foreach ($lines as $line) {
         if (strpos(trim($line), '#') === 0 || !strpos($line, '=')) continue;
         list($name, $value) = explode('=', $line, 2);
-        $_ENV[trim($name)] = trim($value, " \"\t\n\r\0\x0B");
+        $name = trim($name);
+        if (!array_key_exists($name, $_ENV) && getenv($name) === false) {
+            $_ENV[$name] = trim($value, " \"\t\n\r\0\x0B");
+        }
     }
 }
 
@@ -24,12 +27,14 @@ function t_mock($key, $lang = 'pl') {
 }
 
 $db = new \App\Core\Database([
+    'driver' => 'pgsql',
     'host' => $_ENV['DB_HOST'] ?? '127.0.0.1',
-    'port' => $_ENV['DB_PORT'] ?? '3306',
+    'port' => $_ENV['DB_PORT'] ?? '5432',
     'database' => $_ENV['DB_NAME'] ?? 'zrodlo_slowa',
-    'username' => $_ENV['DB_USER'] ?? 'root',
+    'username' => $_ENV['DB_USER'] ?? 'postgres',
     'password' => $_ENV['DB_PASS'] ?? '',
-    'charset' => 'utf8mb4'
+    'charset' => 'utf8',
+    'schema' => $_ENV['DB_SCHEMA'] ?? 'public',
 ]);
 
 echo "--- TEST TŁUMACZEŃ UI UŻYTKOWNIKA ---\n";

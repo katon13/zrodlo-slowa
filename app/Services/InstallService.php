@@ -133,6 +133,10 @@ final class InstallService
                 'background_job_events' => ['background_job_id', 'event_type', 'to_status', 'created_at'],
                 'scheduler_runs' => ['task_name', 'scheduled_for', 'status'],
                 'articles' => ['status', 'access_mode', 'price_minor', 'published_at', 'revision_of_article_id', 'response_to_article_id', 'response_reward_qualified', 'response_reward_points', 'response_reward_job_public_id'],
+                'campaigns' => ['type', 'status', 'budget_minor', 'budget_confirmed', 'placement', 'creative_path', 'creative_mime', 'linked_article_id', 'linked_survey_id', 'minimum_view_seconds'],
+                'campaign_events' => ['public_id', 'verification_status', 'proof_type', 'idempotency_key', 'talent_activity_type', 'talent_points_snapshot', 'talent_job_public_id'],
+                'campaign_delivery_events' => ['campaign_id', 'session_hash', 'event_type', 'event_date'],
+                'bug_reports' => ['public_id', 'status', 'reward_qualified', 'reward_points', 'reward_job_public_id'],
                 'ai_jobs' => ['estimated_cost_minor', 'actual_cost_minor', 'budget_period', 'budget_status'],
             ];
             foreach ($columnsToCheck as $table => $columns) {

@@ -43,7 +43,6 @@ $content = (string)($content ?? '');
       <a href="<?= e(public_language_url($currentLanguage, '/articles?cat=najnowsze')) ?>"><?= e(t('layout.menu.latest', $currentLanguage)) ?></a>
       <button class="main-topics-toggle" data-topics-toggle aria-expanded="false" aria-controls="topics-panel"><?= e(mb_strtoupper(t('layout.menu.topics', $currentLanguage), 'UTF-8')) ?></button>
       <a href="<?= e(public_language_url($currentLanguage, '/surveys')) ?>"><?= e(t('layout.menu.polls', $currentLanguage)) ?></a>
-      <a href="<?= e(public_language_url($currentLanguage, '/jak-zarabiac')) ?>#opinie-i-polemiki"><?= e(t('layout.menu.opinions', $currentLanguage)) ?></a>
       <a href="<?= e(public_language_url($currentLanguage, '/campaigns')) ?>"><?= e(t('layout.menu.ads', $currentLanguage)) ?></a>
       <a href="<?= e(public_language_url($currentLanguage, '/jak-zarabiac')) ?>"><?= e(t('layout.menu.how_to_earn', $currentLanguage)) ?></a>
     </nav>
@@ -121,6 +120,7 @@ $content = (string)($content ?? '');
     </div>
     <p><?= e(t('layout.footer.description', $currentLanguage)) ?></p>
     <p><?= e(t('layout.footer.links', $currentLanguage)) ?></p>
+    <p><a class="footer-bug-link" href="<?= e(public_language_url($currentLanguage, '/report-bug?from=' . rawurlencode((string)($_SERVER['REQUEST_URI'] ?? '/')))) ?>"><?= e(t('bug_report.footer', $currentLanguage)) ?></a></p>
   </div>
 </footer>
 <script>

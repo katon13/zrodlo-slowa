@@ -142,13 +142,6 @@ function stage9Prepare(string $rootPath, int $userCount = 6): array
             ['type' => STAGE9_ACTIVITY]
         );
         stage9Assert($unrelatedJobs === 0, 'Przed testem istnieją niezakończone zadania bug_report_bonus; ETAP 9 nie zmieni ich reguły.');
-        foreach (array_keys($state['automatic_rule_points']) as $automaticType) {
-            $automaticRule = $database->one(
-                'SELECT points_amount FROM activity_reward_rules WHERE activity_type=:type AND is_active=1',
-                ['type' => $automaticType]
-            );
-            $state['automatic_rule_points'][$automaticType] = max(0, (int)($automaticRule['points_amount'] ?? 0));
-        }
         $rule = $database->one('SELECT * FROM activity_reward_rules WHERE activity_type=:type', ['type' => STAGE9_ACTIVITY]);
         if ($rule === null) {
             $database->query(

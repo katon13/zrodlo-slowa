@@ -9,26 +9,32 @@ if (file_exists($envPath)) {
     foreach ($lines as $line) {
         if (strpos(trim($line), '#') === 0 || !strpos($line, '=')) continue;
         list($name, $value) = explode('=', $line, 2);
-        $_ENV[trim($name)] = trim($value, " \"\t\n\r\0\x0B");
+        $name = trim($name);
+        if (!array_key_exists($name, $_ENV) && getenv($name) === false) {
+            $_ENV[$name] = trim($value, " \"\t\n\r\0\x0B");
+        }
     }
 }
 
 require_once __DIR__ . '/../app/Core/Database.php';
 
 $db = new \App\Core\Database([
+    'driver' => 'pgsql',
     'host' => $_ENV['DB_HOST'] ?? '127.0.0.1',
-    'port' => $_ENV['DB_PORT'] ?? '3306',
+    'port' => $_ENV['DB_PORT'] ?? '5432',
     'database' => $_ENV['DB_NAME'] ?? 'zrodlo_slowa',
-    'username' => $_ENV['DB_USER'] ?? 'root',
+    'username' => $_ENV['DB_USER'] ?? 'postgres',
     'password' => $_ENV['DB_PASS'] ?? '',
-    'charset' => 'utf8mb4'
+    'charset' => 'utf8',
+    'schema' => $_ENV['DB_SCHEMA'] ?? 'public',
 ]);
 
 echo "--- TEST JĘZYKA ORYGINAŁU TEKSTU (SOURCE_LANGUAGE) ---\n";
 
 // 1. Sprawdzenie kolumny w bazie
 try {
-    $cols = $db->all("SHOW COLUMNS FROM articles LIKE 'source_language'");
+    $cols = $db->all("SELECT column_name FROM information_schema.columns
+                      WHERE table_schema=current_schema() AND table_name='articles' AND column_name='source_language'");
     if (count($cols) > 0) {
         echo "OK: Column source_language exists in articles table.\n";
     } else {

@@ -23,6 +23,8 @@ use App\Services\AiFoundationService;
 use App\Services\OpenAiClient;
 use App\Services\EarningsDiagnosticsService;
 use App\Services\TalentRulePresenter;
+use App\Services\BugReportService;
+use App\Services\UploadService;
 
 final class AdminController extends BaseController
 {
@@ -503,17 +505,11 @@ final class AdminController extends BaseController
     }
 
 
-    public function surveys(): string
+    public function surveys(): never
     {
         $this->requireAdmin();
-        $service = new SurveyService($this->app->db, new FraudGuardService($this->app->db, $this->slowoSnajperConfig()));
-        return $this->view('admin/surveys', [
-            'title' => 'Ankiety i sondaże',
-            'surveys' => $service->allForAdmin(...array_slice($this->slowoSnajper()->pageLimitOffset('admin_surveys', $_GET['page'] ?? 1, 50, 200), 1)),
-            'types' => $service->types(),
-            'selected_survey' => isset($_GET['id']) ? $service->find((int)$_GET['id']) : null,
-            'selected_questions' => isset($_GET['id']) ? $service->questions((int)$_GET['id']) : [],
-        ]);
+        $suffix = isset($_GET['id']) ? '&survey_id=' . (int)$_GET['id'] : '';
+        redirect('/admin/campaigns?tab=survey' . $suffix);
     }
 
     public function createSurvey(): never
@@ -522,10 +518,10 @@ final class AdminController extends BaseController
         try {
             $id = (new SurveyService($this->app->db, new FraudGuardService($this->app->db, $this->slowoSnajperConfig())))->createSurvey($adminId, $_POST);
             $this->app->session->flash('success', 'Ankieta została utworzona. Dodaj pytania i ustaw status aktywny, gdy będzie gotowa.');
-            redirect('/admin/surveys?id=' . $id);
+            redirect('/admin/campaigns?tab=survey&survey_id=' . $id);
         } catch (\Throwable $e) {
             $this->app->session->flash('error', 'Nie udało się utworzyć ankiety: ' . $e->getMessage());
-            redirect('/admin/surveys');
+            redirect('/admin/campaigns?tab=survey');
         }
     }
 
@@ -539,7 +535,7 @@ final class AdminController extends BaseController
         } catch (\Throwable $e) {
             $this->app->session->flash('error', 'Nie udało się zapisać ankiety: ' . $e->getMessage());
         }
-        redirect('/admin/surveys?id=' . $id);
+        redirect('/admin/campaigns?tab=survey&survey_id=' . $id);
     }
 
     public function addSurveyQuestion(): never
@@ -552,7 +548,7 @@ final class AdminController extends BaseController
         } catch (\Throwable $e) {
             $this->app->session->flash('error', 'Nie udało się dodać pytania: ' . $e->getMessage());
         }
-        redirect('/admin/surveys?id=' . $surveyId);
+        redirect('/admin/campaigns?tab=survey&survey_id=' . $surveyId);
     }
 
     public function deleteSurveyQuestion(): never
@@ -568,7 +564,7 @@ final class AdminController extends BaseController
         } catch (\Throwable $e) {
             $this->app->session->flash('error', 'Nie udało się usunąć pytania: ' . $e->getMessage());
         }
-        redirect('/admin/surveys?id=' . $surveyId);
+        redirect('/admin/campaigns?tab=survey&survey_id=' . $surveyId);
     }
 
     public function surveyReport(): string
@@ -589,6 +585,7 @@ final class AdminController extends BaseController
             'questions' => $report['questions'],
             'responses' => $report['responses'],
             'summary' => $report['summary'],
+            'survey_reward_points' => (int)($this->app->db->cell("SELECT CASE WHEN is_active=1 THEN points_amount ELSE 0 END FROM activity_reward_rules WHERE activity_type='survey_reward' LIMIT 1") ?: 0),
         ]);
     }
 
@@ -597,26 +594,53 @@ final class AdminController extends BaseController
     {
         $this->requireAdmin();
         $service = $this->campaignService();
+        $surveyService = new SurveyService($this->app->db, new FraudGuardService($this->app->db, $this->slowoSnajperConfig()));
+        $tab = (string)($_GET['tab'] ?? 'banner');
+        if (!in_array($tab, ['banner','video','article','survey','bugs'], true)) {
+            $tab = 'banner';
+        }
+        $selectedSurveyId = (int)($_GET['survey_id'] ?? 0);
         return $this->view('admin/campaigns', [
             'title' => 'Kampanie i Zaangażowanie',
             'campaigns' => $service->allForAdmin(...array_slice($this->slowoSnajper()->pageLimitOffset('admin_campaigns', $_GET['page'] ?? 1, 50, 200), 1)),
             'types' => $service->types(),
             'type_definitions' => $service->typeDefinitions(),
             'statuses' => $service->statuses(),
+            'placements' => $service->placements(),
             'selected_campaign' => isset($_GET['id']) ? $service->find((int)$_GET['id']) : null,
+            'campaign_tab' => $tab,
+            'surveys' => $surveyService->allForAdmin(200),
+            'survey_types' => $surveyService->types(),
+            'selected_survey' => $selectedSurveyId > 0 ? $surveyService->find($selectedSurveyId) : null,
+            'selected_questions' => $selectedSurveyId > 0 ? $surveyService->questions($selectedSurveyId) : [],
+            'published_articles' => $this->app->db->all(
+                "SELECT id,title,published_at FROM articles WHERE status='published' AND revision_of_article_id IS NULL ORDER BY published_at DESC,id DESC LIMIT 300"
+            ),
+            'bug_reports' => (new BugReportService($this->app->db, $this->talentService()))->allForAdmin(),
         ]);
     }
 
     public function createCampaign(): never
     {
         $adminId = $this->requireAdmin();
+        $upload = new UploadService($this->app->db, $this->app->objectStorage);
+        $creative = null;
         try {
-            $id = $this->campaignService()->create($adminId, $_POST);
+            $data = $_POST;
+            if (isset($_FILES['creative']) && (int)($_FILES['creative']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $creative = $upload->uploadCampaignCreative($_FILES['creative'], (string)($data['type'] ?? ''));
+                $data['creative_path'] = $creative['path'];
+                $data['creative_mime'] = $creative['mime'];
+            }
+            $id = $this->campaignService()->create($adminId, $data);
             $this->app->session->flash('success', 'Kampania została utworzona.');
-            redirect('/admin/campaigns?id=' . $id);
+            redirect('/admin/campaigns?tab=' . urlencode($this->campaignTab((string)($data['type'] ?? ''))) . '&id=' . $id);
         } catch (\Throwable $e) {
+            if (is_array($creative)) {
+                try { $upload->deleteReference((string)$creative['path']); } catch (\Throwable) {}
+            }
             $this->app->session->flash('error', 'Nie udało się utworzyć kampanii: ' . $e->getMessage());
-            redirect('/admin/campaigns');
+            redirect('/admin/campaigns?tab=' . urlencode($this->campaignTab((string)($_POST['type'] ?? ''))));
         }
     }
 
@@ -624,13 +648,29 @@ final class AdminController extends BaseController
     {
         $adminId = $this->requireAdmin();
         $id = (int)($_POST['id'] ?? 0);
+        $service = $this->campaignService();
+        $before = $service->find($id);
+        $upload = new UploadService($this->app->db, $this->app->objectStorage);
+        $creative = null;
         try {
-            $this->campaignService()->update($id, $adminId, $_POST);
+            $data = $_POST;
+            if (isset($_FILES['creative']) && (int)($_FILES['creative']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $creative = $upload->uploadCampaignCreative($_FILES['creative'], (string)($data['type'] ?? ''));
+                $data['creative_path'] = $creative['path'];
+                $data['creative_mime'] = $creative['mime'];
+            }
+            $service->update($id, $adminId, $data);
+            if (is_array($creative) && !empty($before['creative_path']) && $before['creative_path'] !== $creative['path']) {
+                try { $upload->deleteReference((string)$before['creative_path']); } catch (\Throwable) {}
+            }
             $this->app->session->flash('success', 'Kampania została zapisana.');
         } catch (\Throwable $e) {
+            if (is_array($creative)) {
+                try { $upload->deleteReference((string)$creative['path']); } catch (\Throwable) {}
+            }
             $this->app->session->flash('error', 'Nie udało się zapisać kampanii: ' . $e->getMessage());
         }
-        redirect('/admin/campaigns?id=' . $id);
+        redirect('/admin/campaigns?tab=' . urlencode($this->campaignTab((string)($_POST['type'] ?? ''))) . '&id=' . $id);
     }
 
     public function campaignReport(): string
@@ -657,6 +697,45 @@ final class AdminController extends BaseController
     private function campaignService(): CampaignService
     {
         return new CampaignService($this->app->db, $this->talentService(), new FraudGuardService($this->app->db, $this->slowoSnajperConfig()));
+    }
+
+    public function reviewBugReport(): never
+    {
+        $adminId = $this->requireAdminOrRoles(['editor','publisher','moderator','chief_editor','redaktor_naczelny','wydawca']);
+        $reportId = (int)($_POST['id'] ?? 0);
+        try {
+            $service = new BugReportService($this->app->db, $this->talentService());
+            if ((string)($_POST['decision'] ?? '') === 'accept') {
+                $result = $service->accept($reportId, $adminId, (string)($_POST['note'] ?? ''));
+                $this->app->session->flash('success', !empty($result['duplicate']) ? 'To zgłoszenie było już zaakceptowane.' : 'Błąd zaakceptowano, a TT przekazano do Programu Talent.');
+            } else {
+                $service->reject($reportId, $adminId, (string)($_POST['note'] ?? ''));
+                $this->app->session->flash('success', 'Zgłoszenie zostało odrzucone bez naliczenia TT.');
+            }
+        } catch (\Throwable $error) {
+            $this->app->session->flash('error', 'Nie udało się rozpatrzyć zgłoszenia: ' . $error->getMessage());
+        }
+        redirect((string)($_POST['return_to'] ?? '') === 'bug_reports' ? '/admin/bug-reports' : '/admin/campaigns?tab=bugs');
+    }
+
+    public function bugReports(): string
+    {
+        $this->requireAdminOrRoles(['editor','publisher','moderator','chief_editor','redaktor_naczelny','wydawca']);
+        return $this->view('admin/bug_reports', [
+            'title' => 'Zgłoszenia błędów',
+            'bug_reports' => (new BugReportService($this->app->db, $this->talentService()))->allForAdmin(),
+            'bug_report_return_to' => 'bug_reports',
+        ]);
+    }
+
+    private function campaignTab(string $type): string
+    {
+        return match ($type) {
+            'ad_view' => 'video',
+            'sponsored_article' => 'article',
+            'survey_ad' => 'survey',
+            default => 'banner',
+        };
     }
 
     public function payouts(): string

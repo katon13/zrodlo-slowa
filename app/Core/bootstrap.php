@@ -341,7 +341,7 @@ function seo_reserved_slug(string $slug): bool {
         'admin', 'author', 'authors', 'reader', 'wallet', 'login', 'register', 'logout', 'password',
         'account', 'articles', 'article', 'surveys', 'survey', 'campaigns', 'campaign',
         'activity', 'donations', 'stripe', 'assets', 'uploads', 'storage', 'api',
-        'jak-zarabiac', 'how-to-earn', 'opinie',
+        'jak-zarabiac', 'how-to-earn', 'opinie', 'report-bug',
         'sitemap', 'sitemap.xml', 'favicon.ico', 'robots.txt', 'clockwork'
     ];
     return in_array($slug, $reserved, true);

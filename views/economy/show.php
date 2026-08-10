@@ -19,7 +19,7 @@ $schema = strtr($tr('economy.schema.text'), [
 <?php if (is_array($talent_promotion ?? null)): ?>
 <section class="economy-referral-promotion" aria-labelledby="economy-referral-title">
   <div>
-    <span class="referral-promoted-badge">PROMOWANE</span>
+    <span class="referral-promoted-badge"><?= e($tr('referral.promoted')) ?></span>
     <p class="kicker"><?= e($tr('economy.referral.kicker')) ?></p>
     <h2 id="economy-referral-title"><?= e($tr('economy.referral.title')) ?></h2>
     <p><?= e($tr('economy.referral.description')) ?></p>
@@ -40,18 +40,6 @@ $schema = strtr($tr('economy.schema.text'), [
   <?php endif; ?>
 </section>
 <?php endif; ?>
-
-<section class="economy-response-principle" id="opinie-i-polemiki" aria-labelledby="economy-response-title">
-  <div>
-    <span class="zs-response-principle"><?= e($tr('economy.response.badge')) ?></span>
-    <p class="kicker"><?= e($tr('economy.response.kicker')) ?></p>
-    <h2 id="economy-response-title"><?= e($tr('economy.response.title')) ?></h2>
-    <p><?= e($tr('economy.response.description')) ?></p>
-  </div>
-  <ol>
-    <li><strong>TT</strong><span><?= e($tr('economy.response.published')) ?></span></li>
-  </ol>
-</section>
 
 <section class="revenue-principle" aria-labelledby="revenue-principle-title">
   <div class="revenue-principle-copy">

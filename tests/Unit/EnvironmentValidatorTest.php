@@ -28,6 +28,7 @@ final class EnvironmentValidatorTest extends TestCase
             'DORS3_ADMIN_CRITICAL_APPROVAL',
             'DORS3_ARTICLE_SUBMIT_APPROVAL',
             'DORS3_ARTICLE_PUBLISH_APPROVAL',
+            'DB_DRIVER',
         ] as $key) {
             $this->saved[$key] = $_ENV[$key] ?? null;
         }
@@ -91,5 +92,15 @@ final class EnvironmentValidatorTest extends TestCase
             'Required 3DORS Admin must protect payouts',
             implode("\n", $result['errors']),
         );
+    }
+
+    public function testProjectRejectsMysqlRuntimeConfiguration(): void
+    {
+        $_ENV['DB_DRIVER'] = 'mysql';
+
+        $result = (new EnvironmentValidator())->validate();
+
+        self::assertFalse($result['ok']);
+        self::assertStringContainsString('wyłącznie z PostgreSQL', implode("\n", $result['errors']));
     }
 }

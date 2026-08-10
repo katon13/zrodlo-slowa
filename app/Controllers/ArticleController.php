@@ -8,6 +8,8 @@ use App\Services\ArticleTranslationService;
 use App\Services\ArticleSeoService;
 use App\Services\SafetyFundService;
 use App\Services\ResponsePublicationService;
+use App\Services\CampaignService;
+use App\Services\FraudGuardService;
 
 final class ArticleController extends BaseController
 {
@@ -112,8 +114,18 @@ final class ArticleController extends BaseController
 
         $ipHash = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? 'cli') . env('APP_KEY', 'local'));
         $userId = $this->app->session->userId();
+        $campaignService = new CampaignService(
+            $this->app->db,
+            $this->talentService(),
+            new FraudGuardService($this->app->db, $this->slowoSnajperConfig()),
+        );
         if (!$isPrivatePreview) {
             $service->recordRead($articleId, $userId, $ipHash);
+            try {
+                $campaignService->recordLinkedArticleStart($userId, $articleId, $this->campaignDeliverySessionHash());
+            } catch (\Throwable $error) {
+                error_log('Nie udało się zapisać wejścia do kampanii artykułu: ' . $error->getMessage());
+            }
         }
 
         $grant = $isPrivatePreview
@@ -152,6 +164,7 @@ final class ArticleController extends BaseController
             'response_eligibility' => $responsePublicationService->eligibility($userId),
             'response_submission_deposit_points' => $responsePublicationService->submissionDepositPoints(),
             'revenue_split_policy' => (new SafetyFundService($this->app->db))->currentPolicy(),
+            'placement_campaigns' => $isPrivatePreview ? [] : $campaignService->activeForPlacement('article'),
             'flash_success' => $this->app->session->pullFlash('success'),
             'flash_error' => $this->app->session->pullFlash('error')
         ]);

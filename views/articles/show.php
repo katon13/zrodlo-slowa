@@ -234,7 +234,9 @@ if (trim($currencyInfo) === '') {
             <article>
               <div><span><?= e(t('article.response.type', $uiLanguage)) ?></span><h3><a href="/article?id=<?= (int)$response['id'] ?>"><?= e((string)$response['title']) ?></a></h3><p><?= e((string)($response['lead'] ?? '')) ?></p></div>
               <footer><strong><?= e((string)$response['author_name']) ?></strong><time><?= e((string)$response['published_at']) ?></time></footer>
-            </article>
+    </article>
+
+    <?php if (!empty($placement_campaigns)): require __DIR__ . '/../partials/campaign_slot.php'; endif; ?>
           <?php endforeach; ?>
         </div>
       <?php else: ?>

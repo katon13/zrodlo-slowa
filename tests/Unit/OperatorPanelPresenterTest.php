@@ -26,35 +26,28 @@ final class OperatorPanelPresenterTest extends TestCase
         }
 
         self::assertSame('Aktywna wizyta dzienna', $rules['day_visit_bonus']['operator_title']);
-        self::assertStringContainsString('aktywnej obecności zalogowanego użytkownika', $rules['day_visit_bonus']['operator_description']);
-        self::assertSame('Logowanie — reguła historyczna', $rules['login_bonus']['operator_title']);
-        self::assertSame('Nie używać w nowym modelu', $rules['login_bonus']['operator_badge']);
+        self::assertStringContainsString('aktywną wizytę zalogowanego użytkownika', $rules['day_visit_bonus']['operator_description']);
+        self::assertArrayNotHasKey('login_bonus', $rules);
         self::assertSame('Przeczytanie artykułu', $rules['article_read_bonus']['operator_title']);
         self::assertSame('Kliknięcie reklamy', $rules['ad_click_reward']['operator_title']);
-        self::assertSame('GOTOWE · DOWÓD OBECNOŚCI', $rules['day_visit_bonus']['operator_readiness']);
+        self::assertSame('DZIAŁA', $rules['day_visit_bonus']['operator_readiness']);
         self::assertFalse($rules['article_read_bonus']['operator_activation_locked']);
-        self::assertTrue($rules['login_bonus']['operator_activation_locked']);
         self::assertFalse($rules['ad_click_reward']['operator_activation_locked']);
     }
 
-    public function testUnknownTalentRuleGetsReadableFallback(): void
+    public function testUnknownTalentRuleIsNotShownAsADeadOperatorEntry(): void
     {
         $groups = TalentRulePresenter::groups([$this->rule('special_editor_reward')]);
 
-        self::assertCount(1, $groups);
-        self::assertSame('other', $groups[0]['key']);
-        self::assertStringNotContainsString('_', (string)$groups[0]['rules'][0]['operator_title']);
-        self::assertSame('Dodatkowa reguła aktywności obsługiwana przez system nagród.', $groups[0]['rules'][0]['operator_description']);
+        self::assertSame([], $groups);
     }
 
     public function testEveryConfiguredTalentRuleHasAnOperatorDescription(): void
     {
         $types = [
-            'registration_bonus', 'day_visit_bonus', 'login_bonus', 'article_read_bonus',
-            'response_publication_bonus', 'share_bonus', 'link_click_bonus', 'like_bonus',
-            'bug_report_bonus', 'survey_reward', 'sponsored_article_read_bonus',
-            'ad_view_reward', 'ad_click_reward', 'newsletter_open_reward',
-            'ppv_reward', 'live_event_reward',
+            'registration_bonus', 'day_visit_bonus', 'article_read_bonus',
+            'response_publication_bonus', 'bug_report_bonus', 'survey_reward',
+            'ad_view_reward', 'ad_click_reward',
         ];
         $groups = TalentRulePresenter::groups(array_map(fn(string $type): array => $this->rule($type), $types));
         $presented = [];
@@ -77,7 +70,18 @@ final class OperatorPanelPresenterTest extends TestCase
             self::assertIsBool($presented[$type]['operator_activation_locked']);
         }
         self::assertFalse($presented['survey_reward']['operator_activation_locked']);
-        self::assertStringContainsString('PLN ODDZIELONE OD TT', (string)$presented['survey_reward']['operator_readiness']);
+        self::assertSame('DZIAŁA', $presented['survey_reward']['operator_readiness']);
+    }
+
+    public function testHistoricalAndUnimplementedRulesStayOutOfTheOperatorPanel(): void
+    {
+        $hidden = ['login_bonus', 'share_bonus', 'link_click_bonus', 'like_bonus',
+            'sponsored_article_read_bonus', 'newsletter_open_reward', 'ppv_reward', 'live_event_reward'];
+
+        self::assertSame([], TalentRulePresenter::groups(array_map(
+            fn(string $type): array => $this->rule($type),
+            $hidden
+        )));
     }
 
     public function testDors3SecurityEventIsTranslatedForOperator(): void

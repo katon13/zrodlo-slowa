@@ -30,7 +30,13 @@ final class SurveyService
         $offset = max(0, $offset);
         return $this->db->all('SELECT s.*, u.display_name AS admin_name,
             (SELECT COUNT(*) FROM survey_questions q WHERE q.survey_id=s.id) AS questions_count,
-            (SELECT COUNT(*) FROM survey_responses r WHERE r.survey_id=s.id) AS responses_count
+            (SELECT COUNT(*) FROM survey_responses r WHERE r.survey_id=s.id) AS responses_count,
+            (SELECT c.id FROM campaigns c WHERE c.linked_survey_id=s.id AND c.type=\'survey_ad\'
+             ORDER BY CASE c.status WHEN \'active\' THEN 0 WHEN \'draft\' THEN 1 ELSE 2 END,c.id DESC LIMIT 1) AS campaign_id,
+            (SELECT c.name FROM campaigns c WHERE c.linked_survey_id=s.id AND c.type=\'survey_ad\'
+             ORDER BY CASE c.status WHEN \'active\' THEN 0 WHEN \'draft\' THEN 1 ELSE 2 END,c.id DESC LIMIT 1) AS campaign_name,
+            (SELECT c.status FROM campaigns c WHERE c.linked_survey_id=s.id AND c.type=\'survey_ad\'
+             ORDER BY CASE c.status WHEN \'active\' THEN 0 WHEN \'draft\' THEN 1 ELSE 2 END,c.id DESC LIMIT 1) AS campaign_status
             FROM surveys s
             LEFT JOIN users u ON u.id=s.created_by_admin_id
             ORDER BY s.updated_at DESC, s.id DESC LIMIT ' . $limit . ' OFFSET ' . $offset);

@@ -142,6 +142,22 @@ final class EarningsApiController extends BaseController
         );
         if (($result['accepted'] ?? false) !== true) {
             http_response_code(422);
+        } else {
+            try {
+                (new \App\Services\CampaignService(
+                    $this->app->db,
+                    $this->talentService(),
+                    new \App\Services\FraudGuardService($this->app->db, $this->slowoSnajperConfig()),
+                ))->recordSponsoredReadForArticle(
+                    $userId,
+                    (int)($_POST['article_id'] ?? 0),
+                    max(0, (int)($_POST['visible_seconds'] ?? 0)),
+                    max(0, min(100, (int)($_POST['progress_percent'] ?? 0))),
+                    is_string($result['job_public_id'] ?? null) ? $result['job_public_id'] : null,
+                );
+            } catch (\Throwable $error) {
+                error_log('Nie udało się rozliczyć kampanii artykułu: ' . $error->getMessage());
+            }
         }
         $this->json(['ok' => ($result['accepted'] ?? false) === true] + $result);
     }

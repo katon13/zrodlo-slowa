@@ -93,6 +93,8 @@ final class EarningsJobDispatcher
             'response_source_article_id',
             'response_published_by',
             'response_published_at',
+            'bug_report_qualified',
+            'bug_report_points',
         ]));
         return $allowed + [
             'actor_id' => $actorId,

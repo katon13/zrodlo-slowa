@@ -1,10 +1,10 @@
 <?php
 $lang = (string)($current_language ?? (function_exists('public_language') ? public_language() : 'pl'));
 $isClick = (string)$campaign['type'] === 'ad_click';
-$isView = in_array((string)$campaign['type'], ['display_ad', 'ad_view'], true);
+$isView = (string)$campaign['type'] === 'ad_view';
 $rewardText = str_replace('{points}', (string)(int)($campaign['talent_points'] ?? 0), t('campaign.detail.reward_value', $lang));
 ?>
-<article class="zs-campaign-detail">
+<article class="zs-campaign-detail" data-campaign-delivery="<?= (int)$campaign['id'] ?>">
   <header class="zs-campaign-detail-head">
     <p class="breadcrumb"><a href="<?= e(public_language_url($lang, '/campaigns')) ?>"><?= e(t('campaign.detail.back', $lang)) ?></a> / <?= e(t('campaign.type.' . (string)$campaign['type'], $lang)) ?></p>
     <div class="zs-campaign-detail-title"><div><p class="kicker"><?= e(t('campaign.detail.eyebrow', $lang)) ?></p><h1><?= e((string)$campaign['name']) ?></h1></div><span><?= e($rewardText) ?></span></div>
@@ -13,16 +13,20 @@ $rewardText = str_replace('{points}', (string)(int)($campaign['talent_points'] ?
 
   <div class="zs-campaign-detail-grid">
     <section class="zs-campaign-action-panel">
+      <?php if ($isClick && !empty($campaign['creative_path'])): ?>
+        <a class="zs-campaign-detail-creative" href="/campaign/go?id=<?= (int)$campaign['id'] ?>"><img src="<?= e((string)$campaign['creative_path']) ?>" alt="<?= e((string)$campaign['name']) ?>"></a>
+      <?php elseif ($isView && !empty($campaign['creative_path'])): ?>
+        <video class="zs-campaign-detail-creative" controls playsinline preload="metadata" data-campaign-view-media>
+          <source src="<?= e((string)$campaign['creative_path']) ?>" type="<?= e((string)$campaign['creative_mime']) ?>">
+        </video>
+      <?php endif; ?>
       <p class="eyebrow"><?= e(t('campaign.detail.action_label', $lang)) ?></p>
       <h2><?= e($isClick ? t('campaign.detail.click_title', $lang) : t('campaign.detail.view_title', $lang)) ?></h2>
       <p><?= e($isClick ? t('campaign.detail.click_message', $lang) : t('campaign.detail.view_message', $lang)) ?></p>
 
       <?php if (!empty($_SESSION['user_id'])): ?>
         <?php if ($isClick): ?>
-          <form method="post" action="/campaign/click" class="zs-campaign-primary-action">
-            <?= csrf_field() ?><input type="hidden" name="campaign_id" value="<?= (int)$campaign['id'] ?>">
-            <button class="btn-red" type="submit"><?= e(t('campaign.action.click', $lang)) ?></button>
-          </form>
+          <a class="btn-red" href="/campaign/go?id=<?= (int)$campaign['id'] ?>"><?= e(t('campaign.action.click', $lang)) ?></a>
         <?php elseif ($isView && is_array($view_proof ?? null)): ?>
           <form method="post" action="/campaign/view" class="zs-campaign-primary-action" data-campaign-view-form data-min-seconds="<?= (int)$view_proof['min_seconds'] ?>">
             <?= csrf_field() ?>
@@ -52,6 +56,16 @@ $rewardText = str_replace('{points}', (string)(int)($campaign['talent_points'] ?
     </aside>
   </div>
 </article>
+<script>
+(function(){
+  const root=document.querySelector('[data-campaign-delivery]');
+  if(!root)return;
+  const token=document.querySelector('meta[name="csrf-token"]')?.content||'';
+  const send=eventType=>{const body=new URLSearchParams({campaign_id:String(root.dataset.campaignDelivery),event_type:eventType});fetch('/campaign/delivery',{method:'POST',headers:{'X-CSRF-TOKEN':token,'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest'},body:body.toString(),keepalive:true}).catch(()=>{});};
+  send('impression');
+  root.querySelector('[data-campaign-view-media]')?.addEventListener('play',()=>send('start'),{once:true});
+})();
+</script>
 
 <?php if ($isView && is_array($view_proof ?? null)): ?>
 <script>
@@ -64,11 +78,12 @@ $rewardText = str_replace('{points}', (string)(int)($campaign['talent_points'] ?
   const counter = form.querySelector('[data-view-counter]');
   const progress = form.querySelector('[data-view-progress]');
   const submit = form.querySelector('[data-view-submit]');
+  const media = document.querySelector('[data-campaign-view-media]');
   let visibleSeconds = 0;
   const waitingTemplate = <?= json_encode(t('campaign.action.view_wait', $lang), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
   const readyText = <?= json_encode(t('campaign.action.view_ready', $lang), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
   window.setInterval(function () {
-    if (document.visibilityState !== 'visible') return;
+    if (document.visibilityState !== 'visible' || !media || media.paused || media.ended) return;
     visibleSeconds += 1;
     secondsInput.value = String(visibleSeconds);
     visibleInput.value = '1';

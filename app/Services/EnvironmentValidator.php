@@ -23,14 +23,11 @@ final class EnvironmentValidator
             }
         }
 
-        $databaseDriver = strtolower(trim((string)env('DB_DRIVER', 'mysql')));
-        if (!in_array($databaseDriver, ['mysql', 'pgsql'], true)) {
-            $errors[] = 'DB_DRIVER musi mieć wartość mysql albo pgsql.';
-        } else {
-            $driverExtension = $databaseDriver === 'pgsql' ? 'pdo_pgsql' : 'pdo_mysql';
-            if (!extension_loaded($driverExtension)) {
-                $errors[] = "Brak wymaganego rozszerzenia PHP: {$driverExtension}.";
-            }
+        $databaseDriver = strtolower(trim((string)env('DB_DRIVER', 'pgsql')));
+        if ($databaseDriver !== 'pgsql') {
+            $errors[] = 'Projekt działa wyłącznie z PostgreSQL; ustaw DB_DRIVER=pgsql.';
+        } elseif (!extension_loaded('pdo_pgsql')) {
+            $errors[] = 'Brak wymaganego rozszerzenia PHP: pdo_pgsql.';
         }
 
         foreach (['APP_KEY', 'PASSWORD_PEPPER', 'FINANCE_HMAC_KEY'] as $key) {

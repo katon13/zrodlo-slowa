@@ -18,6 +18,7 @@ $articleTranslationsMap = is_array($article_translations_map ?? null) ? $article
   <p class="kicker"><?= t('editorial.editing.kicker') ?></p>
   <h1><?= t('editorial.editing.title') ?></h1>
   <p><?= t('editorial.editing.description') ?></p>
+  <p><a class="btn-line compact" href="/admin/bug-reports">Sprawdź zgłoszenia błędów</a></p>
 </section>
 
 <section class="admin-panel-block">

@@ -135,6 +135,8 @@ $articleLabel = static function (array $article) use ($currentLanguage, $editori
     </section>
   <?php endif; ?>
 
+  <?php if (!empty($placement_campaigns)): require __DIR__ . '/../partials/campaign_slot.php'; endif; ?>
+
   <section class="card-grid">
     <?php 
     $gridArticles = $isHome ? $cards : $articles;

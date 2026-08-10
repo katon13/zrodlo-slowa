@@ -17,7 +17,7 @@ final class TalentService
         $this->businessClock = $businessClock ?? BusinessClock::fromEnvironment();
     }
 
-    public function queueAward(int $userId, string $activityType, ?string $referenceType = null, ?int $referenceId = null): array
+    public function queueAward(int $userId, string $activityType, ?string $referenceType = null, ?int $referenceId = null, array $context = []): array
     {
         $dispatcher = $this->earningsDispatcher ?? new EarningsJobDispatcher(
             $this->db,
@@ -26,7 +26,7 @@ final class TalentService
             \App\Core\SlowoSnajperConfig::fromRoot(dirname(__DIR__, 2)),
             $this->businessClock,
         );
-        return $dispatcher->queueTalentAward($userId, $activityType, $referenceType, $referenceId);
+        return $dispatcher->queueTalentAward($userId, $activityType, $referenceType, $referenceId, $context);
     }
 
     /**
@@ -62,11 +62,15 @@ final class TalentService
 
             $isResponsePublication = $activityType === 'response_publication_bonus';
             $isCampaignEvent = $referenceType === 'campaign_event' && $referenceId !== null && $referenceId > 0;
+            $isBugReport = $activityType === 'bug_report_bonus'
+                && $referenceType === 'bug_report'
+                && $referenceId !== null
+                && $referenceId > 0;
             $rule = $db->one('SELECT * FROM activity_reward_rules WHERE activity_type=:type', ['type' => $activityType]);
-            if (!$rule && !$isResponsePublication && !$isCampaignEvent) {
+            if (!$rule && !$isResponsePublication && !$isCampaignEvent && !$isBugReport) {
                 return $this->decision($userId, $activityType, 'missing_rule');
             }
-            if (!$isResponsePublication && !$isCampaignEvent && (int)($rule['is_active'] ?? 0) !== 1) {
+            if (!$isResponsePublication && !$isCampaignEvent && !$isBugReport && (int)($rule['is_active'] ?? 0) !== 1) {
                 return $this->decision($userId, $activityType, 'inactive_rule');
             }
 
@@ -84,6 +88,9 @@ final class TalentService
                     $referenceId,
                     $context,
                 );
+                $amountMinor = 0;
+            } elseif ($isBugReport) {
+                $points = $this->bugReportSnapshotPoints($userId, $referenceId, $context);
                 $amountMinor = 0;
             } else {
                 $points = $activityType === AppReferralService::ACTIVITY_TYPE
@@ -118,7 +125,7 @@ final class TalentService
             $this->ledger->walletForUser($userId);
             $this->ledger->lockWalletsForUsers([$userId]);
 
-            $dailyLimit = ($isResponsePublication || $isCampaignEvent || $activityType === 'survey_reward')
+            $dailyLimit = ($isResponsePublication || $isCampaignEvent || $isBugReport || $activityType === 'survey_reward')
                 ? 0
                 : (int)($rule['daily_limit'] ?? 0);
             if ($dailyLimit > 0) {
@@ -436,6 +443,33 @@ final class TalentService
         return $points;
     }
 
+    /** @param array<string,mixed> $context */
+    private function bugReportSnapshotPoints(int $userId, int $reportId, array $context): int
+    {
+        $report = $this->db->one(
+            'SELECT user_id,status,reward_qualified,reward_points,reward_job_public_id
+             FROM bug_reports WHERE id=:id FOR UPDATE',
+            ['id' => $reportId],
+        );
+        $points = (int)($context['bug_report_points'] ?? -1);
+        $qualified = ($context['bug_report_qualified'] ?? null) === true;
+        $jobPublicId = trim((string)($context['job_public_id'] ?? ''));
+        if ($report === null
+            || (int)$report['user_id'] !== $userId
+            || (string)$report['status'] !== 'accepted'
+            || (bool)$report['reward_qualified'] !== $qualified
+            || (int)$report['reward_points'] !== $points
+            || !$qualified
+            || $points <= 0
+            || $points > 1_000_000
+            || $jobPublicId === ''
+            || !hash_equals((string)$report['reward_job_public_id'], $jobPublicId)
+        ) {
+            throw new \RuntimeException('Nagroda za zgłoszenie nie odpowiada zaakceptowanej decyzji.');
+        }
+        return $points;
+    }
+
     public function recentNotifications(int $userId, int $limit = 10): array
     {
         return $this->db->all('SELECT * FROM activity_bonus_notifications WHERE user_id=:user ORDER BY created_at DESC, id DESC LIMIT ' . (int)$limit, ['user' => $userId]);
@@ -472,6 +506,7 @@ final class TalentService
             'survey_reward',
             'ad_view_reward',
             'ad_click_reward',
+            'bug_report_bonus',
         ];
         if ($active && !in_array($type, $verifiedActivationTypes, true)) {
             throw new \RuntimeException('Ta reguła nie ma jeszcze wiarygodnego punktu wyzwolenia i nie może zostać aktywowana.');
@@ -509,6 +544,10 @@ final class TalentService
         }
         if (in_array($type, ['ad_view_reward', 'ad_click_reward'], true) && $amountMinor !== 0) {
             throw new \InvalidArgumentException('Kampanie reklamowe przyznają użytkownikowi TT. Rozliczenie PLN pozostaje po stronie kampanii.');
+        }
+        if ($type === 'bug_report_bonus') {
+            $amountMinor = 0;
+            $limit = 0;
         }
 
         $statement = $this->db->query('UPDATE activity_reward_rules SET points_amount=:points, submission_deposit_points=:deposit, amount_minor=:amount, daily_limit=:l, is_active=:s, updated_at=NOW() WHERE activity_type=:t', [

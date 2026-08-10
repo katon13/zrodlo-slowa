@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 $baseUrl = rtrim((string)($argv[1] ?? 'http://localhost:8080'), '/');
-if ($baseUrl !== 'http://localhost:8080') {
-    fwrite(STDERR, "Kontrola jest ograniczona do http://localhost:8080.\n");
+if (!in_array($baseUrl, ['http://localhost:8080', 'http://proxy:8080'], true)) {
+    fwrite(STDERR, "Kontrola jest ograniczona do lokalnego proxy na porcie 8080.\n");
     exit(2);
 }
 

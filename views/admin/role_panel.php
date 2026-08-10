@@ -3,6 +3,7 @@ $isChiefEditor = ($panel_code ?? '') === 'chief_editor';
 $isEditor = ($panel_code ?? '') === 'editor';
 $isProofreader = ($panel_code ?? '') === 'proofreader';
 $isModerator = ($panel_code ?? '') === 'moderator';
+$isPublisher = ($panel_code ?? '') === 'publisher';
 $isEditorialPanel = $isChiefEditor || $isEditor;
 
 $displayDescription = $panel['description'] ?? 'Precyzyjny zakres danych dla przypisanej roli.';
@@ -25,31 +26,26 @@ $articleLabelOptions = [
 ?>
 
 <section class="admin-page-head zs-operator-page-head">
-  <p class="kicker"><?php echo $isEditorialPanel ? 'PANEL PRACY' : 'SNAJPER SŁOWA — kafelek roli'; ?></p>
+  <p class="kicker">PANEL PRACY</p>
   <h1><?php echo e($panel['title'] ?? 'Panel roli'); ?></h1>
   <p><?php echo e($displayDescription); ?></p>
+  <?php if ($isChiefEditor || $isEditor || $isModerator || $isPublisher): ?><p><a class="btn-line compact" href="/admin/bug-reports">Sprawdź zgłoszenia błędów</a></p><?php endif; ?>
 </section>
 
 <section class="admin-section zs-operator-panel zs-role-operator-panel">
   <div class="zs-role-info-grid">
     <div class="zs-info-item">
-        <label>Cel danych</label>
+        <label>Zakres pracy</label>
         <span><?php echo ($panel['target'] ?? '') === 'articles' ? 'Teksty redakcyjne' : 'Wypłaty finansowe'; ?></span>
     </div>
     <div class="zs-info-item">
-        <label>Limit widoku</label>
+        <label>Pozycji na stronie</label>
         <span><?php echo (int)($snajper_limit ?? 50); ?> pozycji</span>
     </div>
     <div class="zs-info-item">
-        <label>Tryb</label>
-        <span>Snajper Słowa aktywny</span>
+        <label>Stan panelu</label>
+        <span>Gotowy do pracy</span>
     </div>
-    <?php if ($isEditorialPanel): ?>
-    <div class="zs-info-item">
-        <label>Cel techniczny</label>
-        <span class="zs-id-technical"><?php echo e($panel['target'] ?? ''); ?></span>
-    </div>
-    <?php endif; ?>
   </div>
 
   <?php 

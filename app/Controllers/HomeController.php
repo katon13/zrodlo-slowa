@@ -5,6 +5,8 @@ use App\Services\ArticleService;
 use App\Services\EconomyMapService;
 use App\Services\ArticleTranslationService;
 use App\Services\MainBannerService;
+use App\Services\CampaignService;
+use App\Services\FraudGuardService;
 
 final class HomeController extends BaseController
 {
@@ -37,6 +39,11 @@ final class HomeController extends BaseController
             'money_flows' => $flows,
             'main_banner' => $mainBanner,
             'featured_article' => $featuredArticle,
+            'placement_campaigns' => (new CampaignService(
+                $this->app->db,
+                $this->talentService(),
+                new FraudGuardService($this->app->db, $this->slowoSnajperConfig()),
+            ))->activeForPlacement('home'),
         ]);
     }
 

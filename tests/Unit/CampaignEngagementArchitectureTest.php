@@ -21,6 +21,13 @@ final class CampaignEngagementArchitectureTest extends TestCase
         self::assertStringContainsString('"verification_status"', $sql);
         self::assertStringNotContainsString('CREATE TABLE "verified_events"', $sql);
         self::assertStringNotContainsString('CREATE TABLE "campaign_wallet', $sql);
+
+        $extension = (string)file_get_contents(
+            dirname(__DIR__, 2) . '/database/postgresql/migrations/20260810_012_campaigns_and_bug_reports.sql'
+        );
+        self::assertStringContainsString('campaign_delivery_events', $extension);
+        self::assertStringContainsString('bug_reports', $extension);
+        self::assertStringContainsString("UPDATE \"campaigns\" SET \"type\"='ad_view'", $extension);
     }
 
     public function testCampaignFrontAndNotificationBadgeHaveAllPublicLanguages(): void
@@ -57,5 +64,55 @@ final class CampaignEngagementArchitectureTest extends TestCase
         $web = (string)file_get_contents(dirname(__DIR__, 2) . '/views/layouts/main.php');
         self::assertStringContainsString("'unread_count'", $controller);
         self::assertStringContainsString('payload.unread_count', $web);
+    }
+
+    public function testOnlyFourWorkingCampaignTypesAreExposed(): void
+    {
+        $service = (string)file_get_contents(dirname(__DIR__, 2) . '/app/Services/CampaignService.php');
+        $form = (string)file_get_contents(dirname(__DIR__, 2) . '/views/admin/partials/campaign_form.php');
+        self::assertStringContainsString("'ad_click' =>", $service);
+        self::assertStringContainsString("'ad_view' =>", $service);
+        self::assertStringContainsString("'sponsored_article' =>", $service);
+        self::assertStringContainsString("'survey_ad' =>", $service);
+        self::assertStringNotContainsString("'ppv' =>", $service);
+        self::assertStringNotContainsString("'live' =>", $service);
+        self::assertStringNotContainsString('reward_for_user', $form);
+    }
+
+    public function testCampaignSurveyAndBugPublicCopyIsTranslatedInEveryLanguage(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $catalog = json_decode((string)file_get_contents($root . '/resources/lang/public.json'), true, 512, JSON_THROW_ON_ERROR);
+        $keys = [];
+        foreach ([
+            'views/campaigns/index.php',
+            'views/campaigns/show.php',
+            'views/partials/campaign_slot.php',
+            'views/surveys/index.php',
+            'views/surveys/show.php',
+            'views/bug_reports/form.php',
+        ] as $path) {
+            preg_match_all("/t\\('((?:campaign|survey|bug_report)\\.[a-z0-9_.]+)'/", (string)file_get_contents($root . '/' . $path), $matches);
+            $keys = array_merge($keys, $matches[1]);
+        }
+        foreach (array_values(array_filter(array_unique($keys), static fn(string $key): bool => !str_ends_with($key, '.'))) as $key) {
+            self::assertArrayHasKey($key, $catalog, $key);
+            foreach (self::LANGUAGES as $language) {
+                self::assertNotSame('', trim((string)($catalog[$key][$language] ?? '')), $key . ':' . $language);
+            }
+        }
+    }
+
+    public function testBugReportIsVisibleToUsersAndEditorialReviewers(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $layout = (string)file_get_contents($root . '/views/layouts/main.php');
+        $routes = (string)file_get_contents($root . '/public/index.php');
+        $editorial = (string)file_get_contents($root . '/views/admin/editorial_list.php');
+        self::assertStringContainsString('/report-bug', $layout);
+        self::assertStringContainsString("'/report-bug'", $routes);
+        self::assertStringContainsString("'/admin/bug-reports'", $routes);
+        self::assertStringContainsString('/admin/bug-reports', $editorial);
+        self::assertTrue(seo_reserved_slug('report-bug'));
     }
 }

@@ -212,6 +212,87 @@ final class UploadService
         $this->storage->delete($reference);
     }
 
+    /** @return array{path:string,mime:string} */
+    public function uploadCampaignCreative(array $file, string $campaignType): array
+    {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            throw new \RuntimeException('Wybierz plik kampanii do przesłania.');
+        }
+        $sourcePath = (string)($file['tmp_name'] ?? '');
+        $size = is_file($sourcePath) ? filesize($sourcePath) : false;
+        if ($size === false || $size <= 0) {
+            throw new \RuntimeException('Nie udało się odczytać pliku kampanii.');
+        }
+        $mime = (string)(new \finfo(FILEINFO_MIME_TYPE))->file($sourcePath);
+        $token = bin2hex(random_bytes(12));
+        if ($campaignType === 'ad_click') {
+            if ($size > (int)$this->config['campaigns']['image_max_size']
+                || !in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)
+            ) {
+                throw new \RuntimeException('Baner musi być obrazem JPG, PNG lub WEBP do 8 MB.');
+            }
+            $temporaryPath = $this->temporaryWebpPath();
+            try {
+                $this->writeWebpFromUpload($sourcePath, $mime, $temporaryPath, [
+                    'max_width' => 1920,
+                    'max_height' => 1080,
+                    'webp_quality' => 86,
+                ]);
+                $path = $this->storage->putFile('public/campaigns/banner-' . $token . '.webp', $temporaryPath, 'image/webp');
+            } finally {
+                @unlink($temporaryPath);
+            }
+            return ['path' => $path, 'mime' => 'image/webp'];
+        }
+        if ($campaignType === 'ad_view') {
+            $extension = strtolower(pathinfo((string)($file['name'] ?? ''), PATHINFO_EXTENSION));
+            if ($size > (int)$this->config['campaigns']['video_max_size']
+                || !in_array($extension, $this->config['campaigns']['video_extensions'], true)
+                || !in_array($mime, $this->config['campaigns']['video_mime_types'], true)
+            ) {
+                throw new \RuntimeException('Film musi mieć format MP4 lub WEBM i rozmiar do 120 MB.');
+            }
+            $path = $this->storage->putFile('public/campaigns/video-' . $token . '.' . $extension, $sourcePath, $mime);
+            return ['path' => $path, 'mime' => $mime];
+        }
+        throw new \InvalidArgumentException('Ten rodzaj kampanii nie przyjmuje osobnego pliku.');
+    }
+
+    /** @return array{path:string,mime:string} */
+    public function uploadBugReportAttachment(array $file): array
+    {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            throw new \RuntimeException('Nie wybrano załącznika.');
+        }
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            throw new \RuntimeException('Nie udało się przesłać załącznika.');
+        }
+        $sourcePath = (string)($file['tmp_name'] ?? '');
+        $size = is_file($sourcePath) ? filesize($sourcePath) : false;
+        $mime = is_file($sourcePath) ? (string)(new \finfo(FILEINFO_MIME_TYPE))->file($sourcePath) : '';
+        if ($size === false || $size <= 0 || $size > (int)$this->config['bug_reports']['max_size']
+            || !in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)
+        ) {
+            throw new \RuntimeException('Załącznik musi być obrazem JPG, PNG lub WEBP do 8 MB.');
+        }
+        $temporaryPath = $this->temporaryWebpPath();
+        try {
+            $this->writeWebpFromUpload($sourcePath, $mime, $temporaryPath, [
+                'max_width' => 1920,
+                'max_height' => 1920,
+                'webp_quality' => 84,
+            ]);
+            $path = $this->storage->putFile(
+                'public/bug-reports/report-' . bin2hex(random_bytes(12)) . '.webp',
+                $temporaryPath,
+                'image/webp',
+            );
+        } finally {
+            @unlink($temporaryPath);
+        }
+        return ['path' => $path, 'mime' => 'image/webp'];
+    }
+
     public function deleteMedia(int $mediaId, int $userId): void
     {
         $media = $this->db->one(

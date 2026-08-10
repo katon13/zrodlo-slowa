@@ -461,7 +461,7 @@ $isActivity = static fn($type) => in_array($type, [
         <p class="kicker"><?= t('wallet.referral.kicker', $lang) ?></p>
         <h2><?= t('wallet.referral.title', $lang) ?></h2>
       </div>
-      <span class="referral-promoted-badge" data-referral-badge hidden>PROMOWANE</span>
+      <span class="referral-promoted-badge" data-referral-badge hidden><?= e(t('referral.promoted', $lang)) ?></span>
     </div>
     <div class="wallet-referral-loading" data-referral-loading><?= t('wallet.referral.loading', $lang) ?></div>
     <div data-referral-content hidden>
