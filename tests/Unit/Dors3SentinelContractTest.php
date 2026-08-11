@@ -39,8 +39,18 @@ final class Dors3SentinelContractTest extends TestCase
         $dashboardService = (string)file_get_contents(dirname(__DIR__, 2) . '/app/Services/Dors3SentinelService.php');
         self::assertStringContainsString('private const MAX_LIST_COUNT = 10000', $dashboardService);
         self::assertStringContainsString('FROM pg_stat_user_tables', $dashboardService);
-        self::assertStringContainsString("date_bin(INTERVAL \'5 minutes\'", $dashboardService);
+        self::assertStringContainsString("date_bin(INTERVAL '5 minutes'", $dashboardService);
         self::assertStringContainsString('s.user_id IS NOT NULL AND s.last_activity>=:minimum', $dashboardService);
+        self::assertStringContainsString("public const PAGE_SIZES = [25, 50, 100]", $dashboardService);
+        self::assertStringContainsString("public const VIEWS = ['active', 'open', 'acknowledged', 'resolved', 'sessions', 'login_attempts', 'logs', 'archive']", $dashboardService);
+        self::assertStringContainsString("private const ACTIVITY_PREVIEW = 20", $dashboardService);
+        self::assertStringNotContainsString('LIMIT 50', $dashboardService);
+        $scaling = (string)file_get_contents(
+            dirname(__DIR__, 2) . '/database/postgresql/migrations/20260811_014_sentinel_panel_scaling.sql',
+        );
+        self::assertStringContainsString('idx_security_alerts_status_severity_changed', $scaling);
+        self::assertStringContainsString('idx_auth_login_events_sentinel_page', $scaling);
+        self::assertStringContainsString('idx_security_events_action_actor_time', $scaling);
         $compose = (string)file_get_contents(dirname(__DIR__, 2) . '/compose.yaml');
         self::assertStringContainsString('max-size: "10m"', $compose);
         self::assertStringContainsString('max-file: "3"', $compose);
@@ -65,6 +75,10 @@ final class Dors3SentinelContractTest extends TestCase
             self::assertNotEmpty($catalog[$language]['resources']['security_event_archive'] ?? null);
             self::assertNotEmpty($catalog[$language]['sentinel']['archive_queued'] ?? null);
             self::assertNotEmpty($catalog[$language]['sentinel']['storage_title'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['view_sessions'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['view_login_attempts'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['open_separate_window'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['pulse_new_events'] ?? null);
         }
         self::assertSame('STATUS WARTOWNIKA', $catalog['pl']['sentinel']['protection_status'] ?? null);
         self::assertSame('SENTINEL STATUS', $catalog['en']['sentinel']['protection_status'] ?? null);
@@ -78,6 +92,13 @@ final class Dors3SentinelContractTest extends TestCase
         self::assertStringContainsString("\$tr('alerts_human_description')", $view);
         self::assertStringContainsString("\$tr('resolution_reason')", $view);
         self::assertStringNotContainsString('name="reason"', $view);
+        self::assertStringContainsString('target="_blank" rel="noopener"', $view);
+        self::assertStringContainsString('data-sentinel-pulse', $view);
+        self::assertStringContainsString('60000', $view);
+        self::assertFileExists(dirname(__DIR__, 2) . '/views/layouts/sentinel_standalone.php');
+        $standalone = (string)file_get_contents(dirname(__DIR__, 2) . '/views/layouts/sentinel_standalone.php');
+        self::assertStringNotContainsString('site-header', $standalone);
+        self::assertStringContainsString('noindex,nofollow', $standalone);
     }
 
     public function testPanelDarkModeOverridesSharedLightBadgesAndUsesReadableMicrocopy(): void

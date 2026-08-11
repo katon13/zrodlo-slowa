@@ -97,6 +97,15 @@ final class Dors3SentinelIntegrationTest extends DatabaseTestCase
         $service = new Dors3SentinelAlertService($this->database);
 
         self::assertSame('acknowledged', $service->transition($alertId, $adminId, 'acknowledged', 'Sprawdzono kontekst żądania.')['status']);
+        $dashboard = new Dors3SentinelService($this->database);
+        self::assertNotContains($alertId, array_column(
+            $dashboard->dashboard($adminId, ['view' => 'active'], [])['alerts'],
+            'public_id',
+        ));
+        self::assertContains($alertId, array_column(
+            $dashboard->dashboard($adminId, ['view' => 'acknowledged'], [])['alerts'],
+            'public_id',
+        ));
         self::assertSame('resolved', $service->transition($alertId, $adminId, 'resolved', 'Potwierdzono odrzucenie błędnego podpisu.')['status']);
         self::assertSame(2, (int)$this->database->cell(
             'SELECT COUNT(*) FROM security_alert_transitions t JOIN security_alerts a ON a.id=t.alert_id WHERE a.public_id=:alert',
@@ -240,6 +249,86 @@ final class Dors3SentinelIntegrationTest extends DatabaseTestCase
 
         $presented = Dors3OperatorPresenter::event($event, 'pl');
         self::assertSame('Szczegóły ukryto w widoku operatora', $presented['reason_label']);
+    }
+
+    public function testDashboardPaginatesLargeSessionLoginAndAlertCollectionsOnServer(): void
+    {
+        $adminId = $this->adminId();
+        $this->database->query(
+            "INSERT INTO sessions(id,user_id,payload,last_activity)
+             SELECT CONCAT('phpunit-scale-session-',i),:actor,'{}',EXTRACT(EPOCH FROM NOW())::integer-i
+             FROM generate_series(1,10050) AS i",
+            ['actor' => $adminId],
+        );
+        $this->database->query(
+            "INSERT INTO auth_login_events(user_id,email,result,ip_hash,user_agent_hash,created_at)
+             SELECT :actor,'scale@example.test',
+                    CASE WHEN i%3=0 THEN 'blocked' WHEN i%3=1 THEN 'failure' ELSE 'success' END,
+                    MD5(CONCAT('ip-',i)),MD5(CONCAT('agent-',i)),NOW()-(i*INTERVAL '6 minutes')
+             FROM generate_series(1,300) AS i",
+            ['actor' => $adminId],
+        );
+        $this->database->query(
+            "WITH inserted AS (
+                INSERT INTO security_events(
+                    event_id,occurred_at,actor_id,action,resource_type,resource_id,request_id,
+                    correlation_id,instance_id,result,reason,risk_level,metadata
+                )
+                SELECT MD5(CONCAT('scale-event-',i))::uuid::text,NOW()-(i*INTERVAL '1 second'),:actor,
+                       'security.login.blocked','session',CONCAT('scale-resource-',i),
+                       CONCAT('scale-request-',i),CONCAT('scale-correlation-',i),'app-1',
+                       'blocked','admin_login_lock_active','high','{}'::jsonb
+                FROM generate_series(1,120) AS i
+                RETURNING id,event_id,occurred_at
+             )
+             INSERT INTO security_alerts(
+                public_id,source_event_id,severity,status,opened_at,status_changed_at,
+                operation_key,last_event_at
+             )
+             SELECT MD5(CONCAT('scale-alert-',event_id))::uuid::text,id,'high','open',
+                    occurred_at,occurred_at,CONCAT('event:',event_id),occurred_at
+             FROM inserted",
+            ['actor' => $adminId],
+        );
+
+        $service = new Dors3SentinelService($this->database);
+        $overview = $service->dashboard($adminId, ['view' => 'active'], []);
+        self::assertGreaterThanOrEqual(10050, $overview['session_overview']['active']);
+        self::assertCount(20, $overview['sessions']);
+        self::assertCount(10, $overview['alerts']);
+
+        $sessions = $service->dashboard($adminId, [
+            'view' => 'sessions',
+            'session_status' => 'active',
+            'session_user' => (string)$adminId,
+            'session_page' => 2,
+            'session_per_page' => 25,
+        ], []);
+        self::assertSame(2, $sessions['session_pagination']['page']);
+        self::assertSame(10000, $sessions['session_pagination']['total']);
+        self::assertTrue($sessions['session_pagination']['total_capped']);
+        self::assertCount(25, $sessions['sessions']);
+
+        $logins = $service->dashboard($adminId, [
+            'view' => 'login_attempts',
+            'login_user' => (string)$adminId,
+            'login_page' => 2,
+            'login_per_page' => 25,
+        ], []);
+        self::assertSame(2, $logins['login_pagination']['page']);
+        self::assertGreaterThanOrEqual(300, $logins['login_pagination']['total']);
+        self::assertCount(25, $logins['login_events']);
+
+        $alerts = $service->dashboard($adminId, [
+            'view' => 'open',
+            'alert_q' => 'scale-resource-',
+            'alert_page' => 2,
+            'alert_per_page' => 25,
+        ], []);
+        self::assertSame(2, $alerts['alert_pagination']['page']);
+        self::assertSame(120, $alerts['alert_pagination']['total']);
+        self::assertCount(25, $alerts['alerts']);
+        self::assertGreaterThanOrEqual(120, $service->pulse()['open_alerts']);
     }
 
     public function testProtectedArchiveMovesColdRowsWithoutLosingAuditData(): void

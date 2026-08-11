@@ -12,7 +12,7 @@ if (-not (Test-Path -LiteralPath $exportsDirectory)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($OutputPath)) {
-    $OutputPath = Join-Path $exportsDirectory 'zrodlo-slowa_AUDYT_PELNY_2026-08-10.zip'
+    $OutputPath = Join-Path $exportsDirectory 'zrodlo-slowa_AUDYT_PELNY_2026-08-11.zip'
 }
 $resolvedOutput = [System.IO.Path]::GetFullPath($OutputPath)
 if (-not $resolvedOutput.StartsWith($exportsDirectory + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
@@ -136,6 +136,8 @@ $safetyFundEvidenceFiles = @(
     'safety-fund-en-normal.png',
     '3dors-wartownik-pl.png',
     '3dors-wartownik-en.png',
+    '3dors-wartownik-archiwum-pl.png',
+    '3dors-wartownik-osobne-okno-pl.png',
     'odpowiedz-publikacja-pod-artykulem.png',
     'odpowiedz-publikacja-jak-zarabiac.png',
     'kampanie-admin-powiadomienia-www.png',
@@ -212,6 +214,7 @@ try {
             $evidenceWriter.WriteLine('Referral implementation: docs/RAPORT_WDROZENIA_REFERRAL_2026-08-10.md')
             $evidenceWriter.WriteLine('Talent and response-publication implementation: docs/RAPORT_WDROZENIA_ODPOWIEDZI_PUBLIKACJA_I_TALENT_2026-08-10.md')
             $evidenceWriter.WriteLine('Campaign and notification implementation: docs/RAPORT_WDROZENIA_KAMPANIE_POWIADOMIENIA_2026-08-10.md')
+            $evidenceWriter.WriteLine('Sentinel scaling and monitor view: docs/RAPORT_WDROZENIA_WARTOWNIK_SKALOWANIE_2026-08-11.md')
             $evidenceWriter.WriteLine('Connected-test XML results: audit-evidence/test-results/')
         } finally {
             $evidenceWriter.Dispose()
@@ -221,13 +224,13 @@ try {
         $writer = [System.IO.StreamWriter]::new($manifest.Open(), [System.Text.UTF8Encoding]::new($false))
         try {
             $writer.WriteLine('ZRODLO SLOWA - snapshot for independent audit')
-            $writer.WriteLine('Date: 2026-08-10')
+            $writer.WriteLine('Date: 2026-08-11')
             $writer.WriteLine("Source files: $($files.Count)")
             $writer.WriteLine("Selected runtime evidence files: $($evidenceFiles.Count)")
             $writer.WriteLine("Connected-test result files: $($testEvidenceFiles.Count)")
             $writer.WriteLine('Excluded: every real .env/.env.* file (only explicitly named examples are allowed), .git, IDE/system data, vendor/node_modules, cache, runtime storage, database backups, builds, APKs, keystores, logs and older archives.')
             $writer.WriteLine('Start here: CONSULTATION_README.md')
-            $writer.WriteLine('Reports: docs/FINAL_AUDIT_BEFORE_PHYSICAL_E2E.md, docs/RAPORT_WDROZENIA_REFERRAL_2026-08-10.md, docs/RAPORT_WDROZENIA_ODPOWIEDZI_PUBLIKACJA_I_TALENT_2026-08-10.md and docs/RAPORT_WDROZENIA_KAMPANIE_POWIADOMIENIA_2026-08-10.md')
+            $writer.WriteLine('Reports: docs/FINAL_AUDIT_BEFORE_PHYSICAL_E2E.md, docs/RAPORT_WDROZENIA_REFERRAL_2026-08-10.md, docs/RAPORT_WDROZENIA_ODPOWIEDZI_PUBLIKACJA_I_TALENT_2026-08-10.md, docs/RAPORT_WDROZENIA_KAMPANIE_POWIADOMIENIA_2026-08-10.md and docs/RAPORT_WDROZENIA_WARTOWNIK_SKALOWANIE_2026-08-11.md')
         } finally {
             $writer.Dispose()
         }

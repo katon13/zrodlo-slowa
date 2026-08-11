@@ -20,6 +20,7 @@ final class Dors3SentinelController extends BaseController
     {
         $adminId = $this->requireAdmin();
         $language = $this->language();
+        $standalone = (string)($_GET['standalone'] ?? '') === '1';
         $settings = $this->dors3Settings()->current();
         $webAuthn = (new WebAuthnFoundationService(
             $this->app->db,
@@ -58,19 +59,22 @@ final class Dors3SentinelController extends BaseController
             },
             $dashboard['alerts'],
         );
-        $dashboard['ended_sessions'] = array_map(
-            static fn(array $event): array => Dors3OperatorPresenter::event($event, $language),
-            $dashboard['ended_sessions'],
-        );
-
         return $this->view('admin/dors3_sentinel', [
             'title' => Dors3UiText::get('sentinel.page_title', [], $language),
             'sentinel' => $dashboard,
             'ui_language' => $language,
+            'current_language' => $language,
             'sentinel_filters' => Dors3SentinelService::FILTERS,
             'sentinel_views' => Dors3SentinelService::VIEWS,
+            'sentinel_nav_views' => Dors3SentinelService::NAV_VIEWS,
+            'sentinel_alert_severities' => Dors3SentinelService::ALERT_SEVERITIES,
+            'sentinel_session_statuses' => Dors3SentinelService::SESSION_STATUSES,
+            'sentinel_session_sorts' => Dors3SentinelService::SESSION_SORTS,
+            'sentinel_login_results' => Dors3SentinelService::LOGIN_RESULTS,
+            'sentinel_page_sizes' => Dors3SentinelService::PAGE_SIZES,
             'sentinel_resolution_reasons' => Dors3SentinelAlertService::RESOLUTION_REASONS,
-        ]);
+            'sentinel_standalone' => $standalone,
+        ], $standalone ? 'layouts/sentinel_standalone' : 'layouts/main');
     }
 
     public function acknowledge(): never
@@ -81,6 +85,13 @@ final class Dors3SentinelController extends BaseController
     public function resolve(): never
     {
         $this->changeAlertStatus('resolved');
+    }
+
+    public function pulse(): never
+    {
+        $this->requireAdmin();
+        header('Cache-Control: no-store, private');
+        $this->json((new Dors3SentinelService($this->app->db))->pulse());
     }
 
     public function archive(): never
@@ -144,7 +155,8 @@ final class Dors3SentinelController extends BaseController
                 'dors3_sentinel_archive',
             ));
         }
-        redirect('/admin/security/sentinel?lang=' . rawurlencode($language) . '&view=archive');
+        $standalone = (string)($_POST['standalone'] ?? '') === '1' ? '&standalone=1' : '';
+        redirect('/admin/security/sentinel?lang=' . rawurlencode($language) . '&view=archive' . $standalone);
     }
 
     private function changeAlertStatus(string $targetStatus): never
@@ -193,7 +205,8 @@ final class Dors3SentinelController extends BaseController
         $view = in_array((string)($_POST['return_view'] ?? ''), Dors3SentinelService::VIEWS, true)
             ? (string)$_POST['return_view']
             : 'active';
-        redirect('/admin/security/sentinel?lang=' . rawurlencode($language) . '&view=' . rawurlencode($view));
+        $standalone = (string)($_POST['standalone'] ?? '') === '1' ? '&standalone=1' : '';
+        redirect('/admin/security/sentinel?lang=' . rawurlencode($language) . '&view=' . rawurlencode($view) . $standalone);
     }
 
     private function language(): string

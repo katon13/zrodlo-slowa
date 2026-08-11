@@ -394,6 +394,7 @@ $router->post('/admin/safety-fund/policy', [SafetyFundAdminController::class, 'r
 $router->post('/admin/safety-fund/disbursements', [SafetyFundAdminController::class, 'requestDisbursement']);
 $router->get('/admin/security/3dors', [Dors3AdminController::class, 'index']);
 $router->get('/admin/security/sentinel', [Dors3SentinelController::class, 'index']);
+$router->get('/admin/security/sentinel/pulse', [Dors3SentinelController::class, 'pulse']);
 $router->post('/admin/security/sentinel/alerts/{alert_public_id}/acknowledge', [Dors3SentinelController::class, 'acknowledge']);
 $router->post('/admin/security/sentinel/alerts/{alert_public_id}/resolve', [Dors3SentinelController::class, 'resolve']);
 $router->post('/admin/security/sentinel/archive', [Dors3SentinelController::class, 'archive']);

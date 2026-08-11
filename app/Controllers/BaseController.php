@@ -158,7 +158,7 @@ abstract class BaseController
         return $result->authorizationPublicId;
     }
 
-    protected function view(string $name, array $data = []): string
+    protected function view(string $name, array $data = [], string $layout = 'layouts/main'): string
     {
         if (!array_key_exists('flash_success', $data)) {
             $data['flash_success'] = $this->app->session->pullFlash('success');
@@ -278,7 +278,7 @@ abstract class BaseController
             }
         }
 
-        return $this->app->view->render($name, $data);
+        return $this->app->view->render($name, $data, $layout);
     }
 
     protected function isAjax(): bool

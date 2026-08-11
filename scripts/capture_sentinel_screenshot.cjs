@@ -70,6 +70,23 @@ async function main() {
       path: path.join(outputDirectory, '3dors-wartownik-archiwum-pl.png'),
       fullPage: true,
     });
+    await page.goto('http://localhost:8080/admin/security/sentinel?lang=pl&standalone=1', { waitUntil: 'domcontentloaded' });
+    await page.locator('.zs-sentinel-page').waitFor({ state: 'visible' });
+    if (await page.locator('.site-header').count() !== 0) {
+      throw new Error('Standalone Sentinel unexpectedly contains the administration menu.');
+    }
+    const standaloneBackground = await page.locator('body').evaluate((body) => getComputedStyle(body).backgroundColor);
+    if (!['rgb(5, 5, 6)', 'rgb(0, 0, 0)'].includes(standaloneBackground)) {
+      throw new Error(`Standalone Sentinel does not use the dark monitor view: ${standaloneBackground}`);
+    }
+    const pulseResponse = await page.request.get('http://localhost:8080/admin/security/sentinel/pulse');
+    if (!pulseResponse.ok()) {
+      throw new Error(`Sentinel pulse endpoint returned ${pulseResponse.status()}.`);
+    }
+    await page.screenshot({
+      path: path.join(outputDirectory, '3dors-wartownik-osobne-okno-pl.png'),
+      fullPage: true,
+    });
     process.stdout.write('3DORS Wartownik screenshots: PASS\n');
   } finally {
     await context.close();
