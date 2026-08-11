@@ -396,6 +396,7 @@ $router->get('/admin/security/3dors', [Dors3AdminController::class, 'index']);
 $router->get('/admin/security/sentinel', [Dors3SentinelController::class, 'index']);
 $router->post('/admin/security/sentinel/alerts/{alert_public_id}/acknowledge', [Dors3SentinelController::class, 'acknowledge']);
 $router->post('/admin/security/sentinel/alerts/{alert_public_id}/resolve', [Dors3SentinelController::class, 'resolve']);
+$router->post('/admin/security/sentinel/archive', [Dors3SentinelController::class, 'archive']);
 $router->get('/admin/security/unlock', [Dors3AdminController::class, 'showUnlock']);
 $router->post('/admin/security/unlock', [Dors3AdminController::class, 'unlock']);
 $router->post('/admin/security/3dors/recovery/generate', [Dors3AdminController::class, 'generateRecoveryCodes']);

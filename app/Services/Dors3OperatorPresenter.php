@@ -35,6 +35,28 @@ final class Dors3OperatorPresenter
         ];
     }
 
+    /** @param array<string,mixed> $alert @return array<string,mixed> */
+    public static function alert(array $alert, ?string $language = null): array
+    {
+        $technicalAction = (string)($alert['action'] ?? '');
+        $logicalAction = trim((string)($alert['operation_action'] ?? '')) ?: $technicalAction;
+        $presented = self::event(array_replace($alert, ['action' => $logicalAction]), $language);
+        $presented['technical_action'] = $technicalAction;
+        $presented['actor'] = trim((string)($presented['actor'] ?? ''))
+            ?: Dors3UiText::get('sentinel.system_actor', [], $language);
+        $presented['alert_reason_label'] = Dors3UiText::get(
+            'sentinel.attention_' . self::attentionReason($alert),
+            [],
+            $language,
+        );
+        $presented['confirmation_label'] = Dors3UiText::get(
+            'sentinel.confirmation_' . self::confirmation($alert),
+            [],
+            $language,
+        );
+        return $presented;
+    }
+
     /** @param array<string,bool> $gate @return list<array{key:string,label:string,passed:bool}> */
     public static function readiness(array $gate): array
     {
@@ -85,6 +107,41 @@ final class Dors3OperatorPresenter
             'medium' => 'warning',
             'high', 'critical' => 'danger',
             default => 'neutral',
+        };
+    }
+
+    /** @param array<string,mixed> $event */
+    private static function attentionReason(array $event): string
+    {
+        $action = (string)($event['action'] ?? '');
+        $result = (string)($event['result'] ?? '');
+        if ($action === 'security.login.new_context') {
+            return 'new_context';
+        }
+        if (str_contains($action, 'recovery')) {
+            return 'recovery';
+        }
+        if ($action === 'mobile.signature.invalid') {
+            return 'mobile_integrity';
+        }
+        if (in_array($result, ['failure', 'blocked', 'rejected'], true)) {
+            return 'failed_security';
+        }
+        if ((string)($event['risk_level'] ?? '') === 'critical') {
+            return 'critical_risk';
+        }
+        return 'important_operation';
+    }
+
+    /** @param array<string,mixed> $event */
+    private static function confirmation(array $event): string
+    {
+        return match ((string)($event['action'] ?? '')) {
+            'security.step_up.approved' => 'dors3',
+            'mobile.request.approved' => 'mobile',
+            default => in_array((string)($event['result'] ?? ''), ['success', 'approved'], true)
+                ? 'recorded'
+                : 'attention',
         };
     }
 }

@@ -13,6 +13,10 @@ use App\Security\Dors3\SecurityId;
  */
 final class Dors3SentinelAlertService
 {
+    public const RESOLUTION_REASONS = [
+        'verified_safe', 'access_secured', 'false_positive', 'corrective_action', 'other',
+    ];
+
     public function __construct(private readonly Database $db) {}
 
     /** @return array<string,mixed>|null */
@@ -22,28 +26,62 @@ final class Dors3SentinelAlertService
             return null;
         }
         $event = $this->db->one(
-            'SELECT id,event_id,risk_level,result FROM security_events WHERE event_id=:event LIMIT 1',
+            'SELECT id,event_id,occurred_at,action,resource_type,resource_id,correlation_id,
+                    risk_level,result,metadata
+             FROM security_events WHERE event_id=:event LIMIT 1',
             ['event' => trim($eventPublicId)],
         );
         if ($event === null || !$this->requiresAlert($event)) {
             return null;
         }
+        $operationKey = $this->operationKey($event);
 
-        $this->db->query(
-            'INSERT INTO security_alerts(
-                public_id,source_event_id,severity,status,opened_at,status_changed_at,created_at,updated_at
-             ) VALUES(:public_id,:event_id,:severity,\'open\',NOW(),NOW(),NOW(),NOW())
-             ON CONFLICT(source_event_id) DO NOTHING',
-            [
-                'public_id' => SecurityId::uuid(),
-                'event_id' => (int)$event['id'],
-                'severity' => (string)$event['risk_level'],
-            ],
-        );
-        $alert = $this->db->one(
-            'SELECT * FROM security_alerts WHERE source_event_id=:event_id LIMIT 1',
-            ['event_id' => (int)$event['id']],
-        );
+        $alert = $this->db->transaction(function (Database $db) use ($event, $operationKey): ?array {
+            $db->query(
+                'INSERT INTO security_alerts(
+                    public_id,source_event_id,operation_key,severity,status,opened_at,last_event_at,
+                    status_changed_at,created_at,updated_at
+                 ) VALUES(:public_id,:event_id,:operation_key,:severity,\'open\',NOW(),:event_time,NOW(),NOW(),NOW())
+                 ON CONFLICT(operation_key) DO UPDATE SET
+                    source_event_id=EXCLUDED.source_event_id,
+                    severity=CASE
+                        WHEN security_alerts.severity=\'critical\' OR EXCLUDED.severity=\'critical\' THEN \'critical\'
+                        WHEN security_alerts.severity=\'high\' OR EXCLUDED.severity=\'high\' THEN \'high\'
+                        ELSE \'medium\'
+                    END,
+                    last_event_at=GREATEST(security_alerts.last_event_at,EXCLUDED.last_event_at),
+                    updated_at=NOW()',
+                [
+                    'public_id' => SecurityId::uuid(),
+                    'event_id' => (int)$event['id'],
+                    'operation_key' => $operationKey,
+                    'severity' => (string)$event['risk_level'],
+                    'event_time' => (string)$event['occurred_at'],
+                ],
+            );
+            $current = $db->one(
+                'SELECT * FROM security_alerts WHERE operation_key=:operation_key LIMIT 1 FOR UPDATE',
+                ['operation_key' => $operationKey],
+            );
+            if ($current === null) {
+                return null;
+            }
+            $linked = $db->query(
+                'INSERT INTO security_alert_events(alert_id,event_id,linked_at)
+                 VALUES(:alert,:event,NOW())
+                 ON CONFLICT(event_id) DO NOTHING',
+                ['alert' => (int)$current['id'], 'event' => (int)$event['id']],
+            )->rowCount();
+            if ($linked === 1) {
+                $db->query(
+                    'UPDATE security_alerts
+                     SET event_count=(SELECT COUNT(*) FROM security_alert_events WHERE alert_id=:alert),updated_at=NOW()
+                     WHERE id=:alert',
+                    ['alert' => (int)$current['id']],
+                );
+            }
+            return $db->one('SELECT * FROM security_alerts WHERE id=:id', ['id' => (int)$current['id']]);
+        });
         if ($alert === null) {
             return null;
         }
@@ -61,12 +99,20 @@ final class Dors3SentinelAlertService
         $events = $this->db->all(
             'SELECT e.event_id
              FROM security_events e
-             LEFT JOIN security_alerts a ON a.source_event_id=e.id
+             LEFT JOIN security_alert_events ae ON ae.event_id=e.id
              CROSS JOIN security_sentinel_state state
-             WHERE a.id IS NULL
+             WHERE ae.event_id IS NULL
                AND state.singleton_id=1
                AND e.occurred_at>=state.activated_at
-               AND e.risk_level IN (\'high\',\'critical\')
+               AND (
+                    e.risk_level IN (\'high\',\'critical\')
+                    OR e.action=\'security.login.new_context\'
+               )
+               AND e.action NOT IN (
+                    \'security.step_up.started\',
+                    \'mobile.request.created\',
+                    \'security.recovery.web.started\'
+               )
              ORDER BY e.id ASC LIMIT ' . $limit,
         );
         $created = 0;
@@ -100,10 +146,10 @@ final class Dors3SentinelAlertService
                 break;
             }
             try {
-                $language = in_array((string)($delivery['interface_language'] ?? ''), ['pl', 'en'], true)
+                $language = in_array((string)($delivery['interface_language'] ?? ''), ['pl', 'en', 'de', 'fr', 'it', 'es'], true)
                     ? (string)$delivery['interface_language']
                     : 'pl';
-                $event = Dors3OperatorPresenter::event($delivery, $language);
+                $event = Dors3OperatorPresenter::alert($delivery, $language);
                 $severity = Dors3UiText::option('events.risks', (string)$delivery['severity'], $language);
                 $panelUrl = rtrim((string)env('APP_URL', ''), '/') . '/admin/security/sentinel?alert='
                     . rawurlencode((string)$delivery['alert_public_id']);
@@ -152,7 +198,39 @@ final class Dors3SentinelAlertService
     }
 
     /** @return array<string,mixed> */
-    public function transition(string $alertPublicId, int $adminId, string $targetStatus, string $reason): array
+    public function acknowledge(string $alertPublicId, int $adminId): array
+    {
+        return $this->transition($alertPublicId, $adminId, 'acknowledged', 'operator_acknowledged', 'operator_acknowledged');
+    }
+
+    /** @return array<string,mixed> */
+    public function resolve(string $alertPublicId, int $adminId, string $reasonCode, string $note = ''): array
+    {
+        $reasonCode = trim($reasonCode);
+        if (!in_array($reasonCode, self::RESOLUTION_REASONS, true)) {
+            throw new \InvalidArgumentException('sentinel_resolution_reason_invalid');
+        }
+        $note = trim((string)preg_replace('/[[:space:]]+/', ' ', (new AuditArtifactSanitizer())->sanitize($note)));
+        if (!mb_check_encoding($note, 'UTF-8') || mb_strlen($note, 'UTF-8') > 300) {
+            throw new \InvalidArgumentException('sentinel_resolution_note_invalid');
+        }
+        return $this->transition(
+            $alertPublicId,
+            $adminId,
+            'resolved',
+            $note !== '' ? $reasonCode . ': ' . $note : $reasonCode,
+            $reasonCode,
+        );
+    }
+
+    /** @return array<string,mixed> */
+    public function transition(
+        string $alertPublicId,
+        int $adminId,
+        string $targetStatus,
+        string $reason,
+        ?string $reasonCode = null,
+    ): array
     {
         if (!in_array($targetStatus, ['acknowledged', 'resolved'], true)) {
             throw new \InvalidArgumentException('Nieprawidłowy status alertu Wartownika.');
@@ -166,7 +244,9 @@ final class Dors3SentinelAlertService
             throw new \InvalidArgumentException('Uzasadnienie musi mieć od 5 do 500 znaków.');
         }
 
-        return $this->db->transaction(function (Database $db) use ($alertPublicId, $adminId, $targetStatus, $reason): array {
+        $reasonCode = trim((string)$reasonCode) !== '' ? mb_substr(trim((string)$reasonCode), 0, 40) : null;
+
+        return $this->db->transaction(function (Database $db) use ($alertPublicId, $adminId, $targetStatus, $reason, $reasonCode): array {
             $alert = $db->one(
                 'SELECT * FROM security_alerts WHERE public_id=:public_id FOR UPDATE',
                 ['public_id' => trim($alertPublicId)],
@@ -194,23 +274,30 @@ final class Dors3SentinelAlertService
                 $db->query(
                     'UPDATE security_alerts
                      SET status=\'resolved\',resolved_at=NOW(),resolved_by=:actor,resolution_note=:reason,
+                         resolution_code=:reason_code,
                          status_changed_at=NOW(),updated_at=NOW()
                      WHERE id=:id',
-                    ['actor' => $adminId, 'reason' => $reason, 'id' => (int)$alert['id']],
+                    [
+                        'actor' => $adminId,
+                        'reason' => $reason,
+                        'reason_code' => $reasonCode,
+                        'id' => (int)$alert['id'],
+                    ],
                 );
             }
 
             $requestId = RequestContext::requestId();
             $db->query(
                 'INSERT INTO security_alert_transitions(
-                    alert_id,from_status,to_status,actor_id,reason,request_id,correlation_id,instance_id,occurred_at
-                 ) VALUES(:alert,:from_status,:to_status,:actor,:reason,:request_id,:correlation_id,:instance_id,NOW())',
+                    alert_id,from_status,to_status,actor_id,reason,reason_code,request_id,correlation_id,instance_id,occurred_at
+                 ) VALUES(:alert,:from_status,:to_status,:actor,:reason,:reason_code,:request_id,:correlation_id,:instance_id,NOW())',
                 [
                     'alert' => (int)$alert['id'],
                     'from_status' => $fromStatus,
                     'to_status' => $targetStatus,
                     'actor' => $adminId,
                     'reason' => $reason,
+                    'reason_code' => $reasonCode,
                     'request_id' => $requestId,
                     'correlation_id' => $this->correlationId($requestId),
                     'instance_id' => trim((string)env('APP_INSTANCE_ID', '')) ?: null,
@@ -223,7 +310,43 @@ final class Dors3SentinelAlertService
     /** @param array<string,mixed> $event */
     private function requiresAlert(array $event): bool
     {
+        $action = (string)($event['action'] ?? '');
+        if (in_array($action, [
+            'security.step_up.started',
+            'mobile.request.created',
+            'security.recovery.web.started',
+        ], true)) {
+            return false;
+        }
+        if ($action === 'security.login.new_context') {
+            return true;
+        }
         return in_array((string)($event['risk_level'] ?? ''), ['high', 'critical'], true);
+    }
+
+    /** @param array<string,mixed> $event */
+    private function operationKey(array $event): string
+    {
+        $metadata = $event['metadata'] ?? [];
+        if (is_string($metadata)) {
+            try {
+                $metadata = json_decode($metadata, true, 32, JSON_THROW_ON_ERROR);
+            } catch (\Throwable) {
+                $metadata = [];
+            }
+        }
+        $metadata = is_array($metadata) ? $metadata : [];
+        $operation = trim((string)($metadata['operation'] ?? ''));
+        $correlation = trim((string)($event['correlation_id'] ?? ''));
+        if ($operation !== '' && $correlation !== '') {
+            return mb_substr('operation:' . $correlation . '|' . $operation . '|'
+                . (string)($event['resource_type'] ?? '') . '|' . (string)($event['resource_id'] ?? ''), 0, 512);
+        }
+        $approvalRequest = trim((string)($metadata['approval_request_id'] ?? ''));
+        if ($approvalRequest !== '') {
+            return mb_substr('mobile:' . $approvalRequest, 0, 512);
+        }
+        return 'event:' . (string)$event['event_id'];
     }
 
     private function prepareRecipients(int $alertId): void
@@ -248,7 +371,8 @@ final class Dors3SentinelAlertService
             $row = $db->one(
                 'SELECT n.id AS notification_id,n.alert_id,n.recipient_user_id,n.attempts,
                         a.public_id AS alert_public_id,a.severity,
-                        e.action,e.resource_type,e.resource_id,e.result,e.reason,e.risk_level,
+                        e.action,COALESCE(NULLIF(e.metadata->>\'operation\',\'\'),e.action) AS operation_action,
+                        e.resource_type,e.resource_id,e.result,e.reason,e.risk_level,
                         e.occurred_at,e.request_id,e.correlation_id,
                         u.email,u.interface_language
                  FROM security_alert_notifications n

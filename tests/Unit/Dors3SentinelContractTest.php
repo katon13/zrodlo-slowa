@@ -16,6 +16,34 @@ final class Dors3SentinelContractTest extends TestCase
         self::assertStringContainsString('CREATE TABLE IF NOT EXISTS "security_sentinel_state"', $sql);
         self::assertStringContainsString('UNIQUE ("source_event_id")', $sql);
         self::assertStringNotContainsString('UPDATE "security_events" SET', $sql);
+
+        $operations = (string)file_get_contents(
+            dirname(__DIR__, 2) . '/database/postgresql/migrations/20260811_013_sentinel_operations_and_archive.sql',
+        );
+        self::assertStringContainsString('"operation_key"', $operations);
+        self::assertStringContainsString('CREATE TABLE IF NOT EXISTS "security_alert_events"', $operations);
+        self::assertStringContainsString('CREATE TABLE IF NOT EXISTS "security_events_archive"', $operations);
+        self::assertStringContainsString('CREATE TABLE IF NOT EXISTS "auth_login_events_archive"', $operations);
+        self::assertStringContainsString('protect_security_event_archive', $operations);
+        self::assertStringContainsString('FOR UPDATE OF e SKIP LOCKED', (string)file_get_contents(
+            dirname(__DIR__, 2) . '/app/Services/Dors3SentinelArchiveService.php',
+        ));
+        $archiveService = (string)file_get_contents(dirname(__DIR__, 2) . '/app/Services/Dors3SentinelArchiveService.php');
+        self::assertStringContainsString("SET LOCAL lock_timeout = '250ms'", $archiveService);
+        self::assertStringContainsString("SET LOCAL statement_timeout = '10s'", $archiveService);
+        self::assertFileExists(dirname(__DIR__, 2) . '/scripts/worker_sentinel.php');
+        self::assertStringContainsString('worker-sentinel:', (string)file_get_contents(dirname(__DIR__, 2) . '/compose.yaml'));
+        $controller = (string)file_get_contents(dirname(__DIR__, 2) . '/app/Controllers/Dors3SentinelController.php');
+        self::assertStringContainsString('Dors3SentinelArchiveJobHandler::JOB_TYPE', $controller);
+        self::assertStringNotContainsString('->archiveBefore(', $controller);
+        $dashboardService = (string)file_get_contents(dirname(__DIR__, 2) . '/app/Services/Dors3SentinelService.php');
+        self::assertStringContainsString('private const MAX_LIST_COUNT = 10000', $dashboardService);
+        self::assertStringContainsString('FROM pg_stat_user_tables', $dashboardService);
+        self::assertStringContainsString("date_bin(INTERVAL \'5 minutes\'", $dashboardService);
+        self::assertStringContainsString('s.user_id IS NOT NULL AND s.last_activity>=:minimum', $dashboardService);
+        $compose = (string)file_get_contents(dirname(__DIR__, 2) . '/compose.yaml');
+        self::assertStringContainsString('max-size: "10m"', $compose);
+        self::assertStringContainsString('max-file: "3"', $compose);
     }
 
     public function testPanelIsLocalizedAndDoesNotRenderRawAuditPayloads(): void
@@ -26,10 +54,17 @@ final class Dors3SentinelContractTest extends TestCase
             512,
             JSON_THROW_ON_ERROR,
         );
-        foreach (['pl', 'en'] as $language) {
+        foreach (['pl', 'en', 'de', 'fr', 'it', 'es'] as $language) {
             self::assertNotEmpty($catalog[$language]['sentinel']['title'] ?? null);
             self::assertNotEmpty($catalog[$language]['sentinel']['notification_subject'] ?? null);
             self::assertNotEmpty($catalog[$language]['events']['actions']['sentinel.alert.resolved'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['view_archive'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['resolution_verified_safe'] ?? null);
+            self::assertNotEmpty($catalog[$language]['events']['actions']['sentinel.logs.archive'] ?? null);
+            self::assertNotEmpty($catalog[$language]['events']['actions']['sentinel.archive.queued'] ?? null);
+            self::assertNotEmpty($catalog[$language]['resources']['security_event_archive'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['archive_queued'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['storage_title'] ?? null);
         }
         self::assertSame('STATUS WARTOWNIKA', $catalog['pl']['sentinel']['protection_status'] ?? null);
         self::assertSame('SENTINEL STATUS', $catalog['en']['sentinel']['protection_status'] ?? null);
@@ -40,6 +75,9 @@ final class Dors3SentinelContractTest extends TestCase
         self::assertStringNotContainsString("['after_state']", $view);
         self::assertStringNotContainsString('aria-label="Language"', $view);
         self::assertStringNotContainsString('aria-label="Pagination"', $view);
+        self::assertStringContainsString("\$tr('alerts_human_description')", $view);
+        self::assertStringContainsString("\$tr('resolution_reason')", $view);
+        self::assertStringNotContainsString('name="reason"', $view);
     }
 
     public function testPanelDarkModeOverridesSharedLightBadgesAndUsesReadableMicrocopy(): void
@@ -52,10 +90,11 @@ final class Dors3SentinelContractTest extends TestCase
         self::assertStringContainsString('.zs-sentinel-language a.is-active{background:#18181b', $sentinelCss);
         self::assertStringContainsString('.zs-sentinel-alert-actions button.is-resolve{border-color:#23784f!important;background:#101713!important', $sentinelCss);
         self::assertStringContainsString('.zs-sentinel-page .zs-dors3-event-badge.is-success{border-color:#23784f!important;background:#101713!important', $sentinelCss);
-        self::assertStringContainsString('.zs-sentinel-section-head button,.zs-sentinel-filters button{background:#151518!important', $sentinelCss);
+        self::assertStringContainsString('.zs-sentinel-dialog select,.zs-sentinel-dialog textarea{width:100%;border:1px solid #3a3a40!important;background:#0b0b0d!important', $sentinelCss);
+        self::assertStringContainsString('.zs-sentinel-tabs a.is-active{color:#fff;background:#211114', $sentinelCss);
         self::assertStringContainsString('background:#101012!important;color:#ddd!important', $sentinelCss);
         self::assertStringContainsString('.zs-sentinel-table{font-size:12.5px}', $sentinelCss);
-        self::assertStringContainsString('.zs-sentinel-compact-log>div{', $sentinelCss);
+        self::assertStringContainsString('.zs-sentinel-compact-log>div,.zs-sentinel-login-group>summary{', $sentinelCss);
         self::assertStringContainsString('font-size:12.5px', $sentinelCss);
         self::assertStringNotContainsString('background:#fff', $sentinelCss);
     }

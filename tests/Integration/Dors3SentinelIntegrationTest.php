@@ -4,9 +4,13 @@ declare(strict_types=1);
 namespace Tests\Integration;
 
 use App\Core\RequestContext;
+use App\Jobs\Dors3SentinelArchiveJobHandler;
 use App\Services\Dors3OperatorPresenter;
 use App\Services\Dors3SentinelAlertService;
+use App\Services\Dors3SentinelArchiveService;
 use App\Services\Dors3SentinelService;
+use App\Services\DurableJobQueue;
+use App\Services\DurableJobWorker;
 use App\Services\MailService;
 use App\Services\SecurityEventService;
 
@@ -104,6 +108,78 @@ final class Dors3SentinelIntegrationTest extends DatabaseTestCase
         $service->transition($alertId, $adminId, 'resolved', 'Ponowne rozwiązanie nie jest dozwolone.');
     }
 
+    public function testOneCriticalOperationProducesOneHumanAlert(): void
+    {
+        $adminId = $this->adminId();
+        $events = new SecurityEventService($this->database);
+        $events->record(
+            $adminId,
+            'security.step_up.started',
+            'success',
+            'high',
+            'settings_group',
+            'talent',
+            null,
+            null,
+            null,
+            null,
+            ['operation' => 'earnings.rules.update'],
+        );
+        $events->record(
+            $adminId,
+            'security.step_up.approved',
+            'success',
+            'high',
+            'settings_group',
+            'talent',
+            null,
+            null,
+            null,
+            null,
+            ['operation' => 'earnings.rules.update'],
+        );
+        $events->record(
+            $adminId,
+            'sentinel.archive.completed',
+            'success',
+            'high',
+            'settings_group',
+            'talent',
+            null,
+            null,
+            'protected_archive_completed',
+            null,
+            ['operation' => 'earnings.rules.update'],
+        );
+
+        self::assertSame(1, (int)$this->database->cell(
+            "SELECT COUNT(*) FROM security_alerts WHERE operation_key LIKE 'operation:%|earnings.rules.update|%'",
+        ));
+        $alert = $this->database->one(
+            "SELECT a.event_count,e.action,e.metadata->>'operation' AS operation
+             FROM security_alerts a JOIN security_events e ON e.id=a.source_event_id
+             WHERE a.operation_key LIKE 'operation:%|earnings.rules.update|%'",
+        );
+        self::assertSame(2, (int)$alert['event_count']);
+        self::assertSame('sentinel.archive.completed', $alert['action']);
+        self::assertSame('earnings.rules.update', $alert['operation']);
+    }
+
+    public function testNewLoginContextCreatesAlertButNormalLoginDoesNot(): void
+    {
+        $adminId = $this->adminId();
+        $events = new SecurityEventService($this->database);
+        $events->record($adminId, 'security.login.success', 'success', 'low', 'user', (string)$adminId);
+        $events->record($adminId, 'security.login.new_context', 'warning', 'medium', 'user', (string)$adminId, null, null, 'new_device');
+
+        self::assertSame(0, (int)$this->database->cell(
+            "SELECT COUNT(*) FROM security_alerts a JOIN security_events e ON e.id=a.source_event_id WHERE e.action='security.login.success'",
+        ));
+        self::assertSame(1, (int)$this->database->cell(
+            "SELECT COUNT(*) FROM security_alerts a JOIN security_events e ON e.id=a.source_event_id WHERE e.action='security.login.new_context'",
+        ));
+    }
+
     public function testSynchronizationStartsAtActivationWatermarkAndNotificationIsIdempotent(): void
     {
         $adminId = $this->adminId();
@@ -148,7 +224,7 @@ final class Dors3SentinelIntegrationTest extends DatabaseTestCase
         );
 
         $service = new Dors3SentinelService($this->database);
-        $dashboard = $service->dashboard($adminId, ['filter' => 'finances', 'q' => $eventId, 'per_page' => 10], []);
+        $dashboard = $service->dashboard($adminId, ['view' => 'logs', 'filter' => 'finances', 'q' => $eventId, 'per_page' => 10], []);
         self::assertSame('high', $dashboard['system_status']['status']);
         self::assertCount(2, $dashboard['instances']);
         self::assertSame(1, $dashboard['pagination']['total']);
@@ -164,6 +240,86 @@ final class Dors3SentinelIntegrationTest extends DatabaseTestCase
 
         $presented = Dors3OperatorPresenter::event($event, 'pl');
         self::assertSame('Szczegóły ukryto w widoku operatora', $presented['reason_label']);
+    }
+
+    public function testProtectedArchiveMovesColdRowsWithoutLosingAuditData(): void
+    {
+        $adminId = $this->adminId();
+        $eventId = '00000000-0000-4000-8000-000000000099';
+        $this->database->query(
+            "INSERT INTO security_events(event_id,occurred_at,actor_id,action,result,risk_level,metadata)
+             VALUES(:event,NOW()-INTERVAL '120 days',:actor,'security.login.success','success','low','{}'::jsonb)",
+            ['event' => $eventId, 'actor' => $adminId],
+        );
+        $loginId = $this->database->insert(
+            "INSERT INTO auth_login_events(user_id,email,result,created_at)
+             VALUES(:actor,'archive@example.test','success',NOW()-INTERVAL '120 days')",
+            ['actor' => $adminId],
+        );
+
+        $result = (new Dors3SentinelArchiveService($this->database))->archiveBefore(
+            gmdate('Y-m-d', strtotime('-90 days')),
+            $adminId,
+            '00000000-0000-4000-8000-000000000777',
+        );
+
+        self::assertGreaterThanOrEqual(1, $result['security_events']);
+        self::assertGreaterThanOrEqual(1, $result['login_events']);
+        self::assertSame(0, (int)$this->database->cell('SELECT COUNT(*) FROM security_events WHERE event_id=:event', ['event' => $eventId]));
+        self::assertSame(1, (int)$this->database->cell('SELECT COUNT(*) FROM security_events_archive WHERE event_id=:event', ['event' => $eventId]));
+        self::assertSame(0, (int)$this->database->cell('SELECT COUNT(*) FROM auth_login_events WHERE id=:id', ['id' => $loginId]));
+        self::assertSame(1, (int)$this->database->cell('SELECT COUNT(*) FROM auth_login_events_archive WHERE original_id=:id', ['id' => $loginId]));
+    }
+
+    public function testProtectedArchiveRunsAsLowPriorityDurableBackgroundWork(): void
+    {
+        $adminId = $this->adminId();
+        $eventId = '00000000-0000-4000-8000-000000000098';
+        $requestId = '00000000-0000-4000-8000-000000000778';
+        $authorizationId = '00000000-0000-4000-8000-000000000779';
+        $cutoff = gmdate('Y-m-d', strtotime('-90 days'));
+        $this->database->query(
+            "INSERT INTO security_events(event_id,occurred_at,actor_id,action,result,risk_level,metadata)
+             VALUES(:event,NOW()-INTERVAL '120 days',:actor,'security.login.success','success','low','{}'::jsonb)",
+            ['event' => $eventId, 'actor' => $adminId],
+        );
+        $queue = new DurableJobQueue($this->database);
+        $job = $queue->enqueue(
+            Dors3SentinelArchiveJobHandler::QUEUE,
+            Dors3SentinelArchiveJobHandler::JOB_TYPE,
+            [
+                'cutoff_date' => $cutoff,
+                'actor_id' => $adminId,
+                'authorization_public_id' => $authorizationId,
+                'request_public_id' => $requestId,
+                'sequence' => 1,
+            ],
+            'sentinel-archive:' . $requestId . ':chunk:1',
+            -20,
+            5,
+            'automatic',
+            $adminId,
+        );
+        self::assertSame(-20, (int)$job['priority']);
+
+        $worker = new DurableJobWorker(
+            $queue,
+            new Dors3SentinelArchiveJobHandler($this->database, $queue),
+            Dors3SentinelArchiveJobHandler::QUEUE,
+            'phpunit-sentinel-worker',
+            60,
+        );
+        $processed = $worker->runOne();
+
+        self::assertSame(1, $processed['completed']);
+        self::assertSame(1, (int)$this->database->cell(
+            'SELECT COUNT(*) FROM security_events_archive WHERE event_id=:event',
+            ['event' => $eventId],
+        ));
+        self::assertSame(1, (int)$this->database->cell(
+            'SELECT COUNT(*) FROM security_event_archive_batches WHERE public_id=:public_id',
+            ['public_id' => $requestId],
+        ));
     }
 
     private function adminId(): int

@@ -368,12 +368,12 @@
     "es": "Fuente de Palabras Premium"
   },
   "home.premium.description": {
-    "pl": "Teksty premium i unikalne finansują autora, redakcję i ochronę autorów. Każdy zakup dzieli wartość według jasnej zasady.",
-    "en": "Premium and unique articles fund the author, the newsroom and author protection. Every purchase shares value according to a clear rule.",
-    "de": "Premium- und einzigartige Texte finanzieren Autor, Redaktion und Autorenschutz. Jeder Kauf verteilt den Wert nach einer klaren Regel.",
-    "fr": "Les articles premium et uniques financent l’auteur, la rédaction et la protection des auteurs. Chaque achat répartit la valeur selon une règle claire.",
-    "it": "Gli articoli premium e unici finanziano l’autore, la redazione e la protezione degli autori. Ogni acquisto ripartisce il valore secondo una regola chiara.",
-    "es": "Los artículos premium y únicos financian al autor, la redacción y la protección de autores. Cada compra reparte el valor según una regla clara."
+    "pl": "Teksty premium i unikalne finansują autora, redakcję i ochronę autorów (Safety Fund). Każdy zakup dzieli wartość według jasnej zasady.",
+    "en": "Premium and unique articles fund the author, the newsroom and author protection (Safety Fund). Every purchase shares value according to a clear rule.",
+    "de": "Premium- und einzigartige Texte finanzieren Autor, Redaktion und Autorenschutz (Safety Fund). Jeder Kauf verteilt den Wert nach einer klaren Regel.",
+    "fr": "Les articles premium et uniques financent l’auteur, la rédaction et la protection des auteurs (Safety Fund). Chaque achat répartit la valeur selon une règle claire.",
+    "it": "Gli articoli premium e unici finanziano l’autore, la redazione e la protezione degli autori (Safety Fund). Ogni acquisto ripartisce il valore secondo una regola chiara.",
+    "es": "Los artículos premium y únicos financian al autor, la redacción y la protección de autores (Safety Fund). Cada compra reparte el valor según una regla clara."
   },
   "articles.index.kicker": {
     "pl": "Teksty",

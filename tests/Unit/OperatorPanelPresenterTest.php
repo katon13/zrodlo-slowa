@@ -146,7 +146,7 @@ final class OperatorPanelPresenterTest extends TestCase
         self::assertSame('Konto użytkownika', $event['resource_label']);
         self::assertSame('Sprawdź', $event['result_label']);
         self::assertSame('Nowy adres sieciowy i nowe urządzenie', $event['reason_label']);
-        self::assertSame('Standardowe', $event['risk_label']);
+        self::assertSame('Wymaga uwagi', $event['risk_label']);
     }
 
     public function testDors3ReadinessUsesOperationalInstructions(): void

@@ -52,14 +52,24 @@ async function main() {
       throw new Error('Local administrator authentication did not reach the administration panel.');
     }
 
-    for (const language of ['pl', 'en']) {
-      await page.goto(`http://localhost:8080/admin/security/sentinel?lang=${language}`, { waitUntil: 'networkidle' });
+    for (const language of ['pl', 'en', 'de', 'fr', 'it', 'es']) {
+      await page.goto(`http://localhost:8080/admin/security/sentinel?lang=${language}`, { waitUntil: 'domcontentloaded' });
       await page.locator('.zs-sentinel-page').waitFor({ state: 'visible' });
-      await page.screenshot({
-        path: path.join(outputDirectory, `3dors-wartownik-${language}.png`),
-        fullPage: true,
-      });
+      await page.locator(`.zs-sentinel-language a.is-active[href*="lang=${language}"]`).waitFor({ state: 'visible' });
+      if (['pl', 'en'].includes(language)) {
+        await page.screenshot({
+          path: path.join(outputDirectory, `3dors-wartownik-${language}.png`),
+          fullPage: true,
+        });
+      }
     }
+    await page.goto('http://localhost:8080/admin/security/sentinel?lang=pl&view=archive', { waitUntil: 'domcontentloaded' });
+    await page.locator('.zs-sentinel-archive-control').waitFor({ state: 'visible' });
+    await page.locator('.zs-sentinel-storage').waitFor({ state: 'visible' });
+    await page.screenshot({
+      path: path.join(outputDirectory, '3dors-wartownik-archiwum-pl.png'),
+      fullPage: true,
+    });
     process.stdout.write('3DORS Wartownik screenshots: PASS\n');
   } finally {
     await context.close();
