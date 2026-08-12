@@ -39,6 +39,9 @@ final class Dors3SentinelContractTest extends TestCase
         $dashboardService = (string)file_get_contents(dirname(__DIR__, 2) . '/app/Services/Dors3SentinelService.php');
         self::assertStringContainsString('private const MAX_LIST_COUNT = 10000', $dashboardService);
         self::assertStringContainsString('FROM pg_stat_user_tables', $dashboardService);
+        self::assertStringContainsString('private const STORAGE_EXACT_COUNT_MAX_BYTES = 2097152', $dashboardService);
+        self::assertStringContainsString('pg_relation_size(relid)', $dashboardService);
+        self::assertStringContainsString("'rows_exact' => \$useExactCount", $dashboardService);
         self::assertStringContainsString("date_bin(INTERVAL '5 minutes'", $dashboardService);
         self::assertStringContainsString('s.user_id IS NOT NULL AND s.last_activity>=:minimum', $dashboardService);
         self::assertStringContainsString("public const PAGE_SIZES = [25, 50, 100]", $dashboardService);
@@ -79,6 +82,7 @@ final class Dors3SentinelContractTest extends TestCase
             self::assertNotEmpty($catalog[$language]['sentinel']['view_login_attempts'] ?? null);
             self::assertNotEmpty($catalog[$language]['sentinel']['open_separate_window'] ?? null);
             self::assertNotEmpty($catalog[$language]['sentinel']['pulse_new_events'] ?? null);
+            self::assertNotEmpty($catalog[$language]['sentinel']['exact_entries'] ?? null);
         }
         self::assertSame('STATUS WARTOWNIKA', $catalog['pl']['sentinel']['protection_status'] ?? null);
         self::assertSame('SENTINEL STATUS', $catalog['en']['sentinel']['protection_status'] ?? null);

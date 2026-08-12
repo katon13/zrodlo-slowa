@@ -246,6 +246,12 @@ final class Dors3SentinelIntegrationTest extends DatabaseTestCase
         self::assertSame('phpunit-sentinel-request-0001', $event['request_id']);
         self::assertSame('phpunit-sentinel-correlation-0001', $event['correlation_id']);
         self::assertSame('app-1', $event['instance_id']);
+        $storageTables = array_column($dashboard['storage']['tables'], null, 'name');
+        self::assertTrue($storageTables['security_events']['rows_exact']);
+        self::assertSame(
+            (int)$this->database->cell('SELECT COUNT(*) FROM security_events'),
+            $storageTables['security_events']['rows'],
+        );
 
         $presented = Dors3OperatorPresenter::event($event, 'pl');
         self::assertSame('Szczegóły ukryto w widoku operatora', $presented['reason_label']);

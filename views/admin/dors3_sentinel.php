@@ -340,7 +340,7 @@ $displayCount = static fn(mixed $count, bool $capped = false): string => number_
       <div class="zs-sentinel-storage-meter" aria-hidden="true"><i style="width:<?= $storagePercent ?>%"></i></div>
       <div class="zs-sentinel-storage-grid">
         <?php foreach ((array)($storage['tables'] ?? []) as $table): ?>
-          <article><span><?= e($tr('storage_table_' . (string)$table['name'])) ?></span><strong><?= e($formatBytes($table['bytes'] ?? 0)) ?></strong><small><?= e($tr('estimated_entries', ['count' => number_format((int)($table['rows'] ?? 0), 0, ',', ' ')])) ?></small></article>
+          <article><span><?= e($tr('storage_table_' . (string)$table['name'])) ?></span><strong><?= e($formatBytes($table['bytes'] ?? 0)) ?></strong><small><?= e($tr(!empty($table['rows_exact']) ? 'exact_entries' : 'estimated_entries', ['count' => number_format((int)($table['rows'] ?? 0), 0, ',', ' ')])) ?></small></article>
         <?php endforeach; ?>
       </div>
       <footer><?= e($tr('storage_thresholds', ['warning' => $formatBytes($storage['warning_bytes'] ?? 0), 'critical' => $formatBytes($storage['critical_bytes'] ?? 0)])) ?></footer>

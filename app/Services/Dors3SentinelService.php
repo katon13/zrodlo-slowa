@@ -14,6 +14,7 @@ final class Dors3SentinelService
     private const MAX_OVERVIEW_COUNT = 100000;
     private const ACTIVE_ALERT_PREVIEW = 10;
     private const ACTIVITY_PREVIEW = 20;
+    private const STORAGE_EXACT_COUNT_MAX_BYTES = 2097152;
 
     public const FILTERS = [
         'all', 'logins', 'dors3', 'recovery', 'mobile', 'fido2', 'finances', 'warnings', 'critical',
@@ -972,12 +973,13 @@ final class Dors3SentinelService
         ], $rows);
     }
 
-    /** @return array{status:string,total_bytes:int,warning_bytes:int,critical_bytes:int,tables:list<array{name:string,rows:int,bytes:int}>} */
+    /** @return array{status:string,total_bytes:int,warning_bytes:int,critical_bytes:int,tables:list<array{name:string,rows:int,rows_exact:bool,bytes:int}>} */
     private function storageStats(): array
     {
         $names = ['security_events', 'auth_login_events', 'security_events_archive', 'auth_login_events_archive'];
         $rows = $this->db->all(
-            'SELECT relname,n_live_tup::bigint AS estimated_rows,pg_total_relation_size(relid)::bigint AS total_bytes
+            'SELECT relname,n_live_tup::bigint AS estimated_rows,pg_relation_size(relid)::bigint AS heap_bytes,
+                    pg_total_relation_size(relid)::bigint AS total_bytes
              FROM pg_stat_user_tables
              WHERE schemaname=current_schema() AND relname IN (' . implode(',', array_fill(0, count($names), '?')) . ')
              ORDER BY relname',
@@ -992,10 +994,16 @@ final class Dors3SentinelService
         foreach ($names as $name) {
             $row = $byName[$name] ?? [];
             $bytes = (int)($row['total_bytes'] ?? 0);
+            $heapBytes = (int)($row['heap_bytes'] ?? 0);
+            $useExactCount = $row !== [] && $heapBytes <= self::STORAGE_EXACT_COUNT_MAX_BYTES;
+            $rowCount = $useExactCount
+                ? (int)$this->db->cell('SELECT COUNT(*) FROM "' . $name . '"')
+                : max(0, (int)($row['estimated_rows'] ?? 0));
             $totalBytes += $bytes;
             $tables[] = [
                 'name' => $name,
-                'rows' => max(0, (int)($row['estimated_rows'] ?? 0)),
+                'rows' => max(0, $rowCount),
+                'rows_exact' => $useExactCount,
                 'bytes' => max(0, $bytes),
             ];
         }
